@@ -20,7 +20,8 @@ namespace BigDLL4221.Utils
                 return;
             var keypage = keypageOptions.FirstOrDefault(x => x.KeypageId == bookDataModel.ClassInfo.id.id);
             if (keypage == null) return;
-            if (!keypage.EveryoneCanEquip && keypage.SephirahType == currentUnit.OwnerSephirah && !currentUnit.isSephirah)
+            if (!keypage.EveryoneCanEquip && keypage.SephirahType == currentUnit.OwnerSephirah &&
+                !currentUnit.isSephirah)
             {
                 button_Equip.interactable = false;
                 txt_equipButton.text = TextDataModel.GetText("ui_equippage_notequip", Array.Empty<object>());

@@ -192,15 +192,16 @@ namespace BigDLL4221.Harmony
             __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
             var locTryGet = ModParameters.LocalizedItems.TryGetValue(__state.BookId.packageId, out var localizedItem);
             __instance.SetTempName(!locTryGet ||
-                !localizedItem.EnemyNames.TryGetValue(bookOptions.BookCustomOptions.NameTextId, out var name)
-                    ? bookOptions.BookCustomOptions.Name
-                    : name);
-            if (((bookOptions.EveryoneCanEquip && (__instance.OwnerSephirah == SephirahType.Keter || __instance.OwnerSephirah == SephirahType.Binah)) ||
-                (bookOptions.SephirahType == SephirahType.Keter && __instance.OwnerSephirah == SephirahType.Keter) ||
-                (bookOptions.SephirahType == SephirahType.Binah && __instance.OwnerSephirah == SephirahType.Binah)) &&
+                                   !localizedItem.EnemyNames.TryGetValue(bookOptions.BookCustomOptions.NameTextId,
+                                       out var name)
+                ? bookOptions.BookCustomOptions.Name
+                : name);
+            if (((bookOptions.EveryoneCanEquip && (__instance.OwnerSephirah == SephirahType.Keter ||
+                                                   __instance.OwnerSephirah == SephirahType.Binah)) ||
+                 (bookOptions.SephirahType == SephirahType.Keter && __instance.OwnerSephirah == SephirahType.Keter) ||
+                 (bookOptions.SephirahType == SephirahType.Binah && __instance.OwnerSephirah == SephirahType.Binah)) &&
                 __instance.isSephirah)
                 __instance.EquipBook(__state, false, true);
-
         }
 
         [HarmonyPostfix]
@@ -382,11 +383,15 @@ namespace BigDLL4221.Harmony
                 string.IsNullOrEmpty(__instance.SelectedUnit.workshopSkin))
             {
                 __instance.previewData.Name = __instance.SelectedUnit.name;
-                var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.SelectedUnit.bookItem.ClassInfo.id.id);
+                var keypageItem =
+                    keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.SelectedUnit.bookItem.ClassInfo.id.id);
                 if (keypageItem?.BookCustomOptions == null) return;
-                var locTryGet = ModParameters.LocalizedItems.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId, out var localizedItem);
+                var locTryGet =
+                    ModParameters.LocalizedItems.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
+                        out var localizedItem);
                 __instance.SelectedUnit.SetTempName(!locTryGet ||
-                                                    !localizedItem.EnemyNames.TryGetValue(keypageItem.BookCustomOptions.NameTextId, out var name)
+                                                    !localizedItem.EnemyNames.TryGetValue(
+                                                        keypageItem.BookCustomOptions.NameTextId, out var name)
                     ? keypageItem.BookCustomOptions.Name
                     : name);
             }
@@ -478,9 +483,9 @@ namespace BigDLL4221.Harmony
         public static void InventoryModel_LoadFromSaveData(InventoryModel __instance)
         {
             foreach (var cardItem in from cardItem in ModParameters.StartUpRewardOptions.SelectMany(x => x.Cards)
-                                     let cardCount = __instance.GetCardCount(cardItem.Key)
-                                     where cardCount < cardItem.Value
-                                     select cardItem)
+                     let cardCount = __instance.GetCardCount(cardItem.Key)
+                     where cardCount < cardItem.Value
+                     select cardItem)
                 __instance.AddCard(cardItem.Key, cardItem.Value);
         }
 
@@ -754,12 +759,15 @@ namespace BigDLL4221.Harmony
             if (units.Any())
                 __result = actor.targetSetter.SelectTargetUnit(units);
         }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BattleDiceCardBuf), "GetBufIcon")]
-        public static void BattleDiceCardBuf_GetBufIcon(BattleDiceCardBuf __instance,ref bool ____iconInit, ref Sprite ____bufIcon)
+        public static void BattleDiceCardBuf_GetBufIcon(BattleDiceCardBuf __instance, ref bool ____iconInit,
+            ref Sprite ____bufIcon)
         {
             if (____iconInit) return;
-            var bufIconKey = (string)__instance.GetType().GetProperty("keywordIconId", AccessTools.all)?.GetValue(__instance);
+            var bufIconKey = (string)__instance.GetType().GetProperty("keywordIconId", AccessTools.all)
+                ?.GetValue(__instance);
             if (string.IsNullOrEmpty(bufIconKey)) return;
             if (!ModParameters.ArtWorks.TryGetValue(bufIconKey, out var bufIconCustom)) return;
             ____iconInit = true;

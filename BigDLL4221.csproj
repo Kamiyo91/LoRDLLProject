@@ -80,11 +80,14 @@
     <Compile Include="Buffs\BattleUnitBuf_PlayerShimmering_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_UntargetableUntilRoundEnd_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_Untargetable_DLL4221.cs" />
+    <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseOverOwnerEffect_DLL4221.cs" />
+    <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
     <Compile Include="Enum\AbColorType.cs" />
     <Compile Include="Enum\CredenzaEnum.cs" />
     <Compile Include="Enum\PreBattleType.cs" />
     <Compile Include="Enum\SpriteEnum.cs" />
+    <Compile Include="FarAreaEffects\BehaviourAction_BaseUnityMassAttackEffect_DLL4221.cs" />
     <Compile Include="Harmony\EmotionSelectionUnitPatch.cs" />
     <Compile Include="Harmony\MainHarmonyPatch.cs" />
     <Compile Include="Harmony\BigDLL4221StaticHarmonyInit.cs" />

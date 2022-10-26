@@ -58,7 +58,7 @@ namespace BigDLL4221.Models
     public class KeypageOptions
     {
         public KeypageOptions(int keypageId, bool editable = true, string editErrorMessageId = "",
-            SephirahType sephirahType = SephirahType.None,bool everyoneCanEquip = false, bool isMultiDeck = false,
+            SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, bool isMultiDeck = false,
             MultiDeckOptions multiDeckOptions = null, BookCustomOptions bookCustomOptions = null)
         {
             KeypageId = keypageId;
@@ -115,7 +115,8 @@ namespace BigDLL4221.Models
 
     public class BookCustomOptions
     {
-        public BookCustomOptions(string name = "",int nameTextId = 0, bool customFaceData = true, bool multiSkin = false,
+        public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
+            bool multiSkin = false,
             string originalSkin = "", string egoSkin = "")
         {
             NameTextId = nameTextId;
