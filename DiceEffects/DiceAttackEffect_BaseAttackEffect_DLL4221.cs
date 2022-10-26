@@ -24,7 +24,7 @@ namespace BigDLL4221.DiceEffects
         {
             base.Initialize(self, target, destroyTime);
             _self = self.model;
-            _selfTransform = self.atkEffectRoot;
+            _selfTransform = target.atkEffectRoot;
             _targetTransform = self.atkEffectRoot;
             transform.parent = self.charAppearance.transform;
             _duration = destroyTime;
