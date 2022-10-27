@@ -84,12 +84,12 @@ namespace BigDLL4221.Passives
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)
         {
             Util.OnUseCardResetCount(curCard);
-            //Util.ChangeToEgoMap(curCard.card.GetID());
+            Util.ChangeToEgoMap(curCard.card.GetID());
         }
 
         public override void OnRoundEndTheLast_ignoreDead()
         {
-            //Util.ReturnFromEgoMap();
+            Util.ReturnFromEgoMap();
         }
     }
 }

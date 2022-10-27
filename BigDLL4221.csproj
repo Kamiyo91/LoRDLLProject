@@ -113,6 +113,7 @@
     <Compile Include="Extensions\BattleUnitModelExtensions.cs" />
     <Compile Include="Utils\CardUtil.cs" />
     <Compile Include="Utils\CustomMapUtility.cs" />
+    <Compile Include="Utils\KeypageUtil.cs" />
     <Compile Include="Utils\LocalizeUtil.cs" />
     <Compile Include="Utils\MapUtil.cs" />
     <Compile Include="Utils\PassiveUtil.cs" />
