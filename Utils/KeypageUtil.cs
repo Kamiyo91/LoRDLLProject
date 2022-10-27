@@ -1,9 +1,9 @@
-﻿using BigDLL4221.Models;
-using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BigDLL4221.Models;
 using CustomInvitation;
+using HarmonyLib;
 using UnityEngine;
 
 namespace BigDLL4221.Utils
@@ -26,7 +26,7 @@ namespace BigDLL4221.Utils
                 {
                     var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == item.Key.id);
                     if (keypageOption == null) continue;
-                    SetCustomKeypageOptions(item.Key,item.Value,keypageOption,ref dictionary,ref list);
+                    SetCustomKeypageOptions(item.Key, item.Value, keypageOption, ref dictionary, ref list);
                 }
             }
             catch (Exception ex)
@@ -35,7 +35,9 @@ namespace BigDLL4221.Utils
                                packageId);
             }
         }
-        private static void SetCustomKeypageOptions(LorId id,BookXmlInfo bookXml,KeypageOptions options,ref Dictionary<LorId, BookXmlInfo> bookDictionary, ref List<BookXmlInfo> bookXmlList)
+
+        private static void SetCustomKeypageOptions(LorId id, BookXmlInfo bookXml, KeypageOptions options,
+            ref Dictionary<LorId, BookXmlInfo> bookDictionary, ref List<BookXmlInfo> bookXmlList)
         {
             var keypageXml = KeypageOptionChange(bookDictionary[id], options);
             bookDictionary[id] = keypageXml;
@@ -57,7 +59,9 @@ namespace BigDLL4221.Utils
                 InnerName = bookXml.InnerName,
                 TextId = bookXml.TextId,
                 _bookIcon = string.IsNullOrEmpty(options.BookIconId) ? bookXml.BookIcon : options.BookIconId,
-                categoryList = options.IsDeckFixed ? new List<BookCategory> { BookCategory.DeckFixed } : bookXml.categoryList,
+                categoryList = options.IsDeckFixed
+                    ? new List<BookCategory> { BookCategory.DeckFixed }
+                    : bookXml.categoryList,
                 optionList = options.IsMultiDeck ? new List<BookOption> { BookOption.MultiDeck } : bookXml.optionList,
                 EquipEffect = bookXml.EquipEffect,
                 Rarity = bookXml.Rarity,

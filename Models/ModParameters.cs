@@ -60,8 +60,9 @@ namespace BigDLL4221.Models
     public class KeypageOptions
     {
         public KeypageOptions(int keypageId, bool editable = true, string editErrorMessageId = "",
-            SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, string bookIconId = "", 
-            bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null, EquipRangeType? rangeType = null,List<BookSoundInfo> motionSounds = null,
+            SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, string bookIconId = "",
+            bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
+            EquipRangeType? rangeType = null, List<BookSoundInfo> motionSounds = null,
             MultiDeckOptions multiDeckOptions = null, BookCustomOptions bookCustomOptions = null)
         {
             KeypageId = keypageId;
