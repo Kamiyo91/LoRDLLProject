@@ -14,7 +14,7 @@ namespace BigDLL4221.DiceEffects
         public float Scale;
 
         public void SetParameters(string path, float positionX = 0.3f, float positionY = 0.6f, float scale = 0.5f,
-            bool overSelf = false)
+            bool overSelf = true)
         {
             Path = path;
             PositionX = positionX;
@@ -29,7 +29,7 @@ namespace BigDLL4221.DiceEffects
             _self = self.model;
             _selfTransform = self.atkEffectRoot;
             _targetTransform = OverSelf ? self.atkEffectRoot : target.atkEffectRoot;
-            transform.parent = self.charAppearance.transform;
+            transform.parent = OverSelf ? self.charAppearance.transform : target.transform;
             _duration = destroyTime;
             var texture2D = new Texture2D(1, 1);
             texture2D.LoadImage(File.ReadAllBytes(Path + "/CustomEffect/" +
@@ -38,15 +38,6 @@ namespace BigDLL4221.DiceEffects
                 new Vector2(PositionX, PositionY));
             gameObject.layer = LayerMask.NameToLayer("Effect");
             ResetLocalTransform(transform);
-            if (_self.direction == Direction.RIGHT)
-            {
-                transform.localScale = new Vector3(-1f, 1f, 1f);
-                _selfTransform.localPosition = new Vector3(1.92f, 2.52f, 0f);
-            }
-            else
-            {
-                _selfTransform.localPosition = new Vector3(-1.92f, 2.52f, 0f);
-            }
         }
 
 

@@ -689,8 +689,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StageController), "StartParrying")]
         public static bool StageController_StartParrying_Pre(BattlePlayingCardDataInUnitModel cardA,
-            BattlePlayingCardDataInUnitModel cardB, ref StageController.StagePhase ____phase,
-            List<BattlePlayingCardDataInUnitModel> ____allCardList)
+            BattlePlayingCardDataInUnitModel cardB, ref StageController.StagePhase ____phase)
         {
             try
             {

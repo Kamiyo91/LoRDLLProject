@@ -66,6 +66,7 @@ namespace BigDLL4221.BaseClass
             Model.Owner.passiveDetail.PassiveList.RemoveAll(x => Model.EgoOptions.AdditionalPassiveIds.Contains(x.id));
             if (!string.IsNullOrEmpty(Model.EgoOptions?.SkinName)) Model.Owner.view.CreateSkin();
             if (Model.EgoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
+            if (Model.EgoOptions.ActivatedMap != null) ReturnFromEgoAssimilationMap();
         }
 
         public virtual void EgoDurationCount()
@@ -148,10 +149,27 @@ namespace BigDLL4221.BaseClass
 
         public virtual void ReturnFromEgoMap()
         {
+            if (Model.EgoOptions?.ActivatedMap == null) return;
+            if (!Model.EgoOptions.ActivatedMap.OneTurnEgo && !Model.Owner.IsDead()) return;
+            MapUtil.ReturnFromEgoMap(Model.EgoOptions.ActivatedMap.Stage,
+                Model.EgoOptions.ActivatedMap.OriginalMapStageIds);
+            Model.EgoOptions.ActivatedMap = null;
+        }
+
+        public virtual void ReturnFromEgoAssimilationMap()
+        {
+            if (Model.EgoOptions?.ActivatedMap == null) return;
+            MapUtil.ReturnFromEgoMap(Model.EgoOptions.ActivatedMap.Stage,
+                Model.EgoOptions.ActivatedMap.OriginalMapStageIds);
+            Model.EgoOptions.ActivatedMap = null;
         }
 
         public virtual void ChangeToEgoMap(LorId cardId)
         {
+            if (Model.EgoOptions == null || !Model.EgoOptions.EgoMaps.TryGetValue(cardId, out var mapModel) ||
+                SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
+            Model.EgoOptions.ActivatedMap = mapModel;
+            MapUtil.ChangeMap(mapModel);
         }
     }
 }

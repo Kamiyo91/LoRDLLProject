@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NOMP3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NOMP3</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -69,6 +69,11 @@
     <Reference Include="UnityEngine.UIModule">
       <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Library Of Ruina\LibraryOfRuina_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Library Of Ruina\LibraryOfRuina_Data\Managed\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClass\MechUtilBase.cs" />
@@ -83,6 +88,7 @@
     <Compile Include="Buffs\BattleUnitBuf_Untargetable_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
+    <Compile Include="StageManagers\EnemyTeamStageManager_BaseWithCMU_DLL4221.cs" />
     <Compile Include="Enum\AbColorType.cs" />
     <Compile Include="Enum\CredenzaEnum.cs" />
     <Compile Include="Enum\PreBattleType.cs" />
@@ -106,6 +112,7 @@
     <Compile Include="Utils\ArtUtil.cs" />
     <Compile Include="Extensions\BattleUnitModelExtensions.cs" />
     <Compile Include="Utils\CardUtil.cs" />
+    <Compile Include="Utils\CustomMapUtility.cs" />
     <Compile Include="Utils\LocalizeUtil.cs" />
     <Compile Include="Utils\MapUtil.cs" />
     <Compile Include="Utils\PassiveUtil.cs" />

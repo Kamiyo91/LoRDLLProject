@@ -70,7 +70,8 @@ namespace BigDLL4221.Models
         public List<LorId> AdditionalPassiveIds;
 
         public MechPhaseOptions(int speedDieAdder = 0, int mechHp = 0, bool startMassAttack = false,
-            bool forceEgo = false, bool setCounterToMax = false, bool changeCardCost = false, int loweredCost = 0,
+            bool forceEgo = false, bool hasCustomMap = false, bool setCounterToMax = false, bool changeCardCost = false,
+            int loweredCost = 0,
             int maxCost = 4, List<LorId> additionalPassiveIds = null, List<BattleUnitBuf> buffs = null,
             Dictionary<KeywordBuf, int> oneRoundBuffs = null, List<BattleUnitBuf> eachRoundStartBuffs = null,
             Dictionary<KeywordBuf, int> eachRoundStartKeywordBuffs = null, bool removeOtherUnits = false,
@@ -81,6 +82,7 @@ namespace BigDLL4221.Models
             MechHp = mechHp;
             StartMassAttack = startMassAttack;
             ForceEgo = forceEgo;
+            HasCustomMap = hasCustomMap;
             SetCounterToMax = setCounterToMax;
             ChangeCardCost = changeCardCost;
             LoweredCost = loweredCost;
@@ -99,6 +101,7 @@ namespace BigDLL4221.Models
         public int MechHp { get; set; }
         public bool StartMassAttack { get; set; }
         public bool ForceEgo { get; set; }
+        public bool HasCustomMap { get; set; }
         public bool SetCounterToMax { get; set; }
         public bool ChangeCardCost { get; set; }
         public int LoweredCost { get; set; }
