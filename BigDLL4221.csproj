@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="BaseClass\MechUtilBase.cs" />
     <Compile Include="BaseClass\NpcMechUtilBase.cs" />
+    <Compile Include="Buffs\BattleUnitBuf_BaseBufWithTitle_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_CannotActUnitUntilRoundEnd_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_ImmortalUntilRoundEnd_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_ImmunityToStatusAlimentUntilRoundEnd_DLL4221.cs" />
@@ -81,7 +82,6 @@
     <Compile Include="Buffs\BattleUnitBuf_UntargetableUntilRoundEnd_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_Untargetable_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />
-    <Compile Include="DiceEffects\DiceAttackEffect_BaseOverOwnerEffect_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
     <Compile Include="Enum\AbColorType.cs" />
     <Compile Include="Enum\CredenzaEnum.cs" />

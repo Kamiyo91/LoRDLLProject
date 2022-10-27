@@ -246,14 +246,24 @@ namespace BigDLL4221.Models
 
     public class CredenzaOptions
     {
-        public CredenzaOptions(CredenzaEnum credenzaOption = CredenzaEnum.NoCredenza, List<int> credenzaBooksId = null)
+        public CredenzaOptions(CredenzaEnum credenzaOption = CredenzaEnum.NoCredenza, List<int> credenzaBooksId = null,
+            string customIconSpriteId = "", string baseIconSpriteId = "", string credenzaNameId = "",
+            string credenzaName = "")
         {
             CredenzaOption = credenzaOption;
             CredenzaBooksId = credenzaBooksId ?? new List<int>();
+            CustomIconSpriteId = customIconSpriteId;
+            BaseIconSpriteId = baseIconSpriteId;
+            CredenzaNameId = credenzaNameId;
+            CredenzaName = credenzaName;
         }
 
         public CredenzaEnum CredenzaOption { get; set; }
         public List<int> CredenzaBooksId { get; set; }
+        public string CustomIconSpriteId { get; set; }
+        public string BaseIconSpriteId { get; set; }
+        public string CredenzaNameId { get; set; }
+        public string CredenzaName { get; set; }
     }
 
     public class SpriteOptions

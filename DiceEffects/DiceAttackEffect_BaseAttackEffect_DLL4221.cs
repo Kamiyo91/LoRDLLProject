@@ -7,25 +7,28 @@ namespace BigDLL4221.DiceEffects
     public class DiceAttackEffect_BaseAttackEffect_DLL4221 : DiceAttackEffect
     {
         private float _duration;
+        public bool OverSelf;
         public string Path;
         public float PositionX;
         public float PositionY;
         public float Scale;
 
-        public void SetParameters(string path, float positionX = 0.3f, float positionY = 0.6f, float scale = 0.5f)
+        public void SetParameters(string path, float positionX = 0.3f, float positionY = 0.6f, float scale = 0.5f,
+            bool overSelf = false)
         {
             Path = path;
             PositionX = positionX;
             PositionY = positionY;
             Scale = scale;
+            OverSelf = overSelf;
         }
 
         public override void Initialize(BattleUnitView self, BattleUnitView target, float destroyTime)
         {
             base.Initialize(self, target, destroyTime);
             _self = self.model;
-            _selfTransform = target.atkEffectRoot;
-            _targetTransform = self.atkEffectRoot;
+            _selfTransform = self.atkEffectRoot;
+            _targetTransform = OverSelf ? self.atkEffectRoot : target.atkEffectRoot;
             transform.parent = self.charAppearance.transform;
             _duration = destroyTime;
             var texture2D = new Texture2D(1, 1);

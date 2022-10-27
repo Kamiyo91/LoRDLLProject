@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Battle.DiceAttackEffect;
+using BigDLL4221.Buffs;
 using BigDLL4221.Enum;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
@@ -49,18 +50,8 @@ namespace BigDLL4221.Harmony
             UIBookStoryEpisodeSlot slot, TextMeshProUGUI ___selectedEpisodeText, Image ___selectedEpisodeIcon,
             Image ___selectedEpisodeIconGlow)
         {
-            if (slot == null) return;
-            var book = slot.books.FirstOrDefault(x => ModParameters.PackageIds.Contains(x.id.packageId));
-            if (book == null) return;
-            var packageId = book.id.packageId;
-            ___selectedEpisodeText.text = ModParameters.LocalizedItems.TryGetValue(packageId, out var localizedItem)
-                ? localizedItem.EffectTexts.TryGetValue(packageId, out var credenza) ? credenza.Name : packageId
-                : packageId;
-            var baseIcon = UISpriteDataManager.instance.GetStoryIcon(slot.books[0].BookIcon).icon;
-            var customIconTryGet = ModParameters.ArtWorks.TryGetValue(packageId, out var customIcon);
-            ___selectedEpisodeIcon.sprite = customIconTryGet ? customIcon : baseIcon;
-            ___selectedEpisodeIconGlow.sprite = customIconTryGet ? customIcon : baseIcon;
-            __instance.UpdateBookSlots();
+            ArtUtil.OnSelectEpisodeSlot(__instance, slot, ___selectedEpisodeText, ___selectedEpisodeIcon,
+                ___selectedEpisodeIconGlow);
         }
 
         [HarmonyPostfix]
@@ -772,6 +763,25 @@ namespace BigDLL4221.Harmony
             if (!ModParameters.ArtWorks.TryGetValue(bufIconKey, out var bufIconCustom)) return;
             ____iconInit = true;
             ____bufIcon = bufIconCustom;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BattleUnitBuf), "bufActivatedName", MethodType.Getter)]
+        public static void BattleUnitBuf_SetBuffName(object __instance, ref string __result)
+        {
+            if (!(__instance is BattleUnitBuf_BaseBufWithTitle_DLL4221 buf)) return;
+            if (!string.IsNullOrEmpty(__result) || string.IsNullOrEmpty(buf.BufName)) return;
+            __result = buf.BufName;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BattleUnitBuf), "bufActivatedNameWithStack", MethodType.Getter)]
+        public static void BattleUnitBuf_SetBuffNameWithStack(object __instance, ref string __result)
+        {
+            if (!(__instance is BattleUnitBuf_BaseBufWithTitle_DLL4221 buf)) return;
+            var resultWithoutSpace = __result.Replace(" ", "");
+            if (!double.TryParse(resultWithoutSpace, out _) || string.IsNullOrEmpty(buf.BufName)) return;
+            __result = buf.BufName + " " + buf.stack;
         }
     }
 }
