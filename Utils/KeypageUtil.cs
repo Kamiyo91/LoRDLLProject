@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.Models;
-using CustomInvitation;
 using HarmonyLib;
 using UnityEngine;
 
@@ -46,12 +45,6 @@ namespace BigDLL4221.Utils
 
         private static BookXmlInfo KeypageOptionChange(BookXmlInfo bookXml, KeypageOptions options)
         {
-            if (options.MotionSounds.Any())
-            {
-                var motionSounds = bookXml.motionSoundList ?? new List<BookSoundInfo>();
-                options.MotionSounds.AddRange(motionSounds);
-            }
-
             return new BookXmlInfo
             {
                 _id = bookXml._id,
@@ -75,7 +68,7 @@ namespace BigDLL4221.Utils
                 RandomFace = bookXml.RandomFace,
                 speedDiceNumber = bookXml.speedDiceNumber,
                 SuccessionPossibleNumber = bookXml.SuccessionPossibleNumber,
-                motionSoundList = options.MotionSounds.Any() ? options.MotionSounds : bookXml.motionSoundList
+                motionSoundList = bookXml.motionSoundList
             };
         }
     }

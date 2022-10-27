@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BigDLL4221.Enum;
-using CustomInvitation;
 using UnityEngine;
 using BattleDialogCharacter = LOR_XML.BattleDialogCharacter;
 using BookDesc = LOR_XML.BookDesc;
@@ -62,8 +61,7 @@ namespace BigDLL4221.Models
         public KeypageOptions(int keypageId, bool editable = true, string editErrorMessageId = "",
             SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, string bookIconId = "",
             bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
-            EquipRangeType? rangeType = null, List<BookSoundInfo> motionSounds = null,
-            MultiDeckOptions multiDeckOptions = null, BookCustomOptions bookCustomOptions = null)
+            EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null, BookCustomOptions bookCustomOptions = null)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -75,7 +73,6 @@ namespace BigDLL4221.Models
             IsMultiDeck = isMultiDeck;
             CanNotEquip = canNotEquip;
             EquipRangeType = rangeType;
-            MotionSounds = motionSounds ?? new List<BookSoundInfo>();
             MultiDeckOptions = multiDeckOptions ?? new MultiDeckOptions(new List<string>());
             BookCustomOptions = bookCustomOptions;
         }
@@ -90,7 +87,6 @@ namespace BigDLL4221.Models
         public bool IsMultiDeck { get; set; }
         public bool? CanNotEquip { get; set; }
         public EquipRangeType? EquipRangeType { get; set; }
-        public List<BookSoundInfo> MotionSounds { get; set; }
         public MultiDeckOptions MultiDeckOptions { get; set; }
         public BookCustomOptions BookCustomOptions { get; set; }
     }
