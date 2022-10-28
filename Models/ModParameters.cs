@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using BigDLL4221.Enum;
-using JetBrains.Annotations;
 using LOR_DiceSystem;
+using LOR_XML;
 using UnityEngine;
-using BattleDialogCharacter = LOR_XML.BattleDialogCharacter;
-using BookDesc = LOR_XML.BookDesc;
-using CardOption = LOR_DiceSystem.CardOption;
 
 namespace BigDLL4221.Models
 {
@@ -63,7 +60,8 @@ namespace BigDLL4221.Models
         public KeypageOptions(int keypageId, bool editable = true, string editErrorMessageId = "",
             SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, string bookIconId = "",
             bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
-            EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null, BookCustomOptions bookCustomOptions = null)
+            EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null,
+            BookCustomOptions bookCustomOptions = null)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -318,16 +316,18 @@ namespace BigDLL4221.Models
 
     public class MotionSound
     {
-        public MotionSound(string fileNameWin, string fileNameLose = "", bool isBaseSoundWin = false, bool isBaseSoundLose = false)
+        public string FileNameLose;
+        public string FileNameWin;
+        public bool IsBaseSoundLose;
+        public bool IsBaseSoundWin;
+
+        public MotionSound(string fileNameWin, string fileNameLose = "", bool isBaseSoundWin = false,
+            bool isBaseSoundLose = false)
         {
             FileNameWin = fileNameWin;
             FileNameLose = fileNameLose;
             IsBaseSoundWin = isBaseSoundWin;
             IsBaseSoundLose = isBaseSoundLose;
         }
-        public string FileNameWin;
-        public string FileNameLose;
-        public bool IsBaseSoundWin;
-        public bool IsBaseSoundLose;
     }
 }

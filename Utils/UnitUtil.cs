@@ -518,11 +518,13 @@ namespace BigDLL4221.Utils
         {
             return new LorId(packageId, itemId);
         }
+
         public static void ChangeAtkSound(BattleUnitModel model, MotionDetail changeDetail, MotionSound motionSound)
         {
-            var audioClipWin = GetSound(motionSound.FileNameWin,motionSound.IsBaseSoundWin);
+            var audioClipWin = GetSound(motionSound.FileNameWin, motionSound.IsBaseSoundWin);
             var audioClipLose = GetSound(motionSound.FileNameLose, motionSound.IsBaseSoundLose);
-            var list = (List<CharacterSound.Sound>)model.view.charAppearance.soundInfo.GetType().GetField("_motionSounds", AccessTools.all).GetValue(model.view.charAppearance.soundInfo);
+            var list = (List<CharacterSound.Sound>)model.view.charAppearance.soundInfo.GetType()
+                .GetField("_motionSounds", AccessTools.all).GetValue(model.view.charAppearance.soundInfo);
             var item = list.FirstOrDefault(x => x.motion == changeDetail);
             var sound = new CharacterSound.Sound
             {
@@ -533,13 +535,16 @@ namespace BigDLL4221.Utils
             if (item != null)
                 list.Remove(item);
             list.Add(sound);
-            ((Dictionary<MotionDetail, CharacterSound.Sound>)model.view.charAppearance.soundInfo.GetType().GetField("_dic", AccessTools.all).GetValue(model.view.charAppearance.soundInfo))[changeDetail] = sound;
+            ((Dictionary<MotionDetail, CharacterSound.Sound>)model.view.charAppearance.soundInfo.GetType()
+                .GetField("_dic", AccessTools.all).GetValue(model.view.charAppearance.soundInfo))[changeDetail] = sound;
         }
 
-        public static AudioClip GetSound(string audioName,bool isBaseGame)
+        public static AudioClip GetSound(string audioName, bool isBaseGame)
         {
             if (string.IsNullOrEmpty(audioName)) return null;
-            return isBaseGame ? Resources.Load<AudioClip>("Sounds/MotionSound/" + audioName) : CustomMapHandler.GetAudioClip(audioName);
+            return isBaseGame
+                ? Resources.Load<AudioClip>("Sounds/MotionSound/" + audioName)
+                : CustomMapHandler.GetAudioClip(audioName);
         }
     }
 }
