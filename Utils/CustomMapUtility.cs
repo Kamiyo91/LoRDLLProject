@@ -190,14 +190,14 @@ namespace BigDLL4221.Utils
                     _stagePaths.AddRange(path.GetDirectories());
             }
 
-            public class CacheInit : ModInitializer
+            public static class CacheInit
             {
 #if !NOMP3
 				public const string version = "2.5.0";
 #else
                 public const string version = "2.5.0-NOMP3";
 #endif
-                public void InitCustomMapFiles(Assembly assembly)
+                public static void InitCustomMapFiles(Assembly assembly)
                 {
                     var curDir = new DirectoryInfo(assembly.Location + "\\..\\..");
                     Debug.Log($"CustomMapUtility Version \"{version}\" in Local Mode at {curDir.FullName}");

@@ -782,5 +782,17 @@ namespace BigDLL4221.Harmony
             if (!double.TryParse(resultWithoutSpace, out _) || string.IsNullOrEmpty(buf.BufName)) return;
             __result = buf.BufName + " " + buf.stack;
         }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(RencounterManager), "PrintSound")]
+        public static void RencounterManager_PrintSound_Pre(ref BattleUnitView view, BattleCardBehaviourResult selfResult, ActionDetail actionDetail)
+        {
+            if (!selfResult.hasBehaviour || !ModParameters.KeypageOptions.TryGetValue(view.model.customBook.GetBookClassInfoId().packageId, out var keypageOptions)) return;
+            var unitId = view.model.customBook.GetBookClassInfoId().id;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == unitId);
+            if (keypageItem?.BookCustomOptions == null) return;
+            var motionKey = MotionConverter.ActionToMotion(actionDetail);
+            if (!keypageItem.BookCustomOptions.MotionSounds.TryGetValue(motionKey, out var motionSound)) return;
+            UnitUtil.ChangeAtkSound(view.model,motionKey,motionSound);
+        }
     }
 }

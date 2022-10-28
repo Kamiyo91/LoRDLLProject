@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using BigDLL4221.Enum;
+using JetBrains.Annotations;
+using LOR_DiceSystem;
 using UnityEngine;
 using BattleDialogCharacter = LOR_XML.BattleDialogCharacter;
 using BookDesc = LOR_XML.BookDesc;
@@ -127,7 +129,7 @@ namespace BigDLL4221.Models
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
             bool multiSkin = false,
-            string originalSkin = "", string egoSkin = "")
+            string originalSkin = "", string egoSkin = "", Dictionary<MotionDetail, MotionSound> motionSounds = null)
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
@@ -135,6 +137,7 @@ namespace BigDLL4221.Models
             OriginalSkin = originalSkin;
             EgoSkin = egoSkin;
             Name = name;
+            MotionSounds = motionSounds ?? new Dictionary<MotionDetail, MotionSound>();
         }
 
         public int NameTextId { get; set; }
@@ -143,6 +146,7 @@ namespace BigDLL4221.Models
         public bool MultiSkin { get; set; }
         public string OriginalSkin { get; set; }
         public string EgoSkin { get; set; }
+        public Dictionary<MotionDetail, MotionSound> MotionSounds { get; set; }
     }
 
     public class CardOptions
@@ -310,5 +314,20 @@ namespace BigDLL4221.Models
     {
         public string Name { get; set; }
         public string Desc { get; set; }
+    }
+
+    public class MotionSound
+    {
+        public MotionSound(string fileNameWin, string fileNameLose = "", bool isBaseSoundWin = false, bool isBaseSoundLose = false)
+        {
+            FileNameWin = fileNameWin;
+            FileNameLose = fileNameLose;
+            IsBaseSoundWin = isBaseSoundWin;
+            IsBaseSoundLose = isBaseSoundLose;
+        }
+        public string FileNameWin;
+        public string FileNameLose;
+        public bool IsBaseSoundWin;
+        public bool IsBaseSoundLose;
     }
 }
