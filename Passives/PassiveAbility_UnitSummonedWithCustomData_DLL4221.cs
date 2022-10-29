@@ -1,5 +1,6 @@
 ﻿using BigDLL4221.Models;
 using BigDLL4221.Utils;
+using LOR_DiceSystem;
 
 namespace BigDLL4221.Passives
 {
@@ -46,6 +47,66 @@ namespace BigDLL4221.Passives
             }
 
             if (owner.IsDead()) Model.ReviveCount++;
+        }
+
+        public override int GetDamageReduction(BattleDiceBehavior behavior)
+        {
+            if (Model.DamageOptions == null) return base.GetDamageReduction(behavior);
+            switch (behavior.card.card.XmlData.Spec.Ranged)
+            {
+                case CardRange.FarArea:
+                    return Model.DamageOptions.LessMassAttackDamage;
+                case CardRange.FarAreaEach:
+                    return Model.DamageOptions.LessMassAttackIndividualDamage;
+                case CardRange.Near:
+                    return Model.DamageOptions.LessMeleeAttackDamage;
+                case CardRange.Far:
+                    return Model.DamageOptions.LessRangedAttackDamage;
+                case CardRange.Special:
+                    return Model.DamageOptions.LessSpecialRangeAttackDamage;
+            }
+
+            switch (behavior.Detail)
+            {
+                case BehaviourDetail.Slash:
+                    return Model.DamageOptions.LessSlashAttackDamage;
+                case BehaviourDetail.Penetrate:
+                    return Model.DamageOptions.LessPierceAttackDamage;
+                case BehaviourDetail.Hit:
+                    return Model.DamageOptions.LessHitAttackDamage;
+            }
+
+            return base.GetDamageReduction(behavior);
+        }
+
+        public override int GetBreakDamageReduction(BattleDiceBehavior behavior)
+        {
+            if (Model.DamageOptions == null) return base.GetDamageReduction(behavior);
+            switch (behavior.card.card.XmlData.Spec.Ranged)
+            {
+                case CardRange.FarArea:
+                    return Model.DamageOptions.LessMassAttackBreakDamage;
+                case CardRange.FarAreaEach:
+                    return Model.DamageOptions.LessMassAttackIndividualBreakDamage;
+                case CardRange.Near:
+                    return Model.DamageOptions.LessMeleeAttackBreakDamage;
+                case CardRange.Far:
+                    return Model.DamageOptions.LessRangedAttackBreakDamage;
+                case CardRange.Special:
+                    return Model.DamageOptions.LessSpecialRangeAttackBreakDamage;
+            }
+
+            switch (behavior.Detail)
+            {
+                case BehaviourDetail.Slash:
+                    return Model.DamageOptions.LessSlashAttackBreakDamage;
+                case BehaviourDetail.Penetrate:
+                    return Model.DamageOptions.LessPierceAttackBreakDamage;
+                case BehaviourDetail.Hit:
+                    return Model.DamageOptions.LessHitAttackBreakDamage;
+            }
+
+            return base.GetDamageReduction(behavior);
         }
     }
 }

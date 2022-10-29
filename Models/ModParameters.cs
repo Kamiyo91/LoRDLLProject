@@ -219,7 +219,7 @@ namespace BigDLL4221.Models
         public PassiveOptions(int passiveId, bool untransferable = false, int innerTypeId = 0, bool forceAggro = false,
             bool hasAdditionalParameter = false, bool isMultiDeck = false, List<LorId> cannotBeUsedWithPassives = null,
             List<LorId> canBeUsedWithPassives = null, List<LorId> chainReleasePassives = null, bool gainCoins = true,
-            bool bannedEmotionCardSelection = false, bool countForSoloAbilities = true,
+            bool bannedEmotionCardSelection = false,
             bool bannedEgoFloorCards = false, bool ignoreClashPassive = false, MultiDeckOptions multiDeckOptions = null)
         {
             PassiveId = passiveId;
@@ -233,7 +233,6 @@ namespace BigDLL4221.Models
             ChainReleasePassives = chainReleasePassives ?? new List<LorId>();
             GainCoins = gainCoins;
             BannedEmotionCardSelection = bannedEmotionCardSelection;
-            CountForSoloAbilities = countForSoloAbilities;
             BannedEgoFloorCards = bannedEgoFloorCards;
             IgnoreClashPassive = ignoreClashPassive;
             MultiDeckOptions = multiDeckOptions ?? new MultiDeckOptions(new List<string>());
@@ -250,7 +249,6 @@ namespace BigDLL4221.Models
         public List<LorId> ChainReleasePassives { get; set; }
         public bool GainCoins { get; set; }
         public bool BannedEmotionCardSelection { get; set; }
-        public bool CountForSoloAbilities { get; set; }
         public bool BannedEgoFloorCards { get; set; }
         public bool IgnoreClashPassive { get; set; }
         public MultiDeckOptions MultiDeckOptions { get; set; }

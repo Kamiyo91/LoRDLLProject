@@ -9,7 +9,7 @@ namespace BigDLL4221.Models
     {
         public NpcMechUtilBaseModel(string saveDataId,
             EgoOptions egoOptions = null, int surviveHp = 0, int recoverToHp = 0, bool survive = false,
-            bool recoverLightOnSurvive = false, bool dieOnFightEnd = false,
+            bool recoverLightOnSurvive = false, bool dieOnFightEnd = false, DamageOptions damageOptions = null,
             List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
             List<BattleUnitBuf> permanentBuffList = null,
@@ -18,7 +18,8 @@ namespace BigDLL4221.Models
             bool reloadMassAttackOnLethal = true,
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
             bool onDeathOtherDies = false) : base(egoOptions, surviveHp, recoverToHp, survive,
-            recoverLightOnSurvive, dieOnFightEnd, surviveAbDialogList, surviveAbDialogColor, nearDeathBuffType,
+            recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
+            nearDeathBuffType,
             permanentBuffList,
             personalCards)
         {
@@ -75,7 +76,8 @@ namespace BigDLL4221.Models
             bool removeOtherUnits = false,
             List<UnitModel> summonUnit = null, List<UnitModel> summonPlayerUnit = null,
             List<string> soundEffectPath = null, int extraLightRecoverEachScene = 0, int extraDrawEachScene = 0,
-            int extraRecoverHp = 0, int extraRecoverStagger = 0, int mapOrderIndex = 0)
+            int extraRecoverHp = 0, int extraRecoverStagger = 0, int mapOrderIndex = 0,
+            DamageOptions damageOptions = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -100,6 +102,7 @@ namespace BigDLL4221.Models
             ExtraRecoverHp = extraRecoverHp;
             ExtraRecoverStagger = extraRecoverStagger;
             MapOrderIndex = mapOrderIndex;
+            DamageOptions = damageOptions;
         }
 
         public int MechHp { get; set; }
@@ -125,6 +128,7 @@ namespace BigDLL4221.Models
         public int ExtraRecoverHp { get; set; }
         public int ExtraRecoverStagger { get; set; }
         public int MapOrderIndex { get; set; }
+        public DamageOptions DamageOptions { get; set; }
     }
 
     public class MechBuffOptions

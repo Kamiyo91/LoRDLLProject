@@ -3,6 +3,7 @@ using System.Linq;
 using BigDLL4221.BaseClass;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
+using LOR_DiceSystem;
 
 namespace BigDLL4221.Passives
 {
@@ -113,6 +114,70 @@ namespace BigDLL4221.Passives
         public override void OnRoundEndTheLast_ignoreDead()
         {
             Util.ReturnFromEgoMap();
+        }
+
+        public override int GetDamageReduction(BattleDiceBehavior behavior)
+        {
+            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions))
+                return base.GetDamageReduction(behavior);
+            if (mechOptions.DamageOptions == null) return base.GetDamageReduction(behavior);
+            switch (behavior.card.card.XmlData.Spec.Ranged)
+            {
+                case CardRange.FarArea:
+                    return mechOptions.DamageOptions.LessMassAttackDamage;
+                case CardRange.FarAreaEach:
+                    return mechOptions.DamageOptions.LessMassAttackIndividualDamage;
+                case CardRange.Near:
+                    return mechOptions.DamageOptions.LessMeleeAttackDamage;
+                case CardRange.Far:
+                    return mechOptions.DamageOptions.LessRangedAttackDamage;
+                case CardRange.Special:
+                    return mechOptions.DamageOptions.LessSpecialRangeAttackDamage;
+            }
+
+            switch (behavior.Detail)
+            {
+                case BehaviourDetail.Slash:
+                    return mechOptions.DamageOptions.LessSlashAttackDamage;
+                case BehaviourDetail.Penetrate:
+                    return mechOptions.DamageOptions.LessPierceAttackDamage;
+                case BehaviourDetail.Hit:
+                    return mechOptions.DamageOptions.LessHitAttackDamage;
+            }
+
+            return base.GetDamageReduction(behavior);
+        }
+
+        public override int GetBreakDamageReduction(BattleDiceBehavior behavior)
+        {
+            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions))
+                return base.GetDamageReduction(behavior);
+            if (mechOptions.DamageOptions == null) return base.GetDamageReduction(behavior);
+            switch (behavior.card.card.XmlData.Spec.Ranged)
+            {
+                case CardRange.FarArea:
+                    return mechOptions.DamageOptions.LessMassAttackBreakDamage;
+                case CardRange.FarAreaEach:
+                    return mechOptions.DamageOptions.LessMassAttackIndividualBreakDamage;
+                case CardRange.Near:
+                    return mechOptions.DamageOptions.LessMeleeAttackBreakDamage;
+                case CardRange.Far:
+                    return mechOptions.DamageOptions.LessRangedAttackBreakDamage;
+                case CardRange.Special:
+                    return mechOptions.DamageOptions.LessSpecialRangeAttackBreakDamage;
+            }
+
+            switch (behavior.Detail)
+            {
+                case BehaviourDetail.Slash:
+                    return mechOptions.DamageOptions.LessSlashAttackBreakDamage;
+                case BehaviourDetail.Penetrate:
+                    return mechOptions.DamageOptions.LessPierceAttackBreakDamage;
+                case BehaviourDetail.Hit:
+                    return mechOptions.DamageOptions.LessHitAttackBreakDamage;
+            }
+
+            return base.GetDamageReduction(behavior);
         }
     }
 }

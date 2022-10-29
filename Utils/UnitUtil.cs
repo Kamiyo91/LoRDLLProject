@@ -5,6 +5,7 @@ using System.Linq;
 using BigDLL4221.Buffs;
 using BigDLL4221.Enum;
 using BigDLL4221.Models;
+using BigDLL4221.Passives;
 using HarmonyLib;
 using LOR_DiceSystem;
 using LOR_XML;
@@ -337,27 +338,19 @@ namespace BigDLL4221.Utils
         {
             return BattleObjectManager.instance
                 .GetAliveList(otherSide ? ReturnOtherSideFaction(owner.faction) : owner.faction).Count(x =>
-                    !x.passiveDetail.PassiveList.Exists(y =>
-                        ModParameters.PassiveOptions.Any(z =>
-                            z.Key == y.id.packageId &&
-                            z.Value.Any(v => v.PassiveId == y.id.id && !v.CountForSoloAbilities))));
+                    !x.passiveDetail.PassiveList.Any(y => y is PassiveAbility_SupportChar_DLL4221));
         }
 
         public static bool IsSupportCharCheck(BattleUnitModel owner)
         {
-            return owner.passiveDetail.PassiveList.Exists(x =>
-                ModParameters.PassiveOptions.Any(y =>
-                    y.Key == x.id.packageId && y.Value.Any(z => z.PassiveId == x.id.id && !z.CountForSoloAbilities)));
+            return owner.passiveDetail.PassiveList.Exists(x => x is PassiveAbility_SupportChar_DLL4221);
         }
 
         public static List<BattleUnitModel> ExcludeSupportChars(BattleUnitModel owner, bool otherSide = false)
         {
             return BattleObjectManager.instance
                 .GetAliveList(otherSide ? ReturnOtherSideFaction(owner.faction) : owner.faction).Where(x =>
-                    !x.passiveDetail.PassiveList.Exists(y =>
-                        ModParameters.PassiveOptions.Any(z =>
-                            z.Key == y.id.packageId &&
-                            z.Value.Any(v => v.PassiveId == y.id.id && !v.CountForSoloAbilities))))
+                    !x.passiveDetail.PassiveList.Exists(y => y is PassiveAbility_SupportChar_DLL4221))
                 .ToList();
         }
 

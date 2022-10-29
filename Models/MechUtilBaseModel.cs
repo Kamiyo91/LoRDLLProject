@@ -8,7 +8,8 @@ namespace BigDLL4221.Models
     {
         public MechUtilBaseModel(EgoOptions egoOptions = null,
             int surviveHp = 0, int recoverToHp = 0, bool survive = false, bool recoverLightOnSurvive = false,
-            bool dieOnFightEnd = false, List<AbnormalityCardDialog> surviveAbDialogList = null,
+            bool dieOnFightEnd = false, DamageOptions damageOptions = null,
+            List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
             List<BattleUnitBuf> permanentBuffList = null,
             Dictionary<LorId, PersonalCardOptions> personalCards = null)
@@ -19,6 +20,7 @@ namespace BigDLL4221.Models
             Survive = survive;
             RecoverLightOnSurvive = recoverLightOnSurvive;
             DieOnFightEnd = dieOnFightEnd;
+            DamageOptions = damageOptions;
             SurviveAbDialogList = surviveAbDialogList ?? new List<AbnormalityCardDialog>();
             SurviveAbDialogColor = surviveAbDialogColor;
             NearDeathBuffType = nearDeathBuffType;
@@ -34,6 +36,7 @@ namespace BigDLL4221.Models
         public bool Survive { get; set; }
         public bool RecoverLightOnSurvive { get; set; }
         public bool DieOnFightEnd { get; set; }
+        public DamageOptions DamageOptions { get; set; }
         public List<AbnormalityCardDialog> SurviveAbDialogList { get; set; }
         public AbColorType SurviveAbDialogColor { get; set; }
         public BattleUnitBuf NearDeathBuffType { get; set; }
@@ -75,6 +78,52 @@ namespace BigDLL4221.Models
         public int Duration { get; set; }
         public int Count { get; set; }
         public MapModel ActivatedMap { get; set; }
+    }
+
+    public class DamageOptions
+    {
+        public DamageOptions(int lessMassAttackDamage = 0, int lessMassAttackIndividualDamage = 0,
+            int lessSpecialRangeAttackDamage = 0, int lessRangedAttackDamage = 0, int lessMeleeAttackDamage = 0,
+            int lessHitAttackDamage = 0, int lessPierceAttackDamage = 0, int lessSlashAttackDamage = 0,
+            int lessMassAttackBreakDamage = 0, int lessMassAttackIndividualBreakDamage = 0,
+            int lessSpecialRangeAttackBreakDamage = 0, int lessRangedAttackBreakDamage = 0,
+            int lessMeleeAttackBreakDamage = 0, int lessHitAttackBreakDamage = 0, int lessPierceAttackBreakDamage = 0,
+            int lessSlashAttackBreakDamage = 0)
+        {
+            LessMassAttackDamage = lessMassAttackDamage;
+            LessMassAttackIndividualDamage = lessMassAttackIndividualDamage;
+            LessSpecialRangeAttackDamage = lessSpecialRangeAttackDamage;
+            LessRangedAttackDamage = lessRangedAttackDamage;
+            LessMeleeAttackDamage = lessMeleeAttackDamage;
+            LessHitAttackDamage = lessHitAttackDamage;
+            LessPierceAttackDamage = lessPierceAttackDamage;
+            LessSlashAttackDamage = lessSlashAttackDamage;
+            LessMassAttackBreakDamage = lessMassAttackBreakDamage;
+            LessMassAttackIndividualBreakDamage = lessMassAttackIndividualBreakDamage;
+            LessSpecialRangeAttackBreakDamage = lessSpecialRangeAttackBreakDamage;
+            LessRangedAttackBreakDamage = lessRangedAttackBreakDamage;
+            LessMeleeAttackBreakDamage = lessMeleeAttackBreakDamage;
+            LessHitAttackBreakDamage = lessHitAttackBreakDamage;
+            LessPierceAttackBreakDamage = lessPierceAttackBreakDamage;
+            LessSlashAttackBreakDamage = lessSlashAttackBreakDamage;
+        }
+
+        public int LessMassAttackDamage { get; set; }
+        public int LessMassAttackIndividualDamage { get; set; }
+        public int LessSpecialRangeAttackDamage { get; set; }
+        public int LessRangedAttackDamage { get; set; }
+        public int LessMeleeAttackDamage { get; set; }
+        public int LessHitAttackDamage { get; set; }
+        public int LessPierceAttackDamage { get; set; }
+        public int LessSlashAttackDamage { get; set; }
+        public int LessMassAttackBreakDamage { get; set; }
+        public int LessMassAttackIndividualBreakDamage { get; set; }
+        public int LessSpecialRangeAttackBreakDamage { get; set; }
+        public int LessRangedAttackBreakDamage { get; set; }
+        public int LessMeleeAttackBreakDamage { get; set; }
+        public int LessHitAttackBreakDamage { get; set; }
+        public int LessPierceAttackBreakDamage { get; set; }
+        public int LessSlashAttackBreakDamage { get; set; }
     }
 
     public class PersonalCardOptions
