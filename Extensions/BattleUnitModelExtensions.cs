@@ -15,6 +15,12 @@ namespace BigDLL4221.Extensions
             return (T)owner.bufListDetail.GetActivatedBufList().FirstOrDefault(x => x is T);
         }
 
+        public static bool HasPassive(this BattleUnitModel owner, Type passiveType, out PassiveAbilityBase passive)
+        {
+            passive = owner.passiveDetail.PassiveList.FirstOrDefault(x => x.GetType() == passiveType);
+            return passive != null;
+        }
+
         public static void RemovePassive(this BattleUnitModel owner, LorId passiveId)
         {
             var passive = owner.passiveDetail.PassiveList.FirstOrDefault(x => x.id == passiveId);

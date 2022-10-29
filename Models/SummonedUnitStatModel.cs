@@ -27,4 +27,24 @@
         public bool UseCustomData { get; set; }
         public DamageOptions DamageOptions { get; set; }
     }
+
+    public class SummonedUnitStatModelLinked : SummonedUnitStatModel
+    {
+        public SummonedUnitStatModelLinked(PassiveAbilityBase linkedCharByPassive, int mainCharHpForRevive = 0,
+            bool lowerOrHigherRange = false, bool dieAtSceneEndForPlayer = false, bool dieAtSceneEndForNpc = false,
+            int reviveAfterScenesPlayer = -1, int reviveAfterScenesNpc = -1, int hpRecoveredWithRevive = 1,
+            bool removeFromUIAfterDeath = false, bool useCustomData = true, DamageOptions damageOptions = null) : base(
+            dieAtSceneEndForPlayer, dieAtSceneEndForNpc,
+            reviveAfterScenesPlayer, reviveAfterScenesNpc, hpRecoveredWithRevive,
+            removeFromUIAfterDeath, useCustomData, damageOptions)
+        {
+            LinkedCharByPassive = linkedCharByPassive;
+            MainCharHpForRevive = mainCharHpForRevive;
+            LowerOrHigherRange = lowerOrHigherRange;
+        }
+
+        public PassiveAbilityBase LinkedCharByPassive { get; set; }
+        public int MainCharHpForRevive { get; set; }
+        public bool LowerOrHigherRange { get; set; }
+    }
 }

@@ -90,7 +90,7 @@
     <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
     <Compile Include="Models\SummonedUnitStatModel.cs" />
     <Compile Include="Passives\PassiveAbility_SupportChar_DLL4221.cs" />
-    <Compile Include="Passives\PassiveAbility_UnitSummonedLinkedToMainEnemy_DLL4221.cs" />
+    <Compile Include="Passives\PassiveAbility_UnitSummonedLinkedToMainChar_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_UnitSummonedWithCustomData_DLL4221.cs" />
     <Compile Include="StageManagers\EnemyTeamStageManager_BaseWithCMU_DLL4221.cs" />
     <Compile Include="Enum\AbColorType.cs" />
