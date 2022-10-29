@@ -51,7 +51,7 @@ namespace BigDLL4221.Utils
             StageController.Instance.EndBattle();
         }
 
-        public static void RefreshCombatUI(bool forceReturn = false)
+        public static void RefreshCombatUI(bool forceReturn = false, bool returnEffect = false)
         {
             foreach (var (battleUnit, num) in BattleObjectManager.instance.GetList()
                          .Select((value, i) => (value, i)))
@@ -59,7 +59,7 @@ namespace BigDLL4221.Utils
                 SingletonBehavior<UICharacterRenderer>.Instance.SetCharacter(battleUnit.UnitData.unitData, num,
                     true);
                 if (forceReturn)
-                    battleUnit.moveDetail.ReturnToFormationByBlink(true);
+                    battleUnit.moveDetail.ReturnToFormationByBlink(returnEffect);
             }
 
             try
@@ -393,7 +393,7 @@ namespace BigDLL4221.Utils
         }
 
         public static BattleUnitModel AddNewUnitPlayerSideCustomData(StageLibraryFloorModel floor, UnitModel unit,
-            int pos, bool addEmotionPassives = true)
+            int pos, int emotionLevel = 0, bool addEmotionPassives = true)
         {
             var unitData = new UnitDataModel((int)floor.Sephirah * 10, floor.Sephirah);
             var customBook = Singleton<BookInventoryModel>.Instance.GetBookListAll()
@@ -423,7 +423,7 @@ namespace BigDLL4221.Utils
             if (unit.SummonedOnPlay) allyUnit.speedDiceResult = new List<SpeedDice>();
             BattleObjectManager.instance.RegisterUnit(allyUnit);
             allyUnit.passiveDetail.OnUnitCreated();
-            LevelUpEmotion(allyUnit, unit.EmotionLevel);
+            LevelUpEmotion(allyUnit, emotionLevel);
             if (unit.LockedEmotion)
                 allyUnit.emotionDetail.SetMaxEmotionLevel(unit.MaxEmotionLevel);
             allyUnit.allyCardDetail.DrawCards(allyUnit.UnitData.unitData.GetStartDraw());
@@ -439,7 +439,7 @@ namespace BigDLL4221.Utils
         }
 
         public static BattleUnitModel AddNewUnitWithDefaultData(StageLibraryFloorModel floor, UnitModel unit, int pos,
-            bool addEmotionPassives = true, bool playerSide = true)
+            bool addEmotionPassives = true, int emotionLevel = 0, bool playerSide = true)
         {
             var unitData = new UnitDataModel(new LorId(unit.PackageId, unit.Id),
                 playerSide ? floor.Sephirah : SephirahType.None);
@@ -462,7 +462,7 @@ namespace BigDLL4221.Utils
             if (unit.SummonedOnPlay) allyUnit.speedDiceResult = new List<SpeedDice>();
             BattleObjectManager.instance.RegisterUnit(allyUnit);
             allyUnit.passiveDetail.OnUnitCreated();
-            LevelUpEmotion(allyUnit, unit.EmotionLevel);
+            LevelUpEmotion(allyUnit, emotionLevel);
             if (unit.LockedEmotion)
                 allyUnit.emotionDetail.SetMaxEmotionLevel(unit.MaxEmotionLevel);
             allyUnit.allyCardDetail.DrawCards(allyUnit.UnitData.unitData.GetStartDraw());
@@ -519,32 +519,45 @@ namespace BigDLL4221.Utils
             return new LorId(packageId, itemId);
         }
 
-        public static void ChangeAtkSound(BattleUnitModel model, MotionDetail changeDetail, MotionSound motionSound)
+        public static void PrepareSounds(List<CharacterSound.Sound> motionSounds,
+            Dictionary<MotionDetail, CharacterSound.Sound> dicMotionSounds,
+            Dictionary<MotionDetail, MotionSound> customMotionSounds)
         {
-            var audioClipWin = GetSound(motionSound.FileNameWin, motionSound.IsBaseSoundWin);
-            var audioClipLose = GetSound(motionSound.FileNameLose, motionSound.IsBaseSoundLose);
-            var list = (List<CharacterSound.Sound>)model.view.charAppearance.soundInfo.GetType()
-                .GetField("_motionSounds", AccessTools.all).GetValue(model.view.charAppearance.soundInfo);
-            var item = list.FirstOrDefault(x => x.motion == changeDetail);
-            var sound = new CharacterSound.Sound
+            try
             {
-                motion = changeDetail,
-                winSound = audioClipWin,
-                loseSound = audioClipLose
-            };
-            if (item != null)
-                list.Remove(item);
-            list.Add(sound);
-            ((Dictionary<MotionDetail, CharacterSound.Sound>)model.view.charAppearance.soundInfo.GetType()
-                .GetField("_dic", AccessTools.all).GetValue(model.view.charAppearance.soundInfo))[changeDetail] = sound;
+                foreach (var customMotionSound in customMotionSounds)
+                {
+                    var audioClipWin = GetSound(customMotionSound.Value.FileNameWin,
+                        customMotionSound.Value.IsBaseSoundWin);
+                    var audioClipLose = GetSound(customMotionSound.Value.FileNameLose,
+                        customMotionSound.Value.IsBaseSoundLose);
+                    var item = motionSounds.FirstOrDefault(x => x.motion == customMotionSound.Key);
+                    var sound = new CharacterSound.Sound
+                    {
+                        motion = customMotionSound.Key,
+                        winSound = audioClipWin,
+                        loseSound = audioClipLose
+                    };
+                    if (item != null)
+                        motionSounds.Remove(item);
+                    motionSounds.Add(sound);
+                    if (dicMotionSounds.ContainsKey(customMotionSound.Key))
+                        dicMotionSounds.Remove(customMotionSound.Key);
+                    dicMotionSounds.Add(customMotionSound.Key, sound);
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         public static AudioClip GetSound(string audioName, bool isBaseGame)
         {
             if (string.IsNullOrEmpty(audioName)) return null;
-            return isBaseGame
-                ? Resources.Load<AudioClip>("Sounds/MotionSound/" + audioName)
-                : CustomMapHandler.GetAudioClip(audioName);
+            if (isBaseGame) return Resources.Load<AudioClip>("Sounds/MotionSound/" + audioName);
+            CustomMapHandler.LoadEnemyTheme(audioName, out var audioClip);
+            return audioClip;
         }
     }
 }

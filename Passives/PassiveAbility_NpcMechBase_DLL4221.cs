@@ -10,15 +10,26 @@ namespace BigDLL4221.Passives
     {
         public NpcMechUtilBase Util;
 
+        public void SetUtil(NpcMechUtilBase util)
+        {
+            if (Util != null) return;
+            Util = util;
+            Util.Model.Owner = owner;
+            Util.Model.ThisPassiveId = id;
+        }
+
         public override void OnWaveStart()
         {
+            Util.PermanentBuffs();
             Util.Restart();
         }
 
         public override void OnRoundStart()
         {
+            Util.PermanentBuffs();
             Util.UseSpecialBuffCard();
             Util.RoundStartBuffs();
+            Util.ExtraRecovery();
             if (!Util.EgoCheck()) return;
             Util.EgoActive();
         }
@@ -28,6 +39,12 @@ namespace BigDLL4221.Passives
             return !Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)
                 ? 0
                 : mechOptions.SpeedDieAdder;
+        }
+
+        public override int ChangeTargetSlot(BattleDiceCardModel card, BattleUnitModel target, int currentSlot,
+            int targetSlot, bool teamkill)
+        {
+            return Util.AlwaysAimToTheSlowestDice(target, targetSlot);
         }
 
         public override void OnRoundEnd()
@@ -49,6 +66,12 @@ namespace BigDLL4221.Passives
                 }
 
             Util.OnEndBattle();
+        }
+
+        public override BattleUnitModel ChangeAttackTarget(BattleDiceCardModel card, int idx)
+        {
+            var unit = Util.IgnoreSephiraSelectionTarget(card.GetID());
+            return unit ?? base.ChangeAttackTarget(card, idx);
         }
 
         public override BattleDiceCardModel OnSelectCardAuto(BattleDiceCardModel origin, int currentDiceSlotIdx)

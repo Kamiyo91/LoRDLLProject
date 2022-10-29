@@ -2,7 +2,7 @@
 {
     public class UnitModel
     {
-        public UnitModel(int id, string packageId, int unitNameId = 0, string name = "", int emotionLevel = 0,
+        public UnitModel(int id, string packageId, int unitNameId = 0, string name = "",
             bool lockedEmotion = false, int maxEmotionLevel = 0, bool autoPlay = false, bool summonedOnPlay = false,
             XmlVector2 customPos = null, string skinName = "")
         {
@@ -12,7 +12,6 @@
             UnitNameId = unitNameId;
             LockedEmotion = lockedEmotion;
             MaxEmotionLevel = maxEmotionLevel;
-            EmotionLevel = emotionLevel;
             AutoPlay = autoPlay;
             SummonedOnPlay = summonedOnPlay;
             CustomPos = customPos;
@@ -25,7 +24,6 @@
         public int UnitNameId { get; set; }
         public bool LockedEmotion { get; set; }
         public int MaxEmotionLevel { get; set; }
-        public int EmotionLevel { get; set; }
         public bool AutoPlay { get; set; }
         public bool SummonedOnPlay { get; set; }
         public XmlVector2 CustomPos { get; set; }

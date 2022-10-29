@@ -783,20 +783,22 @@ namespace BigDLL4221.Harmony
             __result = buf.BufName + " " + buf.stack;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(RencounterManager), "PrintSound")]
-        public static void RencounterManager_PrintSound_Pre(ref BattleUnitView view,
-            BattleCardBehaviourResult selfResult, ActionDetail actionDetail)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterAppearance), "Initialize")]
+        public static void CharacterAppearance_Initialize(string resourceName, ref CharacterSound ____soundInfo)
         {
-            if (!selfResult.hasBehaviour ||
-                !ModParameters.KeypageOptions.TryGetValue(view.model.customBook.GetBookClassInfoId().packageId,
-                    out var keypageOptions)) return;
-            var unitId = view.model.customBook.GetBookClassInfoId().id;
-            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == unitId);
-            if (keypageItem?.BookCustomOptions == null) return;
-            var motionKey = MotionConverter.ActionToMotion(actionDetail);
-            if (!keypageItem.BookCustomOptions.MotionSounds.TryGetValue(motionKey, out var motionSound)) return;
-            UnitUtil.ChangeAtkSound(view.model, motionKey, motionSound);
+            var keypageItems = ModParameters.KeypageOptions
+                .Where(x => x.Value.Any(y => !string.IsNullOrEmpty(y.BookCustomOptions.OriginalSkin)))
+                .SelectMany(x => x.Value);
+            var keypageItem = keypageItems.FirstOrDefault(x =>
+                x.BookCustomOptions.OriginalSkin.Contains(resourceName) ||
+                x.BookCustomOptions.EgoSkin.Contains(resourceName));
+            if (keypageItem == null) return;
+            var motionSounds = (List<CharacterSound.Sound>)____soundInfo.GetType()
+                .GetField("_motionSounds", AccessTools.all)?.GetValue(____soundInfo);
+            var dic = (Dictionary<MotionDetail, CharacterSound.Sound>)____soundInfo.GetType()
+                .GetField("_dic", AccessTools.all)?.GetValue(____soundInfo);
+            UnitUtil.PrepareSounds(motionSounds, dic, keypageItem.BookCustomOptions.MotionSounds);
         }
     }
 }

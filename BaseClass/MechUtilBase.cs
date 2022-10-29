@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.Buffs;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using LOR_XML;
@@ -14,9 +16,6 @@ namespace BigDLL4221.BaseClass
         public MechUtilBase(MechUtilBaseModel model)
         {
             Model = model;
-            if (model.EgoOptions?.EgoCardId != null) model.Owner.personalEgoDetail.AddCard(model.EgoOptions.EgoCardId);
-            foreach (var card in model.PersonalCards.Where(x => !x.Value.EgoPersonalCard))
-                model.Owner.personalEgoDetail.AddCard(card.Key);
         }
 
         public virtual void SurviveCheck(int dmg)
@@ -106,6 +105,13 @@ namespace BigDLL4221.BaseClass
             }
         }
 
+        public virtual void AddExpireCards()
+        {
+            if (Model.EgoOptions?.EgoCardId != null) Model.Owner.personalEgoDetail.AddCard(Model.EgoOptions.EgoCardId);
+            foreach (var card in Model.PersonalCards.Where(x => !x.Value.EgoPersonalCard))
+                Model.Owner.personalEgoDetail.AddCard(card.Key);
+        }
+
         public virtual void DoNotChangeSkinOnEgo()
         {
             if (Model.EgoOptions == null) return;
@@ -170,6 +176,16 @@ namespace BigDLL4221.BaseClass
                 SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
             Model.EgoOptions.ActivatedMap = mapModel;
             MapUtil.ChangeMap(mapModel);
+        }
+
+        public virtual void PermanentBuffs()
+        {
+            foreach (var item in Model.PermanentBuffList.Select((buff, index) => (index, buff)).ToList())
+            {
+                if (Model.Owner.HasBuff(item.buff.GetType())) continue;
+                Model.PermanentBuffList[item.index] = (BattleUnitBuf)Activator.CreateInstance(item.buff.GetType());
+                Model.Owner.bufListDetail.AddBuf(Model.PermanentBuffList[item.index]);
+            }
         }
     }
 }

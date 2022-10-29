@@ -10,6 +10,14 @@ namespace BigDLL4221.Passives
     {
         public MechUtilBase Util;
 
+        public void SetUtil(MechUtilBase util)
+        {
+            if (Util != null) return;
+            Util = util;
+            Util.Model.Owner = owner;
+            Util.Model.ThisPassiveId = id;
+        }
+
         public override void OnBattleEnd()
         {
             if (!Util.CheckSkinChangeIsActive()) return;
@@ -22,6 +30,8 @@ namespace BigDLL4221.Passives
 
         public override void OnWaveStart()
         {
+            Util.AddExpireCards();
+            Util.PermanentBuffs();
             if (UnitUtil.CheckSkinProjection(owner))
                 Util.DoNotChangeSkinOnEgo();
         }
@@ -59,6 +69,7 @@ namespace BigDLL4221.Passives
 
         public override void OnRoundStartAfter()
         {
+            Util.PermanentBuffs();
             Util.ReAddOnPlayCard();
         }
 

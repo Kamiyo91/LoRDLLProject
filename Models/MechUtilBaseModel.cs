@@ -6,14 +6,13 @@ namespace BigDLL4221.Models
 {
     public class MechUtilBaseModel
     {
-        public MechUtilBaseModel(BattleUnitModel owner, LorId thisPassiveId, EgoOptions egoOptions = null,
+        public MechUtilBaseModel(EgoOptions egoOptions = null,
             int surviveHp = 0, int recoverToHp = 0, bool survive = false, bool recoverLightOnSurvive = false,
             bool dieOnFightEnd = false, List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
+            List<BattleUnitBuf> permanentBuffList = null,
             Dictionary<LorId, PersonalCardOptions> personalCards = null)
         {
-            Owner = owner;
-            ThisPassiveId = thisPassiveId;
             EgoOptions = egoOptions;
             SurviveHp = surviveHp;
             RecoverToHp = recoverToHp;
@@ -23,6 +22,7 @@ namespace BigDLL4221.Models
             SurviveAbDialogList = surviveAbDialogList ?? new List<AbnormalityCardDialog>();
             SurviveAbDialogColor = surviveAbDialogColor;
             NearDeathBuffType = nearDeathBuffType;
+            PermanentBuffList = permanentBuffList ?? new List<BattleUnitBuf>();
             PersonalCards = personalCards ?? new Dictionary<LorId, PersonalCardOptions>();
         }
 
@@ -37,12 +37,14 @@ namespace BigDLL4221.Models
         public List<AbnormalityCardDialog> SurviveAbDialogList { get; set; }
         public AbColorType SurviveAbDialogColor { get; set; }
         public BattleUnitBuf NearDeathBuffType { get; set; }
+        public List<BattleUnitBuf> PermanentBuffList { get; set; }
         public Dictionary<LorId, PersonalCardOptions> PersonalCards { get; set; }
     }
 
     public class EgoOptions
     {
-        public EgoOptions(BattleUnitBuf egoType, LorId egoCardId, string skinName = "", bool refreshUI = false,
+        public EgoOptions(BattleUnitBuf egoType = null, LorId egoCardId = null, string skinName = "",
+            bool refreshUI = false,
             Dictionary<LorId, MapModel> egoMaps = null, List<LorId> additionalPassiveIds = null,
             List<AbnormalityCardDialog> egoAbDialogList = null, AbColorType egoAbColorColor = AbColorType.Negative,
             int duration = 0)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BigDLL4221.Models;
 using HarmonyLib;
 using UnityEngine;
@@ -40,7 +41,7 @@ namespace BigDLL4221.Utils
 
         public static void ChangeMap(MapModel model, Faction faction = Faction.Player)
         {
-            if (CheckStageMap(model.StageIds) || SingletonBehavior<BattleSceneRoot>
+            if (CheckStageMap(model.OriginalMapStageIds) || SingletonBehavior<BattleSceneRoot>
                     .Instance.currentMapObject.isEgo ||
                 Singleton<StageController>.Instance.GetStageModel().ClassInfo.stageType == StageType.Creature) return;
             CustomMapHandler.InitCustomMap(model.Stage, model.Component, model.IsPlayer, model.InitBgm, model.Bgx,
@@ -79,7 +80,7 @@ namespace BigDLL4221.Utils
 
         public static void PrepareEnemyMaps(List<MapModel> mapModels)
         {
-            foreach (var mapModel in mapModels)
+            foreach (var mapModel in mapModels.Where(x => x != null))
                 CustomMapHandler.InitCustomMap(mapModel.Stage, mapModel.Component, false, true, mapModel.Bgx,
                     mapModel.Bgy, mapModel.Fx, mapModel.Fy);
         }

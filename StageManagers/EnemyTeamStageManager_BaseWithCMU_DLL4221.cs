@@ -10,26 +10,29 @@ namespace BigDLL4221.StageManagers
 {
     public class EnemyTeamStageManager_BaseWithCMU_DLL4221 : EnemyTeamStageManager
     {
-        private int _index;
         private List<MapModel> _mapModels;
         private int _mapPhase;
         private int _phase;
         private NpcMechUtilBase _util;
 
-        public void SetParameters(List<MapModel> mapModels = null, int index = 0)
+        public void SetParameters(NpcMechUtilBase util, List<MapModel> mapModels = null)
         {
             _mapModels = mapModels ?? new List<MapModel>();
-            _index = index;
+            _util = util;
         }
 
         public override void OnWaveStart()
         {
-            _util = BattleObjectManager.instance.GetAliveList(Faction.Enemy).FirstOrDefault(x => x.index == _index)
-                .GetActivePassive<PassiveAbility_NpcMechBase_DLL4221>().Util;
-            var phaseChanged = Singleton<StageController>.Instance.GetStageModel()
-                .GetStageStorageData(_util.Model.SaveDataId, out _phase);
             MapUtil.PrepareEnemyMaps(_mapModels);
-            _phase = phaseChanged ? _phase : 0;
+            var mainEnemy = BattleObjectManager.instance.GetList(Faction.Enemy).FirstOrDefault(x =>
+                x.passiveDetail.HasPassive<PassiveAbility_NpcMechBase_DLL4221>());
+            var mainPassive = mainEnemy
+                .GetActivePassive<PassiveAbility_NpcMechBase_DLL4221>();
+            _util.Model.Owner = mainEnemy;
+            _util.Model.ThisPassiveId = mainPassive.id;
+            mainPassive.Util = _util;
+            Singleton<StageController>.Instance.GetStageModel()
+                .GetStageStorageData(_util.Model.SaveDataId, out _phase);
             _mapPhase = GetMapPhase();
             if (_mapPhase == -1) return;
             CustomMapHandler.EnforceMap(_mapPhase);
@@ -50,23 +53,28 @@ namespace BigDLL4221.StageManagers
 
         private void CheckPhase()
         {
-            _phase = _util.Model.Phase;
-            if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechPhaseOptions)) return;
-            if (!mechPhaseOptions.HasCustomMap) return;
-            CustomMapHandler.EnforceMap(_phase);
+            if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
+            if (mechOptions.MechHp == 0 || _util.Model.Owner.hp > mechOptions.MechHp) return;
+            _phase++;
+            if (!_util.Model.MechOptions.TryGetValue(_phase, out mechOptions)) return;
+            if (!mechOptions.HasCustomMap) return;
+            CustomMapHandler.EnforceMap(mechOptions.MapOrderIndex);
             Singleton<StageController>.Instance.CheckMapChange();
         }
 
         private int GetMapPhase()
         {
-            if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechPhaseOptions)) return -1;
+            if (_util.Model.MechOptions == null ||
+                !_util.Model.MechOptions.TryGetValue(_phase, out var mechPhaseOptions)) return -1;
             if (_phase == 0 && !mechPhaseOptions.HasCustomMap) return -1;
-            var phase = !mechPhaseOptions.HasCustomMap
+            var subPhase = _util.Model.MechOptions.Where(x => x.Key < _phase).Reverse().Any(x => x.Value.HasCustomMap);
+            return !mechPhaseOptions.HasCustomMap && subPhase
                 ? (from phaseOption in _util.Model.MechOptions.Where(x => x.Key < _phase).Reverse()
                     where phaseOption.Value.HasCustomMap
-                    select phaseOption.Key).FirstOrDefault()
-                : _phase;
-            return phase == 0 ? -1 : _phase;
+                    select phaseOption.Value.MapOrderIndex).FirstOrDefault()
+                : mechPhaseOptions.HasCustomMap
+                    ? mechPhaseOptions.MapOrderIndex
+                    : -1;
         }
     }
 }

@@ -5,13 +5,12 @@ namespace BigDLL4221.Models
 {
     public class MapModel
     {
-        public MapModel(Type component, string stage, List<LorId> stageIds, bool isPlayer, bool oneTurnEgo = false,
+        public MapModel(Type component = null, string stage = null, bool isPlayer = true, bool oneTurnEgo = true,
             float bgx = 0.5f, float bgy = 0.5f, float fx = 0.5f, float fy = 407.5f / 1080f, bool initBgm = true,
             List<LorId> originalMapStageIds = null)
         {
             Component = component;
             Stage = stage;
-            StageIds = stageIds;
             IsPlayer = isPlayer;
             OneTurnEgo = oneTurnEgo;
             Bgx = bgx;
@@ -24,7 +23,6 @@ namespace BigDLL4221.Models
 
         public Type Component { get; set; }
         public string Stage { get; set; }
-        public List<LorId> StageIds { get; set; }
         public bool IsPlayer { get; set; }
         public bool OneTurnEgo { get; set; }
         public float Bgx { get; set; }
