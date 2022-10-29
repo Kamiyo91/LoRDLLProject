@@ -12,9 +12,12 @@ namespace BigDLL4221.Passives
         private PassiveAbilityBase _mainCharPassive;
         public SummonedUnitStatModelLinked Model;
 
-        public void SetParameters(SummonedUnitStatModelLinked model)
+        public void SetParameters(SummonedUnitStatModelLinked model, int hpRecoveredOnRevive = 0,
+            bool removeFromUIAfterDeath = false)
         {
             Model = model;
+            Model.RemoveFromUIAfterDeath = removeFromUIAfterDeath;
+            Model.HpRecoveredWithRevive = hpRecoveredOnRevive;
             _mainChar = BattleObjectManager.instance.GetAliveList(owner.faction).FirstOrDefault(x =>
                 x.HasPassive(model.LinkedCharByPassive.GetType(), out _mainCharPassive));
         }

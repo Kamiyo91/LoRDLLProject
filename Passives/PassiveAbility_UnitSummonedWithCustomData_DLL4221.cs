@@ -8,9 +8,12 @@ namespace BigDLL4221.Passives
     {
         public SummonedUnitStatModel Model;
 
-        public void SetParameters(SummonedUnitStatModel model)
+        public void SetParameters(SummonedUnitStatModel model, int hpRecoveredOnRevive = 0,
+            bool removeFromUIAfterDeath = false)
         {
             Model = model;
+            Model.RemoveFromUIAfterDeath = removeFromUIAfterDeath;
+            Model.HpRecoveredWithRevive = hpRecoveredOnRevive;
         }
 
         public override void OnRoundEndTheLast_ignoreDead()

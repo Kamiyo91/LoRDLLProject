@@ -3,16 +3,14 @@
     public class SummonedUnitStatModel
     {
         public SummonedUnitStatModel(bool dieAtSceneEndForPlayer = false, bool dieAtSceneEndForNpc = false,
-            int reviveAfterScenesPlayer = -1, int reviveAfterScenesNpc = -1, int hpRecoveredWithRevive = 1,
-            bool removeFromUIAfterDeath = false, bool useCustomData = true, DamageOptions damageOptions = null)
+            int reviveAfterScenesPlayer = -1, int reviveAfterScenesNpc = -1, bool useCustomData = true,
+            DamageOptions damageOptions = null)
         {
             DieAtSceneEndForPlayer = dieAtSceneEndForPlayer;
             DieAtSceneEndForNpc = dieAtSceneEndForNpc;
             ReviveCount = 0;
             ReviveAfterScenesPlayer = reviveAfterScenesPlayer;
             ReviveAfterScenesNpc = reviveAfterScenesNpc;
-            HpRecoveredWithRevive = hpRecoveredWithRevive;
-            RemoveFromUIAfterDeath = removeFromUIAfterDeath;
             UseCustomData = useCustomData;
             DamageOptions = damageOptions;
         }
@@ -32,11 +30,11 @@
     {
         public SummonedUnitStatModelLinked(PassiveAbilityBase linkedCharByPassive, int mainCharHpForRevive = 0,
             bool lowerOrHigherRange = false, bool dieAtSceneEndForPlayer = false, bool dieAtSceneEndForNpc = false,
-            int reviveAfterScenesPlayer = -1, int reviveAfterScenesNpc = -1, int hpRecoveredWithRevive = 1,
-            bool removeFromUIAfterDeath = false, bool useCustomData = true, DamageOptions damageOptions = null) : base(
+            int reviveAfterScenesPlayer = -1, int reviveAfterScenesNpc = -1, bool useCustomData = true,
+            DamageOptions damageOptions = null) : base(
             dieAtSceneEndForPlayer, dieAtSceneEndForNpc,
-            reviveAfterScenesPlayer, reviveAfterScenesNpc, hpRecoveredWithRevive,
-            removeFromUIAfterDeath, useCustomData, damageOptions)
+            reviveAfterScenesPlayer, reviveAfterScenesNpc,
+            useCustomData, damageOptions)
         {
             LinkedCharByPassive = linkedCharByPassive;
             MainCharHpForRevive = mainCharHpForRevive;
