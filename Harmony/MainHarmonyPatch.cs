@@ -427,38 +427,6 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(BattleUnitView), "ChangeSkin")]
-        public static void BattleUnitView_ChangeSkin(BattleUnitView __instance, string charName)
-        {
-            if (!ModParameters.SkinOptions.TryGetValue(charName, out var skin)) return;
-            if (typeof(BattleUnitView).GetField("_skinInfo", AccessTools.all)?.GetValue(__instance) is
-                BattleUnitView.SkinInfo skinInfo)
-            {
-                skinInfo.state = BattleUnitView.SkinState.Changed;
-                skinInfo.skinName = charName;
-            }
-
-            var currentMotionDetail = __instance.charAppearance.GetCurrentMotionDetail();
-            __instance.DestroySkin();
-            var gameObject =
-                Object.Instantiate(
-                    Singleton<AssetBundleManagerRemake>.Instance.LoadCharacterPrefab(charName, "",
-                        out var resourceName), __instance.model.view.characterRotationCenter);
-            var workshopBookSkinData =
-                Singleton<CustomizingBookSkinLoader>.Instance.GetWorkshopBookSkinData(
-                    skin.PackageId, charName);
-            gameObject.GetComponent<WorkshopSkinDataSetter>().SetData(workshopBookSkinData);
-            __instance.charAppearance = gameObject.GetComponent<CharacterAppearance>();
-            __instance.charAppearance.Initialize(resourceName);
-            __instance.charAppearance.ChangeMotion(currentMotionDetail);
-            __instance.charAppearance.ChangeLayer("Character");
-            __instance.charAppearance.SetLibrarianOnlySprites(__instance.model.faction);
-            __instance.model.UnitData.unitData.bookItem.ClassInfo.CharacterSkin = new List<string> { charName };
-            if (skin.CustomHeight == 0) return;
-            __instance.ChangeHeight(skin.CustomHeight);
-        }
-
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(DropBookInventoryModel), "LoadFromSaveData")]
         public static void DropBookInventoryModel_LoadFromSaveData(DropBookInventoryModel __instance)
         {
@@ -784,21 +752,96 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(CharacterAppearance), "Initialize")]
-        public static void CharacterAppearance_Initialize(string resourceName, ref CharacterSound ____soundInfo)
+        [HarmonyPatch(typeof(SdCharacterUtil), "CreateSkin")]
+        public static void SdCharacterUtil_CreateSkin(ref CharacterAppearance __result, UnitDataModel unit,
+            Faction faction, Transform characterRoot)
         {
-            var keypageItems = ModParameters.KeypageOptions
-                .Where(x => x.Value.Any(y => !string.IsNullOrEmpty(y.BookCustomOptions.OriginalSkin)))
-                .SelectMany(x => x.Value);
-            var keypageItem = keypageItems.FirstOrDefault(x =>
-                x.BookCustomOptions.OriginalSkin.Contains(resourceName) ||
-                x.BookCustomOptions.EgoSkin.Contains(resourceName));
-            if (keypageItem == null) return;
-            var motionSounds = (List<CharacterSound.Sound>)____soundInfo.GetType()
-                .GetField("_motionSounds", AccessTools.all)?.GetValue(____soundInfo);
-            var dic = (Dictionary<MotionDetail, CharacterSound.Sound>)____soundInfo.GetType()
-                .GetField("_dic", AccessTools.all)?.GetValue(____soundInfo);
-            UnitUtil.PrepareSounds(motionSounds, dic, keypageItem.BookCustomOptions.MotionSounds);
+            bool skinTryGet;
+            SkinOptions skin;
+            string stringKey;
+            if (!string.IsNullOrEmpty(unit.workshopSkin))
+            {
+                stringKey = unit.workshopSkin;
+                skinTryGet = ModParameters.SkinOptions.TryGetValue(unit.workshopSkin, out skin);
+            }
+            else if (unit.bookItem != unit.CustomBookItem)
+            {
+                stringKey = unit.CustomBookItem.ClassInfo.GetCharacterSkin();
+                skinTryGet =
+                    ModParameters.SkinOptions.TryGetValue(unit.CustomBookItem.ClassInfo.GetCharacterSkin(), out skin);
+            }
+            else
+            {
+                stringKey = unit.bookItem.ClassInfo.GetCharacterSkin();
+                skinTryGet =
+                    ModParameters.SkinOptions.TryGetValue(unit.bookItem.ClassInfo.GetCharacterSkin(), out skin);
+            }
+
+            if (!skinTryGet) return;
+            var customizeData = unit.customizeData;
+            var giftInventory = unit.giftInventory;
+            Object.Destroy(__result.gameObject);
+            var gameObject = Object.Instantiate(
+                Singleton<AssetBundleManagerRemake>.Instance.LoadCharacterPrefab(stringKey, "",
+                    out var resourceName), characterRoot);
+            var workshopBookSkinData =
+                Singleton<CustomizingBookSkinLoader>.Instance.GetWorkshopBookSkinData(
+                    skin.PackageId, stringKey);
+            gameObject.GetComponent<WorkshopSkinDataSetter>().SetData(workshopBookSkinData);
+            __result = gameObject.GetComponent<CharacterAppearance>();
+            __result.Initialize(resourceName);
+            var soundInfo = (CharacterSound)__result.GetType()
+                .GetField("_soundInfo", AccessTools.all)?.GetValue(__result);
+            var motionSounds = (List<CharacterSound.Sound>)soundInfo.GetType()
+                .GetField("_motionSounds", AccessTools.all)?.GetValue(soundInfo);
+            var dic = (Dictionary<MotionDetail, CharacterSound.Sound>)soundInfo.GetType()
+                .GetField("_dic", AccessTools.all)?.GetValue(soundInfo);
+            UnitUtil.PrepareSounds(motionSounds, dic, skin.MotionSounds);
+            __result.InitCustomData(customizeData, unit.defaultBook.GetBookClassInfoId());
+            __result.InitGiftDataAll(giftInventory.GetEquippedList());
+            __result.ChangeMotion(ActionDetail.Standing);
+            __result.ChangeLayer("Character");
+            __result.SetLibrarianOnlySprites(faction);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BattleUnitView), "ChangeSkin")]
+        public static void BattleUnitView_ChangeSkin(BattleUnitView __instance, string charName)
+        {
+            if (!ModParameters.SkinOptions.TryGetValue(charName, out var skin)) return;
+            if (typeof(BattleUnitView).GetField("_skinInfo", AccessTools.all)?.GetValue(__instance) is
+                BattleUnitView.SkinInfo skinInfo)
+            {
+                skinInfo.state = BattleUnitView.SkinState.Changed;
+                skinInfo.skinName = charName;
+            }
+
+            Debug.LogError(charName);
+            var currentMotionDetail = __instance.charAppearance.GetCurrentMotionDetail();
+            __instance.DestroySkin();
+            var gameObject =
+                Object.Instantiate(
+                    Singleton<AssetBundleManagerRemake>.Instance.LoadCharacterPrefab(charName, "",
+                        out var resourceName), __instance.model.view.characterRotationCenter);
+            var workshopBookSkinData =
+                Singleton<CustomizingBookSkinLoader>.Instance.GetWorkshopBookSkinData(
+                    skin.PackageId, charName);
+            gameObject.GetComponent<WorkshopSkinDataSetter>().SetData(workshopBookSkinData);
+            __instance.charAppearance = gameObject.GetComponent<CharacterAppearance>();
+            __instance.charAppearance.Initialize(resourceName);
+            var soundInfo = (CharacterSound)__instance.charAppearance.GetType()
+                .GetField("_soundInfo", AccessTools.all)?.GetValue(__instance.charAppearance);
+            var motionSounds = (List<CharacterSound.Sound>)soundInfo.GetType()
+                .GetField("_motionSounds", AccessTools.all)?.GetValue(soundInfo);
+            var dic = (Dictionary<MotionDetail, CharacterSound.Sound>)soundInfo.GetType()
+                .GetField("_dic", AccessTools.all)?.GetValue(soundInfo);
+            UnitUtil.PrepareSounds(motionSounds, dic, skin.MotionSounds);
+            __instance.charAppearance.ChangeMotion(currentMotionDetail);
+            __instance.charAppearance.ChangeLayer("Character");
+            __instance.charAppearance.SetLibrarianOnlySprites(__instance.model.faction);
+            __instance.model.UnitData.unitData.bookItem.ClassInfo.CharacterSkin = new List<string> { charName };
+            if (skin.CustomHeight == 0) return;
+            __instance.ChangeHeight(skin.CustomHeight);
         }
     }
 }

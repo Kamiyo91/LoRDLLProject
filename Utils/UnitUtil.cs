@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.Buffs;
 using BigDLL4221.Enum;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Passives;
 using HarmonyLib;
@@ -487,13 +488,19 @@ namespace BigDLL4221.Utils
             return unitBattleDataModel;
         }
 
-        public static bool SpecialCaseEgo(Faction unitFaction, LorId passiveId, Type buffType)
+        public static bool SpecialCaseEgo(Faction unitFaction, LorId passiveId, Dictionary<int, EgoOptions> egoOptions,
+            out int egoPhase)
         {
+            egoPhase = 0;
             var playerUnit = BattleObjectManager.instance
                 .GetAliveList(ReturnOtherSideFaction(unitFaction)).FirstOrDefault(x =>
                     x.passiveDetail.PassiveList.Exists(y => y.id == passiveId));
-            return playerUnit != null && playerUnit.bufListDetail.GetActivatedBufList()
-                .Exists(x => !x.IsDestroyed() && x.GetType() == buffType);
+            if (playerUnit == null) return false;
+            if (egoOptions.TryFirstOrDefault(x => playerUnit.bufListDetail.GetActivatedBufList()
+                    .Exists(y => !y.IsDestroyed() && x.GetType() == x.Value.EgoType.GetType()), out var egoOption))
+                return false;
+            egoPhase = egoOption.Key;
+            return true;
         }
 
         public static void RemoveImmortalBuff(BattleUnitModel owner)
@@ -516,9 +523,8 @@ namespace BigDLL4221.Utils
             Dictionary<MotionDetail, CharacterSound.Sound> dicMotionSounds,
             Dictionary<MotionDetail, MotionSound> customMotionSounds)
         {
-            try
-            {
-                foreach (var customMotionSound in customMotionSounds)
+            foreach (var customMotionSound in customMotionSounds)
+                try
                 {
                     var audioClipWin = GetSound(customMotionSound.Value.FileNameWin,
                         customMotionSound.Value.IsBaseSoundWin);
@@ -538,11 +544,10 @@ namespace BigDLL4221.Utils
                         dicMotionSounds.Remove(customMotionSound.Key);
                     dicMotionSounds.Add(customMotionSound.Key, sound);
                 }
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
+                catch (Exception)
+                {
+                    // ignored
+                }
         }
 
         public static AudioClip GetSound(string audioName, bool isBaseGame)

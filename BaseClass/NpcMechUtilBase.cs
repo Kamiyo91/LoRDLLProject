@@ -78,13 +78,6 @@ namespace BigDLL4221.BaseClass
             if (Model.MassAttackStartCount && Model.Counter < Model.MaxCounter) Model.Counter++;
         }
 
-        public virtual void AddAdditionalPassive()
-        {
-            if (Model.EgoOptions == null) return;
-            foreach (var passiveId in Model.EgoOptions.AdditionalPassiveIds)
-                Model.Owner.passiveDetail.AddPassive(passiveId);
-        }
-
         public virtual void SetMassAttack(bool value)
         {
             Model.MassAttackStartCount = value;
@@ -192,6 +185,7 @@ namespace BigDLL4221.BaseClass
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return;
             Model.PhaseChanging = false;
             Model.Phase++;
+            Model.EgoPhase = Model.Phase;
             if (mechOptions.ForceEgo) ForcedEgo();
             if (mechOptions.StartMassAttack.HasValue) SetMassAttack(mechOptions.StartMassAttack.Value);
             if (mechOptions.SetCounterToMax) SetCounter(Model.MaxCounter);

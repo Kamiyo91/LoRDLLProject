@@ -36,68 +36,87 @@ namespace BigDLL4221.BaseClass
 
         public virtual void EgoActive()
         {
-            if (Model.Owner.bufListDetail.HasAssimilation()) return;
-            if (Model.EgoOptions == null) return;
-            Model.EgoOptions.EgoActivated = false;
-            if (!string.IsNullOrEmpty(Model.EgoOptions?.SkinName))
-                Model.Owner.view.SetAltSkin(Model.EgoOptions.SkinName);
-            if (Model.EgoOptions?.EgoType != null)
-                Model.Owner.bufListDetail.AddBufWithoutDuplication(Model.EgoOptions.EgoType);
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            //if (Model.Owner.bufListDetail.HasAssimilation()) return;
+            egoOptions.EgoActivated = false;
+            if (!string.IsNullOrEmpty(egoOptions.EgoSkinName))
+                Model.Owner.view.SetAltSkin(egoOptions.EgoSkinName);
+            if (egoOptions.EgoType != null)
+                Model.Owner.bufListDetail.AddBufWithoutDuplication(egoOptions.EgoType);
             Model.Owner.cardSlotDetail.RecoverPlayPoint(Model.Owner.cardSlotDetail.GetMaxPlayPoint());
-            foreach (var card in Model.PersonalCards.Where(x => x.Value.EgoPersonalCard))
+            foreach (var card in Model.PersonalCards.Where(x =>
+                         x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase))
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
             if (Model.EgoOptions == null) return;
-            if (Model.EgoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
-            if (Model.EgoOptions.EgoAbDialogList.Any())
-                UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.EgoOptions.EgoAbDialogList,
-                    Model.EgoOptions.EgoAbColorColor);
+            if (egoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
+            if (egoOptions.EgoAbDialogList.Any())
+                UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, egoOptions.EgoAbDialogList,
+                    egoOptions.EgoAbColorColor);
         }
 
         public virtual void DeactiveEgo()
         {
-            if (Model.EgoOptions == null || Model.EgoOptions.Duration == 0 ||
-                Model.EgoOptions.Count != Model.EgoOptions.Duration) return;
-            Model.EgoOptions.Count = 0;
-            if (Model.EgoOptions?.EgoCardId != null) Model.Owner.personalEgoDetail.AddCard(Model.EgoOptions.EgoCardId);
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.Duration == 0 ||
+                egoOptions.Count != egoOptions.Duration) return;
+            egoOptions.Count = 0;
             foreach (var card in Model.PersonalCards.Where(x => x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.RemoveCard(card.Key);
-            Model.Owner.bufListDetail.RemoveBufAll(Model.EgoOptions?.EgoType.GetType());
-            Model.Owner.passiveDetail.PassiveList.RemoveAll(x => Model.EgoOptions.AdditionalPassiveIds.Contains(x.id));
-            if (!string.IsNullOrEmpty(Model.EgoOptions?.SkinName)) Model.Owner.view.CreateSkin();
-            if (Model.EgoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
-            if (Model.EgoOptions.ActivatedMap != null) ReturnFromEgoAssimilationMap();
+            if (!Model.PersonalCards.TryFirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0,
+                    out var egoCard)) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
+            foreach (var item in Model.EgoOptions)
+                Model.Owner.bufListDetail.RemoveBufAll(item.Value.EgoType.GetType());
+            foreach (var item in Model.EgoOptions)
+                Model.Owner.passiveDetail.PassiveList.RemoveAll(x => item.Value.AdditionalPassiveIds.Contains(x.id));
+            if (!string.IsNullOrEmpty(egoOptions.EgoSkinName))
+            {
+                Model.Owner.view.model.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
+                    new List<string> { Model.OriginalSkinName };
+                Model.Owner.view.CreateSkin();
+            }
+
+            if (egoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
+            if (Model.ActivatedMap != null) ReturnFromEgoAssimilationMap();
         }
 
         public virtual void EgoDurationCount()
         {
-            if (Model.EgoOptions == null || Model.EgoOptions.Duration == 0) return;
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.Duration == 0) return;
             if (Model.Owner.bufListDetail.GetActivatedBufList()
-                .Exists(x => x.GetType() == Model.EgoOptions.EgoType.GetType())) Model.EgoOptions.Count++;
+                .Exists(x => x.GetType() == egoOptions.EgoType.GetType())) egoOptions.Count++;
         }
 
         public virtual void OnUseExpireCard(LorId cardId)
         {
             if (Model.PersonalCards.Any(x => x.Key == cardId && x.Value.ExpireAfterUse))
                 Model.Owner.personalEgoDetail.RemoveCard(cardId);
-            if (Model.EgoOptions?.EgoCardId == null || Model.EgoOptions.EgoCardId != cardId) return;
-            Model.Owner.personalEgoDetail.RemoveCard(Model.EgoOptions.EgoCardId);
-            foreach (var passiveId in Model.EgoOptions.AdditionalPassiveIds)
-                Model.Owner.passiveDetail.AddPassive(passiveId);
-            Model.Owner.breakDetail.ResetGauge();
-            Model.Owner.breakDetail.RecoverBreakLife(1, true);
-            Model.Owner.breakDetail.nextTurnBreak = false;
-            Model.EgoOptions.EgoActivated = true;
+            if (!Model.PersonalCards.TryFirstOrDefault(x => x.Key == cardId, out var egoCard)) return;
+            if (!egoCard.Value.ActiveEgoCard) return;
+            Model.EgoPhase = egoCard.Value.EgoPhase + 1;
+            if (Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions))
+            {
+                foreach (var passiveId in egoOptions.AdditionalPassiveIds)
+                    Model.Owner.passiveDetail.AddPassive(passiveId);
+                Model.Owner.breakDetail.ResetGauge();
+                Model.Owner.breakDetail.RecoverBreakLife(1, true);
+                Model.Owner.breakDetail.nextTurnBreak = false;
+                egoOptions.EgoActivated = true;
+            }
+
+            Model.Owner.personalEgoDetail.RemoveCard(egoCard.Key);
         }
 
         public virtual void ReAddOnPlayCard()
         {
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             foreach (var card in Model.PersonalCards.Where(x =>
                          x.Value.OnPlayCard && !x.Value.ExpireAfterUse && (!x.Value.EgoPersonalCard ||
                                                                            (Model.EgoOptions != null &&
                                                                             Model.Owner.bufListDetail
                                                                                 .GetActivatedBufList()
                                                                                 .Any(y => y.GetType() ==
-                                                                                    Model.EgoOptions.EgoType
+                                                                                    egoOptions.EgoType
                                                                                         .GetType())))))
             {
                 Model.Owner.personalEgoDetail.RemoveCard(card.Key);
@@ -107,20 +126,23 @@ namespace BigDLL4221.BaseClass
 
         public virtual void AddExpireCards()
         {
-            if (Model.EgoOptions?.EgoCardId != null) Model.Owner.personalEgoDetail.AddCard(Model.EgoOptions.EgoCardId);
+            if (!Model.PersonalCards.TryFirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0,
+                    out var egoCard)) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
             foreach (var card in Model.PersonalCards.Where(x => !x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
         }
 
         public virtual void DoNotChangeSkinOnEgo()
         {
-            if (Model.EgoOptions == null) return;
-            Model.EgoOptions.SkinName = "";
+            if (!Model.EgoOptions.Any()) return;
+            foreach (var item in Model.EgoOptions)
+                item.Value.EgoSkinName = "";
         }
 
         public virtual bool CheckSkinChangeIsActive()
         {
-            return !string.IsNullOrEmpty(Model.EgoOptions?.SkinName);
+            return Model.EgoOptions.Any() && Model.EgoOptions
+                .Select(item => !string.IsNullOrEmpty(item.Value.EgoSkinName)).FirstOrDefault();
         }
 
         public virtual bool CheckOnDieAtFightEnd()
@@ -135,56 +157,101 @@ namespace BigDLL4221.BaseClass
 
         public virtual void TurnEgoAbDialogOff()
         {
-            Model.EgoOptions.EgoAbDialogList.Clear();
+            if (!Model.EgoOptions.Any()) return;
+            foreach (var item in Model.EgoOptions)
+                item.Value.EgoAbDialogList.Clear();
         }
 
         public virtual bool EgoCheck()
         {
-            return Model.EgoOptions != null && Model.EgoOptions.EgoActivated;
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return false;
+            return egoOptions != null && egoOptions.EgoActivated;
         }
 
         public virtual void ForcedEgo()
         {
-            Model.EgoOptions.EgoActivated = true;
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            egoOptions.EgoActivated = true;
         }
 
         public virtual void ChangeEgoAbDialog(List<AbnormalityCardDialog> value)
         {
-            Model.EgoOptions.EgoAbDialogList = value;
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            egoOptions.EgoAbDialogList = value;
         }
 
         public virtual void ReturnFromEgoMap()
         {
-            if (Model.EgoOptions?.ActivatedMap == null) return;
-            if (!Model.EgoOptions.ActivatedMap.OneTurnEgo && !Model.Owner.IsDead()) return;
-            MapUtil.ReturnFromEgoMap(Model.EgoOptions.ActivatedMap.Stage,
-                Model.EgoOptions.ActivatedMap.OriginalMapStageIds);
-            Model.EgoOptions.ActivatedMap = null;
+            if (Model.ActivatedMap == null) return;
+            if (!Model.ActivatedMap.OneTurnEgo && !Model.Owner.IsDead()) return;
+            MapUtil.ReturnFromEgoMap(Model.ActivatedMap.Stage,
+                Model.ActivatedMap.OriginalMapStageIds);
+            Model.ActivatedMap = null;
         }
 
         public virtual void ReturnFromEgoAssimilationMap()
         {
-            if (Model.EgoOptions?.ActivatedMap == null) return;
-            MapUtil.ReturnFromEgoMap(Model.EgoOptions.ActivatedMap.Stage,
-                Model.EgoOptions.ActivatedMap.OriginalMapStageIds);
-            Model.EgoOptions.ActivatedMap = null;
+            if (Model.ActivatedMap == null) return;
+            MapUtil.ReturnFromEgoMap(Model.ActivatedMap.Stage,
+                Model.ActivatedMap.OriginalMapStageIds);
+            Model.ActivatedMap = null;
         }
 
         public virtual void ChangeToEgoMap(LorId cardId)
         {
-            if (Model.EgoOptions == null || !Model.EgoOptions.EgoMaps.TryGetValue(cardId, out var mapModel) ||
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (Model.EgoOptions == null || !egoOptions.EgoMaps.TryGetValue(cardId, out var mapModel) ||
                 SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
-            Model.EgoOptions.ActivatedMap = mapModel;
+            Model.ActivatedMap = mapModel;
             MapUtil.ChangeMap(mapModel);
         }
 
         public virtual void PermanentBuffs()
         {
-            foreach (var item in Model.PermanentBuffList.Select((buff, index) => (index, buff)).ToList())
+            foreach (var item in Model.PermanentBuffList.Select((buff, index) => (index, buff)).ToList()
+                         .Where(item => !Model.Owner.HasBuff(item.buff.GetType())))
             {
-                if (Model.Owner.HasBuff(item.buff.GetType())) continue;
                 Model.PermanentBuffList[item.index] = (BattleUnitBuf)Activator.CreateInstance(item.buff.GetType());
                 Model.Owner.bufListDetail.AddBuf(Model.PermanentBuffList[item.index]);
+            }
+        }
+
+        public virtual void EgoRoundStartBuffs()
+        {
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.AdditionalBuffs == null) return;
+            foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartBuffs)
+                Model.Owner.bufListDetail.AddBuf(buff);
+            foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartKeywordBuffs)
+                Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
+            if (UnitUtil.SupportCharCheck(Model.Owner) > 1)
+            {
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartBuffsNotAlone)
+                    Model.Owner.bufListDetail.AddBuf(buff);
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartKeywordBuffsNotAlone)
+                    Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
+            }
+            else
+            {
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartBuffsAlone)
+                    Model.Owner.bufListDetail.AddBuf(buff);
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartKeywordBuffsAlone)
+                    Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
+            }
+
+            if (BattleObjectManager.instance.GetAliveList(Model.Owner.faction).Count > 1)
+            {
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartBuffsNotAloneCountSupportChar)
+                    Model.Owner.bufListDetail.AddBuf(buff);
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartKeywordBuffsNotAloneCountSupportChar)
+                    Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
+            }
+            else
+            {
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartBuffsAloneCountSupportChar)
+                    Model.Owner.bufListDetail.AddBuf(buff);
+                foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartKeywordBuffsAloneCountSupportChar)
+                    Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
             }
         }
     }

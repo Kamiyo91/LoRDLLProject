@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.BaseClass;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
@@ -58,8 +59,10 @@ namespace BigDLL4221.Passives
         {
             if (owner.faction != Faction.Enemy) return;
             if (Util.Model.EgoOptions == null) return;
-            if (UnitUtil.SpecialCaseEgo(owner.faction, Util.Model.ThisPassiveId,
-                    Util.Model.EgoOptions.EgoType.GetType())) Util.ForcedEgo();
+            if (!UnitUtil.SpecialCaseEgo(owner.faction, Util.Model.ThisPassiveId,
+                    Util.Model.EgoOptions, out var egoPhase)) return;
+            Util.Model.EgoPhase = egoPhase;
+            Util.ForcedEgo();
         }
 
         public override bool BeforeTakeDamage(BattleUnitModel attacker, int dmg)
@@ -71,6 +74,7 @@ namespace BigDLL4221.Passives
         public override void OnRoundStartAfter()
         {
             Util.PermanentBuffs();
+            Util.EgoRoundStartBuffs();
             Util.ReAddOnPlayCard();
         }
 
@@ -91,9 +95,13 @@ namespace BigDLL4221.Passives
                 owner.Die();
         }
 
-        public void ForcedEgo()
+        public void ForcedEgo(int egoPhase)
         {
-            owner.personalEgoDetail.RemoveCard(Util.Model.EgoOptions.EgoCardId);
+            if (!Util.Model.PersonalCards.TryFirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == egoPhase,
+                    out var egoCard)) return;
+            if (!Util.Model.EgoOptions.TryGetValue(egoCard.Value.EgoPhase, out var egoOptions)) return;
+            Util.Model.EgoPhase = egoPhase;
+            owner.personalEgoDetail.RemoveCard(egoCard.Key);
             Util.ForcedEgo();
         }
 

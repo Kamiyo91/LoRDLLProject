@@ -6,17 +6,19 @@ namespace BigDLL4221.Models
 {
     public class MechUtilBaseModel
     {
-        public MechUtilBaseModel(EgoOptions egoOptions = null,
-            int surviveHp = 0, int recoverToHp = 0, bool survive = false, bool recoverLightOnSurvive = false,
+        public MechUtilBaseModel(Dictionary<int, EgoOptions> egoOptions = null,
+            int surviveHp = 0, int recoverToHp = 0, string originalSkinName = "", bool survive = false,
+            bool recoverLightOnSurvive = false,
             bool dieOnFightEnd = false, DamageOptions damageOptions = null,
             List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
             List<BattleUnitBuf> permanentBuffList = null,
             Dictionary<LorId, PersonalCardOptions> personalCards = null)
         {
-            EgoOptions = egoOptions;
+            EgoOptions = egoOptions ?? new Dictionary<int, EgoOptions>();
             SurviveHp = surviveHp;
             RecoverToHp = recoverToHp;
+            OriginalSkinName = originalSkinName;
             Survive = survive;
             RecoverLightOnSurvive = recoverLightOnSurvive;
             DieOnFightEnd = dieOnFightEnd;
@@ -26,13 +28,16 @@ namespace BigDLL4221.Models
             NearDeathBuffType = nearDeathBuffType;
             PermanentBuffList = permanentBuffList ?? new List<BattleUnitBuf>();
             PersonalCards = personalCards ?? new Dictionary<LorId, PersonalCardOptions>();
+            EgoPhase = 0;
+            ActivatedMap = null;
         }
 
         public BattleUnitModel Owner { get; set; }
         public LorId ThisPassiveId { get; set; }
-        public EgoOptions EgoOptions { get; set; }
+        public Dictionary<int, EgoOptions> EgoOptions { get; set; }
         public int SurviveHp { get; set; }
         public int RecoverToHp { get; set; }
+        public string OriginalSkinName { get; set; }
         public bool Survive { get; set; }
         public bool RecoverLightOnSurvive { get; set; }
         public bool DieOnFightEnd { get; set; }
@@ -42,42 +47,43 @@ namespace BigDLL4221.Models
         public BattleUnitBuf NearDeathBuffType { get; set; }
         public List<BattleUnitBuf> PermanentBuffList { get; set; }
         public Dictionary<LorId, PersonalCardOptions> PersonalCards { get; set; }
+        public int EgoPhase { get; set; }
+        public MapModel ActivatedMap { get; set; }
     }
 
     public class EgoOptions
     {
-        public EgoOptions(BattleUnitBuf egoType = null, LorId egoCardId = null, string skinName = "",
+        public EgoOptions(BattleUnitBuf egoType = null, string egoSkinName = "",
             bool refreshUI = false,
             Dictionary<LorId, MapModel> egoMaps = null, List<LorId> additionalPassiveIds = null,
+            MechBuffOptions additionalBuffs = null,
             List<AbnormalityCardDialog> egoAbDialogList = null, AbColorType egoAbColorColor = AbColorType.Negative,
             int duration = 0)
         {
             EgoType = egoType;
-            EgoCardId = egoCardId;
             EgoMaps = egoMaps ?? new Dictionary<LorId, MapModel>();
             EgoActivated = false;
             AdditionalPassiveIds = additionalPassiveIds ?? new List<LorId>();
+            AdditionalBuffs = additionalBuffs;
             RefreshUI = refreshUI;
-            SkinName = skinName;
+            EgoSkinName = egoSkinName;
             EgoAbDialogList = egoAbDialogList ?? new List<AbnormalityCardDialog>();
             EgoAbColorColor = egoAbColorColor;
             Duration = duration;
             Count = 0;
-            ActivatedMap = null;
         }
 
         public BattleUnitBuf EgoType { get; set; }
-        public LorId EgoCardId { get; set; }
         public Dictionary<LorId, MapModel> EgoMaps { get; set; }
         public bool EgoActivated { get; set; }
         public List<LorId> AdditionalPassiveIds { get; set; }
+        public MechBuffOptions AdditionalBuffs { get; set; }
         public bool RefreshUI { get; set; }
-        public string SkinName { get; set; }
+        public string EgoSkinName { get; set; }
         public List<AbnormalityCardDialog> EgoAbDialogList { get; set; }
         public AbColorType EgoAbColorColor { get; set; }
         public int Duration { get; set; }
         public int Count { get; set; }
-        public MapModel ActivatedMap { get; set; }
     }
 
     public class DamageOptions
@@ -135,6 +141,8 @@ namespace BigDLL4221.Models
             OnPlayCard = onPlayCard;
         }
 
+        public int EgoPhase { get; set; }
+        public bool ActiveEgoCard { get; set; }
         public bool ExpireAfterUse { get; set; }
         public bool EgoPersonalCard { get; set; }
         public bool OnPlayCard { get; set; }

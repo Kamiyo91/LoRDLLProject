@@ -113,21 +113,24 @@ namespace BigDLL4221.Models
 
     public class SkinOptions
     {
-        public SkinOptions(string packageId = "", int customHeight = 0)
+        public SkinOptions(string packageId = "", int customHeight = 0,
+            Dictionary<MotionDetail, MotionSound> motionSounds = null)
         {
             PackageId = packageId;
             CustomHeight = customHeight;
+            MotionSounds = motionSounds ?? new Dictionary<MotionDetail, MotionSound>();
         }
 
         public string PackageId { get; set; }
         public int CustomHeight { get; set; }
+        public Dictionary<MotionDetail, MotionSound> MotionSounds { get; set; }
     }
 
     public class BookCustomOptions
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
             bool multiSkin = false,
-            string originalSkin = "", string egoSkin = "", Dictionary<MotionDetail, MotionSound> motionSounds = null)
+            string originalSkin = "", string egoSkin = "")
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
@@ -135,7 +138,6 @@ namespace BigDLL4221.Models
             OriginalSkin = originalSkin;
             EgoSkin = egoSkin;
             Name = name;
-            MotionSounds = motionSounds ?? new Dictionary<MotionDetail, MotionSound>();
         }
 
         public int NameTextId { get; set; }
@@ -144,7 +146,6 @@ namespace BigDLL4221.Models
         public bool MultiSkin { get; set; }
         public string OriginalSkin { get; set; }
         public string EgoSkin { get; set; }
-        public Dictionary<MotionDetail, MotionSound> MotionSounds { get; set; }
     }
 
     public class CardOptions

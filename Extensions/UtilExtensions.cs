@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BigDLL4221.Extensions
 {
-    public static class BattleUnitModelExtensions
+    public static class UtilExtensions
     {
         public static T GetActivePassive<T>(this BattleUnitModel owner) where T : PassiveAbilityBase
         {
@@ -36,6 +37,17 @@ namespace BigDLL4221.Extensions
         public static bool HasBuff(this BattleUnitModel owner, Type buffType)
         {
             return owner.bufListDetail.GetActivatedBufList().Exists(x => x.GetType() == buffType);
+        }
+
+        public static bool TryFirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value)
+        {
+            value = default;
+            using (var iterator = source.Where(predicate).GetEnumerator())
+            {
+                if (!iterator.MoveNext()) return false;
+                value = iterator.Current;
+                return true;
+            }
         }
     }
 }
