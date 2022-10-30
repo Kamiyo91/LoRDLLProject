@@ -8,7 +8,7 @@ namespace BigDLL4221.Models
     public class NpcMechUtilBaseModel : MechUtilBaseModel
     {
         public NpcMechUtilBaseModel(string saveDataId,
-            Dictionary<int, EgoOptions> egoOptions = null, int surviveHp = 0, int recoverToHp = 0,
+            Dictionary<int, EgoOptions> egoOptions = null,int additionalStartDraw = 0, int surviveHp = 0, int recoverToHp = 0,
             string originalSkinName = "", bool survive = false,
             bool recoverLightOnSurvive = false, bool dieOnFightEnd = false, DamageOptions damageOptions = null,
             List<AbnormalityCardDialog> surviveAbDialogList = null,
@@ -18,7 +18,7 @@ namespace BigDLL4221.Models
             Dictionary<int, MechPhaseOptions> mechOptions = null, int maxCounter = 4,
             bool reloadMassAttackOnLethal = true,
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
-            bool onDeathOtherDies = false) : base(egoOptions, surviveHp, recoverToHp, originalSkinName, survive,
+            bool onDeathOtherDies = false) : base(egoOptions, additionalStartDraw,surviveHp, recoverToHp, originalSkinName, survive,
             recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
             nearDeathBuffType,
             permanentBuffList,

@@ -21,6 +21,7 @@ namespace BigDLL4221.Passives
 
         public override void OnWaveStart()
         {
+            if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
             Util.PermanentBuffs();
             Util.Restart();
         }

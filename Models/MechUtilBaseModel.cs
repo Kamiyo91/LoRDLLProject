@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using BigDLL4221.Enum;
-using JetBrains.Annotations;
 using LOR_XML;
 
 namespace BigDLL4221.Models
 {
     public class MechUtilBaseModel
     {
-        public MechUtilBaseModel(Dictionary<int, EgoOptions> egoOptions = null,
+        public MechUtilBaseModel(Dictionary<int, EgoOptions> egoOptions = null,int additionalStartDraw = 0,
             int surviveHp = 0, int recoverToHp = 0, string originalSkinName = "", bool survive = false,
             bool recoverLightOnSurvive = false,
             bool dieOnFightEnd = false, DamageOptions damageOptions = null,
@@ -17,6 +16,7 @@ namespace BigDLL4221.Models
             Dictionary<LorId, PersonalCardOptions> personalCards = null)
         {
             EgoOptions = egoOptions ?? new Dictionary<int, EgoOptions>();
+            AdditionalStartDraw = additionalStartDraw;
             SurviveHp = surviveHp;
             RecoverToHp = recoverToHp;
             OriginalSkinName = originalSkinName;
@@ -36,6 +36,7 @@ namespace BigDLL4221.Models
         public BattleUnitModel Owner { get; set; }
         public LorId ThisPassiveId { get; set; }
         public Dictionary<int, EgoOptions> EgoOptions { get; set; }
+        public int AdditionalStartDraw { get; set; }
         public int SurviveHp { get; set; }
         public int RecoverToHp { get; set; }
         public string OriginalSkinName { get; set; }

@@ -733,21 +733,18 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(BattleUnitBuf), "bufActivatedName", MethodType.Getter)]
-        public static void BattleUnitBuf_SetBuffName(object __instance, ref string __result)
-        {
-            if (!(__instance is BattleUnitBuf_BaseBufWithTitle_DLL4221 buf)) return;
-            if (!string.IsNullOrEmpty(__result) || string.IsNullOrEmpty(buf.BufName)) return;
-            __result = buf.BufName;
-        }
-
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(BattleUnitBuf), "bufActivatedNameWithStack", MethodType.Getter)]
         public static void BattleUnitBuf_SetBuffNameWithStack(object __instance, ref string __result)
         {
             if (!(__instance is BattleUnitBuf_BaseBufWithTitle_DLL4221 buf)) return;
+            if (string.IsNullOrEmpty(buf.BufName)) return;
+            if (string.IsNullOrEmpty(__result))
+            {
+                __result = buf.BufName;
+                return;
+            }
             var resultWithoutSpace = __result.Replace(" ", "");
-            if (!double.TryParse(resultWithoutSpace, out _) || string.IsNullOrEmpty(buf.BufName)) return;
+            if (!double.TryParse(resultWithoutSpace, out _)) return;
             __result = buf.BufName + " " + buf.stack;
         }
 
