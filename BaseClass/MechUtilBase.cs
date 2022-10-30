@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BigDLL4221.Buffs;
 using BigDLL4221.Extensions;
@@ -62,8 +63,8 @@ namespace BigDLL4221.BaseClass
             egoOptions.Count = 0;
             foreach (var card in Model.PersonalCards.Where(x => x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.RemoveCard(card.Key);
-            if (!Model.PersonalCards.TryFirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0,
-                    out var egoCard)) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
+            var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0);
+            if (egoCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
             foreach (var item in Model.EgoOptions)
                 Model.Owner.bufListDetail.RemoveBufAll(item.Value.EgoType.GetType());
             foreach (var item in Model.EgoOptions)
@@ -91,7 +92,8 @@ namespace BigDLL4221.BaseClass
         {
             if (Model.PersonalCards.Any(x => x.Key == cardId && x.Value.ExpireAfterUse))
                 Model.Owner.personalEgoDetail.RemoveCard(cardId);
-            if (!Model.PersonalCards.TryFirstOrDefault(x => x.Key == cardId, out var egoCard)) return;
+            var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Key == cardId);
+            if (egoCard.Key == null) return;
             if (!egoCard.Value.ActiveEgoCard) return;
             Model.EgoPhase = egoCard.Value.EgoPhase + 1;
             if (Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions))
@@ -126,8 +128,8 @@ namespace BigDLL4221.BaseClass
 
         public virtual void AddExpireCards()
         {
-            if (!Model.PersonalCards.TryFirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0,
-                    out var egoCard)) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
+            var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0);
+            if(egoCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
             foreach (var card in Model.PersonalCards.Where(x => !x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
         }

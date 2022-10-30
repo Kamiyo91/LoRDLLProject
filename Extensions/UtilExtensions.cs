@@ -38,16 +38,5 @@ namespace BigDLL4221.Extensions
         {
             return owner.bufListDetail.GetActivatedBufList().Exists(x => x.GetType() == buffType);
         }
-
-        public static bool TryFirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T value)
-        {
-            value = default;
-            using (var iterator = source.Where(predicate).GetEnumerator())
-            {
-                if (!iterator.MoveNext()) return false;
-                value = iterator.Current;
-                return true;
-            }
-        }
     }
 }

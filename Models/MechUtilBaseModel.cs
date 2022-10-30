@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BigDLL4221.Enum;
+using JetBrains.Annotations;
 using LOR_XML;
 
 namespace BigDLL4221.Models
@@ -134,11 +135,13 @@ namespace BigDLL4221.Models
 
     public class PersonalCardOptions
     {
-        public PersonalCardOptions(bool egoPersonalCard = false, bool onPlayCard = false, bool expireAfterUse = false)
+        public PersonalCardOptions(bool egoPersonalCard = false, bool onPlayCard = false, bool expireAfterUse = false,int egoPhase = 0,bool activeEgoCard = false)
         {
             ExpireAfterUse = expireAfterUse;
             EgoPersonalCard = egoPersonalCard;
             OnPlayCard = onPlayCard;
+            EgoPhase = egoPhase;
+            ActiveEgoCard = activeEgoCard;
         }
 
         public int EgoPhase { get; set; }

@@ -496,9 +496,9 @@ namespace BigDLL4221.Utils
                 .GetAliveList(ReturnOtherSideFaction(unitFaction)).FirstOrDefault(x =>
                     x.passiveDetail.PassiveList.Exists(y => y.id == passiveId));
             if (playerUnit == null) return false;
-            if (egoOptions.TryFirstOrDefault(x => playerUnit.bufListDetail.GetActivatedBufList()
-                    .Exists(y => !y.IsDestroyed() && x.GetType() == x.Value.EgoType.GetType()), out var egoOption))
-                return false;
+            var egoOption = egoOptions.FirstOrDefault(x => playerUnit.bufListDetail.GetActivatedBufList()
+                .Exists(y => !y.IsDestroyed() && x.GetType() == x.Value.EgoType.GetType()));
+            if (egoOption.Value == null) return false;
             egoPhase = egoOption.Key;
             return true;
         }

@@ -97,8 +97,8 @@ namespace BigDLL4221.Passives
 
         public void ForcedEgo(int egoPhase)
         {
-            if (!Util.Model.PersonalCards.TryFirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == egoPhase,
-                    out var egoCard)) return;
+            var egoCard = Util.Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == egoPhase);
+            if (egoCard.Key == null) return;
             if (!Util.Model.EgoOptions.TryGetValue(egoCard.Value.EgoPhase, out var egoOptions)) return;
             Util.Model.EgoPhase = egoPhase;
             owner.personalEgoDetail.RemoveCard(egoCard.Key);
