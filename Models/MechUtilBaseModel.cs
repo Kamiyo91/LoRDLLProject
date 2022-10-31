@@ -6,7 +6,7 @@ namespace BigDLL4221.Models
 {
     public class MechUtilBaseModel
     {
-        public MechUtilBaseModel(Dictionary<int, EgoOptions> egoOptions = null,int additionalStartDraw = 0,
+        public MechUtilBaseModel(Dictionary<int, EgoOptions> egoOptions = null, int additionalStartDraw = 0,
             int surviveHp = 0, int recoverToHp = 0, string originalSkinName = "", bool survive = false,
             bool recoverLightOnSurvive = false,
             bool dieOnFightEnd = false, DamageOptions damageOptions = null,
@@ -136,7 +136,8 @@ namespace BigDLL4221.Models
 
     public class PersonalCardOptions
     {
-        public PersonalCardOptions(bool egoPersonalCard = false, bool onPlayCard = false, bool expireAfterUse = false,int egoPhase = 0,bool activeEgoCard = false)
+        public PersonalCardOptions(bool egoPersonalCard = false, bool onPlayCard = false, bool expireAfterUse = false,
+            int egoPhase = 0, bool activeEgoCard = false)
         {
             ExpireAfterUse = expireAfterUse;
             EgoPersonalCard = egoPersonalCard;

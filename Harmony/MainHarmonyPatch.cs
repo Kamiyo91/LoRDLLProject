@@ -743,6 +743,7 @@ namespace BigDLL4221.Harmony
                 __result = buf.BufName;
                 return;
             }
+
             var resultWithoutSpace = __result.Replace(" ", "");
             if (!double.TryParse(resultWithoutSpace, out _)) return;
             __result = buf.BufName + " " + buf.stack;

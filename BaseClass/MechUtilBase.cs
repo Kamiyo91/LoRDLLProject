@@ -128,7 +128,7 @@ namespace BigDLL4221.BaseClass
         public virtual void AddExpireCards()
         {
             var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0);
-            if(egoCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
+            if (egoCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
             foreach (var card in Model.PersonalCards.Where(x => !x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
         }

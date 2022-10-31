@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.BaseClass;
-using BigDLL4221.Extensions;
-using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
 
@@ -23,16 +21,14 @@ namespace BigDLL4221.Passives
         public override void OnBattleEnd()
         {
             if (!Util.CheckSkinChangeIsActive()) return;
-            if (!ModParameters.KeypageOptions.TryGetValue(owner.Book.BookId.packageId, out var bookOptions)) return;
-            var bookOption = bookOptions.FirstOrDefault(x => x.KeypageId == owner.Book.BookId.id);
-            if (bookOption?.BookCustomOptions != null)
+            if (!string.IsNullOrEmpty(Util.Model.OriginalSkinName))
                 owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
-                    new List<string> { bookOption.BookCustomOptions.OriginalSkin };
+                    new List<string> { Util.Model.OriginalSkinName };
         }
 
         public override void OnWaveStart()
         {
-            if(Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
+            if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
             Util.AddExpireCards();
             Util.PermanentBuffs();
             if (UnitUtil.CheckSkinProjection(owner))
@@ -98,7 +94,8 @@ namespace BigDLL4221.Passives
 
         public void ForcedEgo(int egoPhase)
         {
-            var egoCard = Util.Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == egoPhase);
+            var egoCard =
+                Util.Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == egoPhase);
             if (egoCard.Key == null) return;
             if (!Util.Model.EgoOptions.TryGetValue(egoCard.Value.EgoPhase, out var egoOptions)) return;
             Util.Model.EgoPhase = egoPhase;

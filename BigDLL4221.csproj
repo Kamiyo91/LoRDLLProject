@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="BaseClass\MechUtilBase.cs" />
     <Compile Include="BaseClass\NpcMechUtilBase.cs" />
+    <Compile Include="Buffs\BattleUnitBuf_BaseBufChanged_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_BaseBufWithTitle_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_CannotActUnitUntilRoundEnd_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_ImmortalUntilRoundEnd_DLL4221.cs" />
