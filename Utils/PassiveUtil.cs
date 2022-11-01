@@ -35,11 +35,8 @@ namespace BigDLL4221.Utils
             {
                 var passiveOption =
                     passiveOptions.FirstOrDefault(x => x.PassiveId == passive.id.id && x.IsBaseGamePassive);
-                if (passiveOption == null) continue;
-                if (!passiveOption.Transferable) passive.CanGivePassive = false;
-                if (passiveOption.InnerTypeId != 0) passive.InnerTypeId = passiveOption.InnerTypeId;
-                if (!string.IsNullOrEmpty(passiveOption.PassiveScriptId))
-                    passive.script = passiveOption.PassiveScriptId;
+                if (passiveOption == null || string.IsNullOrEmpty(passiveOption.PassiveScriptId)) continue;
+                passive.script = passiveOption.PassiveScriptId;
             }
         }
 

@@ -65,7 +65,8 @@ namespace BigDLL4221.Models
             bool onlySephirahCanEquip = false, string bookIconId = "",
             bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
             EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null,
-            BookCustomOptions bookCustomOptions = null)
+            BookCustomOptions bookCustomOptions = null, bool bannedEgoFloorCards = false,
+            bool isBaseGameKeypage = false)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -80,6 +81,8 @@ namespace BigDLL4221.Models
             EquipRangeType = rangeType;
             MultiDeckOptions = multiDeckOptions ?? new MultiDeckOptions(new List<string>());
             BookCustomOptions = bookCustomOptions;
+            BannedEgoFloorCards = bannedEgoFloorCards;
+            IsBaseGameKeypage = isBaseGameKeypage;
         }
 
         public int KeypageId { get; set; }
@@ -95,6 +98,8 @@ namespace BigDLL4221.Models
         public EquipRangeType? EquipRangeType { get; set; }
         public MultiDeckOptions MultiDeckOptions { get; set; }
         public BookCustomOptions BookCustomOptions { get; set; }
+        public bool BannedEgoFloorCards { get; set; }
+        public bool IsBaseGameKeypage { get; set; }
     }
 
     //int in dictionary in this class mean *Quantity*
