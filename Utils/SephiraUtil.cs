@@ -20,14 +20,15 @@ namespace BigDLL4221.Utils
                 return;
             var keypage = keypageOptions.FirstOrDefault(x => x.KeypageId == bookDataModel.ClassInfo.id.id);
             if (keypage == null) return;
-            if (!keypage.EveryoneCanEquip && keypage.SephirahType == currentUnit.OwnerSephirah &&
-                !currentUnit.isSephirah)
+            switch (keypage.EveryoneCanEquip)
             {
-                button_Equip.interactable = false;
-                txt_equipButton.text = TextDataModel.GetText("ui_equippage_notequip", Array.Empty<object>());
-                return;
+                case false when !keypage.OnlySephirahCanEquip:
+                    return;
+                case false when keypage.SephirahType != currentUnit.OwnerSephirah || (keypage.SephirahType == currentUnit.OwnerSephirah && !currentUnit.isSephirah):
+                    button_Equip.interactable = false;
+                    txt_equipButton.text = TextDataModel.GetText("ui_equippage_notequip", Array.Empty<object>());
+                    return;
             }
-
             if (!IsLockedCharacter(currentUnit)) return;
             button_Equip.interactable = true;
             txt_equipButton.text = TextDataModel.GetText("ui_bookinventory_equipbook", Array.Empty<object>());

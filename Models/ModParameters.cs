@@ -58,7 +58,7 @@ namespace BigDLL4221.Models
     public class KeypageOptions
     {
         public KeypageOptions(int keypageId, bool editable = true, string editErrorMessageId = "",
-            SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, string bookIconId = "",
+            SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, bool onlySephirahCanEquip = false, string bookIconId = "",
             bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
             EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null,
             BookCustomOptions bookCustomOptions = null)
@@ -68,6 +68,7 @@ namespace BigDLL4221.Models
             EditErrorMessageId = editErrorMessageId;
             SephirahType = sephirahType;
             EveryoneCanEquip = everyoneCanEquip;
+            OnlySephirahCanEquip = onlySephirahCanEquip;
             BookIconId = bookIconId;
             IsDeckFixed = isDeckFixed;
             IsMultiDeck = isMultiDeck;
@@ -82,6 +83,7 @@ namespace BigDLL4221.Models
         public string EditErrorMessageId { get; set; }
         public SephirahType SephirahType { get; set; }
         public bool EveryoneCanEquip { get; set; }
+        public bool OnlySephirahCanEquip { get; set; }
         public string BookIconId { get; set; }
         public bool IsDeckFixed { get; set; }
         public bool IsMultiDeck { get; set; }
@@ -130,7 +132,7 @@ namespace BigDLL4221.Models
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
             bool multiSkin = false,
-            string originalSkin = "", string egoSkin = "")
+            string originalSkin = "", string egoSkin = "", LorId customDialogId = null, BattleDialogCharacter customDialog = null)
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
@@ -138,6 +140,8 @@ namespace BigDLL4221.Models
             OriginalSkin = originalSkin;
             EgoSkin = egoSkin;
             Name = name;
+            CustomDialogId = customDialogId;
+            CustomDialog = customDialog;
         }
 
         public int NameTextId { get; set; }
@@ -146,12 +150,14 @@ namespace BigDLL4221.Models
         public bool MultiSkin { get; set; }
         public string OriginalSkin { get; set; }
         public string EgoSkin { get; set; }
+        public LorId CustomDialogId { get; set; }
+        public BattleDialogCharacter CustomDialog { get; set; }
     }
 
     public class CardOptions
     {
         public CardOptions(int cardId, CardOption option = CardOption.Basic, List<string> keywords = null,
-            List<LorId> bookId = null, bool onlyAllyTargetCard = false, bool oneSideOnlyCard = false)
+            List<LorId> bookId = null, bool onlyAllyTargetCard = false, bool oneSideOnlyCard = false, bool isBaseGameCard = false)
         {
             CardId = cardId;
             Option = option;
@@ -159,6 +165,7 @@ namespace BigDLL4221.Models
             BookId = bookId ?? new List<LorId>();
             OnlyAllyTargetCard = onlyAllyTargetCard;
             OneSideOnlyCard = oneSideOnlyCard;
+            IsBaseGameCard = isBaseGameCard;
         }
 
         public int CardId { get; set; }
@@ -167,6 +174,7 @@ namespace BigDLL4221.Models
         public List<LorId> BookId { get; set; }
         public bool OnlyAllyTargetCard { get; set; }
         public bool OneSideOnlyCard { get; set; }
+        public bool IsBaseGameCard { get; set; }
     }
 
     public class StageOptions
@@ -217,20 +225,21 @@ namespace BigDLL4221.Models
 
     public class PassiveOptions
     {
-        public PassiveOptions(int passiveId, bool untransferable = false, int innerTypeId = 0, bool forceAggro = false,
+        public PassiveOptions(int passiveId, bool transferable = true, int innerTypeId = 0, bool forceAggro = false,
             bool hasAdditionalParameter = false, bool isMultiDeck = false, List<LorId> cannotBeUsedWithPassives = null,
-            List<LorId> canBeUsedWithPassives = null, List<LorId> chainReleasePassives = null, bool gainCoins = true,
+            List<LorId> canBeUsedWithPassivesAll = null, List<LorId> canBeUsedWithPassivesOne = null, List<LorId> chainReleasePassives = null, bool gainCoins = true,
             bool bannedEmotionCardSelection = false,
             bool bannedEgoFloorCards = false, bool ignoreClashPassive = false, MultiDeckOptions multiDeckOptions = null)
         {
             PassiveId = passiveId;
-            Untransferable = untransferable;
+            Transferable = transferable;
             InnerTypeId = innerTypeId;
             ForceAggro = forceAggro;
             HasAdditionalParameter = hasAdditionalParameter;
             IsMultiDeck = isMultiDeck;
             CannotBeUsedWithPassives = cannotBeUsedWithPassives ?? new List<LorId>();
-            CanBeUsedWithPassives = canBeUsedWithPassives ?? new List<LorId>();
+            CanBeUsedWithPassivesAll = canBeUsedWithPassivesAll ?? new List<LorId>();
+            CanBeUsedWithPassivesOne = canBeUsedWithPassivesOne ?? new List<LorId>();
             ChainReleasePassives = chainReleasePassives ?? new List<LorId>();
             GainCoins = gainCoins;
             BannedEmotionCardSelection = bannedEmotionCardSelection;
@@ -240,13 +249,14 @@ namespace BigDLL4221.Models
         }
 
         public int PassiveId { get; set; }
-        public bool Untransferable { get; set; }
+        public bool Transferable { get; set; }
         public int InnerTypeId { get; set; }
         public bool ForceAggro { get; set; }
         public bool HasAdditionalParameter { get; set; }
         public bool IsMultiDeck { get; set; }
         public List<LorId> CannotBeUsedWithPassives { get; set; }
-        public List<LorId> CanBeUsedWithPassives { get; set; }
+        public List<LorId> CanBeUsedWithPassivesAll { get; set; }
+        public List<LorId> CanBeUsedWithPassivesOne { get; set; }
         public List<LorId> ChainReleasePassives { get; set; }
         public bool GainCoins { get; set; }
         public bool BannedEmotionCardSelection { get; set; }

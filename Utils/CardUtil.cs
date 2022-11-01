@@ -30,6 +30,12 @@ namespace BigDLL4221.Utils
                         SetCustomCardOption(cardOption.Option, cardOption.Keywords, item.Key, ref dictionary, ref list);
                     else SetCustomCardOption(CardOption.Basic, new List<string>(), item.Key, ref dictionary, ref list);
                 }
+                if (!cardOptions.Any(x => x.IsBaseGameCard)) return;
+                foreach (var item in dictionary.Where(x => string.IsNullOrEmpty(x.Key.packageId) && cardOptions.Exists(y => y.CardId == x.Key.id && y.IsBaseGameCard)).ToList())
+                {
+                    var cardOption = cardOptions.FirstOrDefault(x => x.CardId == item.Key.id && x.IsBaseGameCard);
+                    if (cardOption != null) SetCustomCardOption(cardOption.Option, cardOption.Keywords, item.Key, ref dictionary, ref list);
+                }
             }
             catch (Exception ex)
             {

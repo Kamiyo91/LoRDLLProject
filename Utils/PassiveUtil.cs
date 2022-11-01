@@ -25,7 +25,7 @@ namespace BigDLL4221.Utils
             {
                 var passiveOption = passiveOptions.FirstOrDefault(x => x.PassiveId == passive.id.id);
                 if (passiveOption == null) continue;
-                passive.CanGivePassive = passiveOption.Untransferable;
+                passive.CanGivePassive = passiveOption.Transferable;
                 if (passiveOption.InnerTypeId != 0) passive.InnerTypeId = passiveOption.InnerTypeId;
             }
         }
