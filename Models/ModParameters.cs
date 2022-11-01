@@ -36,6 +36,9 @@ namespace BigDLL4221.Models
 
         public static List<RewardOptions> StartUpRewardOptions = new List<RewardOptions>();
 
+        public static Dictionary<string, List<PassiveXmlInfo>> CreatePassives =
+            new Dictionary<string, List<PassiveXmlInfo>>();
+
         //Unity
         public static Dictionary<string, AssetBundle> AssetBundle = new Dictionary<string, AssetBundle>();
     }
@@ -233,7 +236,8 @@ namespace BigDLL4221.Models
             List<LorId> canBeUsedWithPassivesAll = null, List<LorId> canBeUsedWithPassivesOne = null,
             List<LorId> chainReleasePassives = null, bool gainCoins = true,
             bool bannedEmotionCardSelection = false,
-            bool bannedEgoFloorCards = false, bool ignoreClashPassive = false, MultiDeckOptions multiDeckOptions = null)
+            bool bannedEgoFloorCards = false, bool ignoreClashPassive = false, MultiDeckOptions multiDeckOptions = null,
+            bool isBaseGamePassive = false, string passiveScriptId = "")
         {
             PassiveId = passiveId;
             Transferable = transferable;
@@ -250,6 +254,8 @@ namespace BigDLL4221.Models
             BannedEgoFloorCards = bannedEgoFloorCards;
             IgnoreClashPassive = ignoreClashPassive;
             MultiDeckOptions = multiDeckOptions ?? new MultiDeckOptions(new List<string>());
+            IsBaseGamePassive = isBaseGamePassive;
+            PassiveScriptId = passiveScriptId;
         }
 
         public int PassiveId { get; set; }
@@ -267,6 +273,8 @@ namespace BigDLL4221.Models
         public bool BannedEgoFloorCards { get; set; }
         public bool IgnoreClashPassive { get; set; }
         public MultiDeckOptions MultiDeckOptions { get; set; }
+        public bool IsBaseGamePassive { get; set; }
+        public string PassiveScriptId { get; set; }
     }
 
     public class CredenzaOptions

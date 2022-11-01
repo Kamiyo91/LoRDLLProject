@@ -69,7 +69,7 @@ namespace BigDLL4221.Models
 
     public class MechPhaseOptions
     {
-        public MechPhaseOptions(int speedDieAdder = 0, int mechHp = 0,
+        public MechPhaseOptions(int speedDieAdder = 0, int mechHp = 0, bool mechOnDeath = false,
             List<SpecialAttackCardOptions> egoMassAttackCardsOptions = null, bool? startMassAttack = null,
             bool forceEgo = false, bool hasCustomMap = false, bool setCounterToMax = false,
             bool alwaysAimSlowestTargetDie = false, bool changeCardCost = false,
@@ -80,10 +80,12 @@ namespace BigDLL4221.Models
             List<UnitModel> summonUnit = null, List<UnitModel> summonPlayerUnit = null,
             List<string> soundEffectPath = null, int extraLightRecoverEachScene = 0, int extraDrawEachScene = 0,
             int extraRecoverHp = 0, int extraRecoverStagger = 0, int mapOrderIndex = 0,
-            DamageOptions damageOptions = null)
+            DamageOptions damageOptions = null, int hpRecoverOnChangePhase = 0, int multiWaveMapOrderIndex = 0,
+            bool creatureFilter = false, SingletonBufMech buffMech = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
+            MechOnDeath = mechOnDeath;
             MechHp = mechHp;
             EgoMassAttackCardsOptions = egoMassAttackCardsOptions ?? new List<SpecialAttackCardOptions>();
             StartMassAttack = startMassAttack;
@@ -106,9 +108,15 @@ namespace BigDLL4221.Models
             ExtraRecoverStagger = extraRecoverStagger;
             MapOrderIndex = mapOrderIndex;
             DamageOptions = damageOptions;
+            HpRecoverOnChangePhase = hpRecoverOnChangePhase;
+            MultiWaveMapOrderIndex = multiWaveMapOrderIndex;
+            CreatureFilter = creatureFilter;
+            BuffMech = buffMech;
         }
 
         public int MechHp { get; set; }
+        public bool MechOnDeath { get; set; }
+        public int HpRecoverOnChangePhase { get; set; }
         public List<SpecialAttackCardOptions> EgoMassAttackCardsOptions { get; set; }
         public bool? StartMassAttack { get; set; }
         public bool ForceEgo { get; set; }
@@ -131,7 +139,24 @@ namespace BigDLL4221.Models
         public int ExtraRecoverHp { get; set; }
         public int ExtraRecoverStagger { get; set; }
         public int MapOrderIndex { get; set; }
+        public int MultiWaveMapOrderIndex { get; set; }
+        public bool CreatureFilter { get; set; }
         public DamageOptions DamageOptions { get; set; }
+        public SingletonBufMech BuffMech { get; set; }
+    }
+
+    public class SingletonBufMech
+    {
+        public SingletonBufMech(BattleUnitBuf buff = null, int massAttackStacks = 0, List<LorId> massAttackCards = null)
+        {
+            Buff = buff;
+            MassAttackStacks = massAttackStacks;
+            MassAttackCards = massAttackCards ?? new List<LorId>();
+        }
+
+        public BattleUnitBuf Buff { get; set; }
+        public int MassAttackStacks { get; set; }
+        public List<LorId> MassAttackCards { get; set; }
     }
 
     public class MechBuffOptions

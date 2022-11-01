@@ -85,8 +85,7 @@ namespace BigDLL4221.Utils
             if (startDraw) owner.allyCardDetail.DrawCards(owner.UnitData.unitData.GetStartDraw());
         }
 
-        public static void UnitReviveAndRecovery(BattleUnitModel owner, int hp, bool recoverLight,
-            bool skinChanged = false)
+        public static void UnitReviveAndRecovery(BattleUnitModel owner, int hp, bool recoverLight)
         {
             if (owner.IsDead())
             {
@@ -95,10 +94,7 @@ namespace BigDLL4221.Utils
                 owner.Revive(hp);
                 owner.moveDetail.ReturnToFormationByBlink(true);
                 owner.view.EnableView(true);
-                if (skinChanged)
-                    CheckSkinProjection(owner);
-                else
-                    owner.view.CreateSkin();
+                owner.view.EnableStatNumber(true);
             }
             else
             {
@@ -238,7 +234,7 @@ namespace BigDLL4221.Utils
             unit.view.speedDiceSetterUI.DeselectAll();
             foreach (var speedDice in unit.speedDiceResult)
                 speedDice.breaked = true;
-            unit.bufListDetail.AddBuf(new BattleUnitBuf_UntargetableUntilRoundEnd_DLL4221 { CantMove = breakUnit });
+            unit.bufListDetail.AddBuf(new BattleUnitBuf_Untargetable_DLL4221(breakUnit));
             var actionableEnemyList = Singleton<StageController>.Instance.GetActionableEnemyList();
             if (unit.faction != Faction.Player)
                 return;
@@ -504,13 +500,14 @@ namespace BigDLL4221.Utils
 
         public static void RemoveImmortalBuff(BattleUnitModel owner)
         {
-            if (owner.bufListDetail.GetActivatedBufList().Find(x => x is BattleUnitBuf_ImmortalUntilRoundEnd_DLL4221) is
-                BattleUnitBuf_ImmortalUntilRoundEnd_DLL4221 buf)
-                owner.bufListDetail.RemoveBuf(buf);
-            if (owner.bufListDetail.GetActivatedBufList()
-                    .Find(x => x is BattleUnitBuf_ImmunityToStatusAlimentUntilRoundEnd_DLL4221) is
-                BattleUnitBuf_ImmunityToStatusAlimentUntilRoundEnd_DLL4221 buf2)
-                owner.bufListDetail.RemoveBuf(buf2);
+            if (owner.bufListDetail.GetActivatedBufList().Find(x => x is BattleUnitBuf_Immortal_DLL4221) is
+                BattleUnitBuf_Immortal_DLL4221 buf)
+                if (buf.LastOneScene)
+                    owner.bufListDetail.RemoveBuf(buf);
+            if (!(owner.bufListDetail.GetActivatedBufList()
+                        .Find(x => x is BattleUnitBuf_ImmunityToStatusAlimentType_DLL4221) is
+                    BattleUnitBuf_ImmunityToStatusAlimentType_DLL4221 buf2)) return;
+            if (buf2.LastOneScene) owner.bufListDetail.RemoveBuf(buf2);
         }
 
         public static LorId LorIdMaker(string packageId, int itemId)

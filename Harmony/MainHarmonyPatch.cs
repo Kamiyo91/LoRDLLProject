@@ -533,8 +533,9 @@ namespace BigDLL4221.Harmony
             var unit = __instance.SelectedModel ?? __instance.HOveredModel;
             if (!unit.passiveDetail.PassiveList.Exists(y =>
                     ModParameters.PassiveOptions.Any(z =>
-                        z.Key == y.id.packageId &&
-                        z.Value.Any(v => v.PassiveId == y.id.id && v.BannedEgoFloorCards)))) return;
+                        (z.Key == y.id.packageId &&
+                         z.Value.Any(v => v.PassiveId == y.id.id && v.BannedEgoFloorCards)) || z.Value.Any(v =>
+                            v.PassiveId == y.id.id && v.IsBaseGamePassive && v.BannedEgoFloorCards)))) return;
             var list = ArtUtil.ReloadEgoHandUI(__instance, __instance.GetCardUIList(), unit, ____activatedCardList,
                 ref ____xInterval).ToList();
             __instance.SetSelectedCardUI(null);
@@ -770,7 +771,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(BattleUnitBuf), "bufActivatedNameWithStack", MethodType.Getter)]
         public static void BattleUnitBuf_SetBuffNameWithStack(object __instance, ref string __result)
         {
-            if (!(__instance is BattleUnitBuf_BaseBufWithTitle_DLL4221 buf)) return;
+            if (!(__instance is BattleUnitBuf_BaseBufChanged_DLL4221 buf)) return;
             if (string.IsNullOrEmpty(buf.BufName)) return;
             if (string.IsNullOrEmpty(__result))
             {

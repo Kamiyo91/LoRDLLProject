@@ -22,12 +22,14 @@ namespace BigDLL4221.Passives
         public override void OnWaveStart()
         {
             if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
+            Util.MechBuff();
             Util.PermanentBuffs();
             Util.Restart();
         }
 
         public override void OnRoundStart()
         {
+            Util.MechBuff();
             Util.PermanentBuffs();
             Util.UseSpecialBuffCard();
             Util.RoundStartBuffs();
@@ -51,6 +53,7 @@ namespace BigDLL4221.Passives
 
         public override void OnRoundEnd()
         {
+            Util.ExhaustMechBufAttackCards();
             Util.ExhaustEgoAttackCards();
             Util.SetOneTurnCard(false);
             Util.RaiseCounter();
@@ -94,13 +97,11 @@ namespace BigDLL4221.Passives
             UnitUtil.RemoveImmortalBuff(owner);
         }
 
-        public override void OnRoundEndTheLast()
-        {
-            Util.CheckPhase();
-        }
-
         public override void OnDie()
         {
+            if (Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions))
+                if (mechOptions.MechOnDeath)
+                    Util.Model.PhaseChanging = true;
             if (!Util.Model.OnDeathOtherDies) return;
             foreach (var unit in BattleObjectManager.instance.GetAliveList(owner.faction))
                 unit.DieFake();
@@ -109,11 +110,13 @@ namespace BigDLL4221.Passives
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)
         {
             Util.OnUseCardResetCount(curCard);
+            Util.OnUseMechBuffAttackCard(curCard.card.GetID());
             Util.ChangeToEgoMap(curCard.card.GetID());
         }
 
         public override void OnRoundEndTheLast_ignoreDead()
         {
+            Util.CheckPhase();
             Util.ReturnFromEgoMap();
         }
 

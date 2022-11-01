@@ -30,8 +30,8 @@ namespace BigDLL4221.BaseClass
             if (Model.NearDeathBuffType != null)
                 Model.Owner.bufListDetail.AddBufWithoutDuplication(Model.NearDeathBuffType);
             Model.Owner.bufListDetail.AddBufWithoutDuplication(
-                new BattleUnitBuf_ImmunityToStatusAlimentUntilRoundEnd_DLL4221());
-            Model.Owner.bufListDetail.AddBufWithoutDuplication(new BattleUnitBuf_ImmortalUntilRoundEnd_DLL4221());
+                new BattleUnitBuf_ImmunityToStatusAlimentType_DLL4221());
+            Model.Owner.bufListDetail.AddBufWithoutDuplication(new BattleUnitBuf_Immortal_DLL4221());
         }
 
         public virtual void EgoActive()

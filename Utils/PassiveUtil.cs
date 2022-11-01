@@ -20,14 +20,33 @@ namespace BigDLL4221.Utils
         public static void ChangePassiveItem(string packageId)
         {
             if (!ModParameters.PassiveOptions.TryGetValue(packageId, out var passiveOptions)) return;
-            foreach (var passive in Singleton<PassiveXmlList>.Instance.GetDataAll().Where(passive =>
+            foreach (var passive in PassiveXmlList.Instance.GetDataAll().Where(passive =>
                          passive.id.packageId == packageId))
             {
-                var passiveOption = passiveOptions.FirstOrDefault(x => x.PassiveId == passive.id.id);
+                var passiveOption =
+                    passiveOptions.FirstOrDefault(x => x.PassiveId == passive.id.id && !x.IsBaseGamePassive);
                 if (passiveOption == null) continue;
                 passive.CanGivePassive = passiveOption.Transferable;
                 if (passiveOption.InnerTypeId != 0) passive.InnerTypeId = passiveOption.InnerTypeId;
             }
+
+            foreach (var passive in PassiveXmlList.Instance.GetDataAll()
+                         .Where(passive => string.IsNullOrEmpty(passive.id.packageId)))
+            {
+                var passiveOption =
+                    passiveOptions.FirstOrDefault(x => x.PassiveId == passive.id.id && x.IsBaseGamePassive);
+                if (passiveOption == null) continue;
+                if (!passiveOption.Transferable) passive.CanGivePassive = false;
+                if (passiveOption.InnerTypeId != 0) passive.InnerTypeId = passiveOption.InnerTypeId;
+                if (!string.IsNullOrEmpty(passiveOption.PassiveScriptId))
+                    passive.script = passiveOption.PassiveScriptId;
+            }
+        }
+
+        public static void AddPassiveItem(string packageId)
+        {
+            if (!ModParameters.CreatePassives.TryGetValue(packageId, out var passiveToCreate)) return;
+            PassiveXmlList.Instance.AddPassivesByMod(passiveToCreate);
         }
     }
 }

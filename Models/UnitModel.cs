@@ -4,7 +4,7 @@
     {
         public UnitModel(int id, string packageId, int unitNameId = 0, string name = "",
             bool lockedEmotion = false, int maxEmotionLevel = 0, bool autoPlay = false, bool summonedOnPlay = false,
-            XmlVector2 customPos = null, string skinName = "")
+            XmlVector2 customPos = null, string skinName = "", bool isMainEnemy = false)
         {
             Id = id;
             PackageId = packageId;
@@ -16,6 +16,7 @@
             SummonedOnPlay = summonedOnPlay;
             CustomPos = customPos;
             SkinName = skinName;
+            IsMainEnemy = isMainEnemy;
         }
 
         public int Id { get; set; }
@@ -28,5 +29,6 @@
         public bool SummonedOnPlay { get; set; }
         public XmlVector2 CustomPos { get; set; }
         public string SkinName { get; set; }
+        public bool IsMainEnemy { get; set; }
     }
 }

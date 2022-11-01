@@ -297,5 +297,19 @@ namespace BigDLL4221.Utils
             var value = AssetBundle.LoadFromFile(path);
             ModParameters.AssetBundle.Add(name, value);
         }
+
+        public static void MakeEffect(BattleUnitModel unit, string path, float sizeFactor = 1f,
+            BattleUnitModel target = null, float destroyTime = -1f)
+        {
+            try
+            {
+                SingletonBehavior<DiceEffectManager>.Instance.CreateCreatureEffect(path, sizeFactor, unit.view,
+                    target?.view, destroyTime);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
     }
 }

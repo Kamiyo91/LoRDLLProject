@@ -1,33 +1,12 @@
 ﻿namespace BigDLL4221.Buffs
 {
-    public class BattleUnitBuf_LockedUnitUntilRoundEnd_DLL4221 : BattleUnitBuf
+    public class BattleUnitBuf_LockedUnit_DLL4221 : BattleUnitBuf_BaseBufChanged_DLL4221
     {
         private int _breakedDice;
-        private bool _motionChange;
 
         public override bool IsTargetable()
         {
             return false;
-        }
-
-        public override void Init(BattleUnitModel owner)
-        {
-            base.Init(owner);
-            if (!string.IsNullOrEmpty(owner.UnitData.unitData.workshopSkin) ||
-                owner.UnitData.unitData.bookItem != owner.UnitData.unitData.CustomBookItem) return;
-            _motionChange = true;
-            owner.view.charAppearance.ChangeMotion(ActionDetail.Damaged);
-        }
-
-        public override void OnRoundEnd()
-        {
-            if (_motionChange)
-            {
-                _motionChange = false;
-                _owner.view.charAppearance.ChangeMotion(ActionDetail.Default);
-            }
-
-            _owner.bufListDetail.RemoveBuf(this);
         }
 
         public override void OnRollSpeedDice()
