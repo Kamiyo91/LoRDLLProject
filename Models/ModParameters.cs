@@ -237,7 +237,7 @@ namespace BigDLL4221.Models
     public class PassiveOptions
     {
         public PassiveOptions(int passiveId, bool transferable = true, int innerTypeId = 0, bool forceAggro = false,
-            bool hasAdditionalParameter = false, bool isMultiDeck = false, List<LorId> cannotBeUsedWithPassives = null,
+            bool isMultiDeck = false, List<LorId> cannotBeUsedWithPassives = null,
             List<LorId> canBeUsedWithPassivesAll = null, List<LorId> canBeUsedWithPassivesOne = null,
             List<LorId> chainReleasePassives = null, bool gainCoins = true,
             bool bannedEmotionCardSelection = false,
@@ -248,7 +248,6 @@ namespace BigDLL4221.Models
             Transferable = transferable;
             InnerTypeId = innerTypeId;
             ForceAggro = forceAggro;
-            HasAdditionalParameter = hasAdditionalParameter;
             IsMultiDeck = isMultiDeck;
             CannotBeUsedWithPassives = cannotBeUsedWithPassives ?? new List<LorId>();
             CanBeUsedWithPassivesAll = canBeUsedWithPassivesAll ?? new List<LorId>();
@@ -267,7 +266,6 @@ namespace BigDLL4221.Models
         public bool Transferable { get; set; }
         public int InnerTypeId { get; set; }
         public bool ForceAggro { get; set; }
-        public bool HasAdditionalParameter { get; set; }
         public bool IsMultiDeck { get; set; }
         public List<LorId> CannotBeUsedWithPassives { get; set; }
         public List<LorId> CanBeUsedWithPassivesAll { get; set; }

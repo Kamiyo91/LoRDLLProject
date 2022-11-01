@@ -203,12 +203,10 @@ namespace BigDLL4221.Harmony
             if (ModParameters.PassiveOptions.TryGetValue(targetpassive.originData.currentpassive.id.packageId,
                     out var passiveOptions))
             {
-                var passiveItem =
-                    passiveOptions.FirstOrDefault(x => x.PassiveId == targetpassive.originData.currentpassive.id.id);
-                if (passiveItem == null || !passiveItem.HasAdditionalParameter) return;
+                var passiveItem = passiveOptions.FirstOrDefault(x => x.PassiveId == targetpassive.originData.currentpassive.id.id && !x.IsBaseGamePassive);
+                if (passiveItem == null) return;
                 var unitPassiveList = __instance.GetPassiveModelList();
-                if (passiveItem.CannotBeUsedWithPassives.Any(passiveId =>
-                        unitPassiveList.Exists(x => x.reservedData.currentpassive.id == passiveId)))
+                if (__instance.GetPassiveModelList().Exists(x => passiveItem.CannotBeUsedWithPassives.Contains(x.reservedData.currentpassive.id)))
                 {
                     haspassiveState = GivePassiveState.Lock;
                     __result = false;
@@ -223,8 +221,7 @@ namespace BigDLL4221.Harmony
                     return;
                 }
 
-                if (!passiveItem.CanBeUsedWithPassivesOne.Any(passiveId =>
-                        unitPassiveList.Exists(x => x.reservedData.currentpassive.id == passiveId)))
+                if (passiveItem.CanBeUsedWithPassivesOne.Any() && !__instance.GetPassiveModelList().Exists(x => passiveItem.CanBeUsedWithPassivesOne.Contains(x.reservedData.currentpassive.id)))
                 {
                     haspassiveState = GivePassiveState.Lock;
                     __result = false;
@@ -313,7 +310,7 @@ namespace BigDLL4221.Harmony
                 : passive.reservedData.currentpassive;
             if (!ModParameters.PassiveOptions.TryGetValue(currentPassive.id.packageId, out var passiveOptions)) return;
             var passiveItem = passiveOptions.FirstOrDefault(x => x.PassiveId == currentPassive.id.id);
-            if (passiveItem == null || !passiveItem.HasAdditionalParameter) return;
+            if (passiveItem == null) return;
             var passivesToRelease = __instance.GetPassiveModelList().Where(x =>
                 passiveItem.ChainReleasePassives.Contains(x.reservedData.currentpassive.id));
             foreach (var passiveToRelease in passivesToRelease)
@@ -333,7 +330,7 @@ namespace BigDLL4221.Harmony
                 var passiveToRelease = new List<PassiveModel>();
                 foreach (var passiveOption in passiveOptions)
                 foreach (var passiveModel in passiveOption.Value
-                             .Where(passiveItem => passiveItem.HasAdditionalParameter).SelectMany(passiveItem =>
+                             .SelectMany(passiveItem =>
                                  unequipbook.GetPassiveModelList().Where(passiveModel =>
                                      !passiveToRelease.Contains(passiveModel) &&
                                      (passiveItem.ChainReleasePassives.Contains(passiveModel.originData.currentpassive
@@ -364,7 +361,7 @@ namespace BigDLL4221.Harmony
                     return;
                 var passiveItem =
                     passiveOptions.FirstOrDefault(x => x.PassiveId == currentPassive.currentpassive.id.id);
-                if (passiveItem == null || !passiveItem.HasAdditionalParameter) return;
+                if (passiveItem == null) return;
                 var book = Singleton<BookInventoryModel>.Instance.GetBookByInstanceId(currentPassive.givePassiveBookId);
                 var passiveModels = book != null
                     ? book.GetPassiveModelList().Where(x =>
