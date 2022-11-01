@@ -58,7 +58,8 @@ namespace BigDLL4221.Models
     public class KeypageOptions
     {
         public KeypageOptions(int keypageId, bool editable = true, string editErrorMessageId = "",
-            SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false, bool onlySephirahCanEquip = false, string bookIconId = "",
+            SephirahType sephirahType = SephirahType.None, bool everyoneCanEquip = false,
+            bool onlySephirahCanEquip = false, string bookIconId = "",
             bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
             EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null,
             BookCustomOptions bookCustomOptions = null)
@@ -132,7 +133,8 @@ namespace BigDLL4221.Models
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
             bool multiSkin = false,
-            string originalSkin = "", string egoSkin = "", LorId customDialogId = null, BattleDialogCharacter customDialog = null)
+            string originalSkin = "", string egoSkin = "", LorId customDialogId = null,
+            BattleDialogCharacter customDialog = null)
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
@@ -157,7 +159,8 @@ namespace BigDLL4221.Models
     public class CardOptions
     {
         public CardOptions(int cardId, CardOption option = CardOption.Basic, List<string> keywords = null,
-            List<LorId> bookId = null, bool onlyAllyTargetCard = false, bool oneSideOnlyCard = false, bool isBaseGameCard = false)
+            List<LorId> bookId = null, bool onlyAllyTargetCard = false, bool oneSideOnlyCard = false,
+            bool isBaseGameCard = false)
         {
             CardId = cardId;
             Option = option;
@@ -227,7 +230,8 @@ namespace BigDLL4221.Models
     {
         public PassiveOptions(int passiveId, bool transferable = true, int innerTypeId = 0, bool forceAggro = false,
             bool hasAdditionalParameter = false, bool isMultiDeck = false, List<LorId> cannotBeUsedWithPassives = null,
-            List<LorId> canBeUsedWithPassivesAll = null, List<LorId> canBeUsedWithPassivesOne = null, List<LorId> chainReleasePassives = null, bool gainCoins = true,
+            List<LorId> canBeUsedWithPassivesAll = null, List<LorId> canBeUsedWithPassivesOne = null,
+            List<LorId> chainReleasePassives = null, bool gainCoins = true,
             bool bannedEmotionCardSelection = false,
             bool bannedEgoFloorCards = false, bool ignoreClashPassive = false, MultiDeckOptions multiDeckOptions = null)
         {
