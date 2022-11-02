@@ -91,7 +91,8 @@ namespace BigDLL4221.Models
             bool creatureFilter = false, SingletonBufMech buffMech = null, MusicOptions musicOptions = null,
             List<LorId> unitsThatDieTogetherByPassive = null,
             List<AbnormalityCardDialog> onPhaseChangeDialogList = null,
-            AbColorType onPhaseChangeDialogColor = AbColorType.Negative, Func<BattleUnitModel, bool> massAttackExtraCondition = null)
+            AbColorType onPhaseChangeDialogColor = AbColorType.Negative,
+            Func<BattleUnitModel, bool> massAttackExtraCondition = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -162,7 +163,7 @@ namespace BigDLL4221.Models
         public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
         public List<AbnormalityCardDialog> OnPhaseChangeDialogList { get; set; }
         public AbColorType OnPhaseChangeDialogColor { get; set; }
-        public Func<BattleUnitModel,bool> MassAttackExtraCondition { get; set; }
+        public Func<BattleUnitModel, bool> MassAttackExtraCondition { get; set; }
     }
 
     public class MusicOptions
