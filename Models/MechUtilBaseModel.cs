@@ -13,10 +13,14 @@ namespace BigDLL4221.Models
             List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
             List<BattleUnitBuf> permanentBuffList = null,
-            Dictionary<LorId, PersonalCardOptions> personalCards = null)
+            Dictionary<LorId, PersonalCardOptions> personalCards = null, bool reusableEgo = true,
+            bool reviveOnDeath = false, int recoverHpOnRevive = 0,
+            List<AbnormalityCardDialog> reviveAbDialogList = null,
+            AbColorType reviveAbDialogColor = AbColorType.Negative, LorId firstEgoFormCard = null)
         {
             EgoOptions = egoOptions ?? new Dictionary<int, EgoOptions>();
             AdditionalStartDraw = additionalStartDraw;
+            ReviveOnDeath = reviveOnDeath;
             SurviveHp = surviveHp;
             RecoverToHp = recoverToHp;
             OriginalSkinName = originalSkinName;
@@ -31,12 +35,19 @@ namespace BigDLL4221.Models
             PersonalCards = personalCards ?? new Dictionary<LorId, PersonalCardOptions>();
             EgoPhase = 0;
             ActivatedMap = null;
+            ReusableEgo = reusableEgo;
+            RecoverHpOnRevive = recoverHpOnRevive;
+            ReviveAbDialogList = reviveAbDialogList ?? new List<AbnormalityCardDialog>();
+            ReviveAbDialogColor = reviveAbDialogColor;
+            FirstEgoFormCard = firstEgoFormCard;
         }
 
         public BattleUnitModel Owner { get; set; }
         public LorId ThisPassiveId { get; set; }
         public Dictionary<int, EgoOptions> EgoOptions { get; set; }
         public int AdditionalStartDraw { get; set; }
+        public bool ReviveOnDeath { get; set; }
+        public int RecoverHpOnRevive { get; set; }
         public int SurviveHp { get; set; }
         public int RecoverToHp { get; set; }
         public string OriginalSkinName { get; set; }
@@ -44,13 +55,17 @@ namespace BigDLL4221.Models
         public bool RecoverLightOnSurvive { get; set; }
         public bool DieOnFightEnd { get; set; }
         public DamageOptions DamageOptions { get; set; }
+        public List<AbnormalityCardDialog> ReviveAbDialogList { get; set; }
+        public AbColorType ReviveAbDialogColor { get; set; }
         public List<AbnormalityCardDialog> SurviveAbDialogList { get; set; }
         public AbColorType SurviveAbDialogColor { get; set; }
         public BattleUnitBuf NearDeathBuffType { get; set; }
         public List<BattleUnitBuf> PermanentBuffList { get; set; }
         public Dictionary<LorId, PersonalCardOptions> PersonalCards { get; set; }
+        public LorId FirstEgoFormCard { get; set; }
         public int EgoPhase { get; set; }
         public MapModel ActivatedMap { get; set; }
+        public bool ReusableEgo { get; set; }
     }
 
     public class EgoOptions
@@ -60,7 +75,10 @@ namespace BigDLL4221.Models
             Dictionary<LorId, MapModel> egoMaps = null, List<LorId> additionalPassiveIds = null,
             MechBuffOptions additionalBuffs = null,
             List<AbnormalityCardDialog> egoAbDialogList = null, AbColorType egoAbColorColor = AbColorType.Negative,
-            int duration = 0)
+            int duration = 0, bool activeEgoOnDeath = false, bool activeEgoOnSurvive = false,
+            List<UnitModel> summonUnit = null,
+            List<LorId> unitsThatDieTogetherByPassive = null, bool removeEgoWhenSolo = false,
+            bool deactiveEgoOnBreak = false)
         {
             EgoType = egoType;
             EgoMaps = egoMaps ?? new Dictionary<LorId, MapModel>();
@@ -73,8 +91,16 @@ namespace BigDLL4221.Models
             EgoAbColorColor = egoAbColorColor;
             Duration = duration;
             Count = 0;
+            ActiveEgoOnDeath = activeEgoOnDeath;
+            ActiveEgoOnSurvive = activeEgoOnSurvive;
+            SummonUnit = summonUnit;
+            UnitsThatDieTogetherByPassive = unitsThatDieTogetherByPassive ?? new List<LorId>();
+            RemoveEgoWhenSolo = removeEgoWhenSolo;
+            DeactiveEgoOnBreak = deactiveEgoOnBreak;
         }
 
+        public bool ActiveEgoOnDeath { get; set; }
+        public bool ActiveEgoOnSurvive { get; set; }
         public BattleUnitBuf EgoType { get; set; }
         public Dictionary<LorId, MapModel> EgoMaps { get; set; }
         public bool EgoActivated { get; set; }
@@ -86,6 +112,10 @@ namespace BigDLL4221.Models
         public AbColorType EgoAbColorColor { get; set; }
         public int Duration { get; set; }
         public int Count { get; set; }
+        public List<UnitModel> SummonUnit { get; set; }
+        public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
+        public bool RemoveEgoWhenSolo { get; set; }
+        public bool DeactiveEgoOnBreak { get; set; }
     }
 
     public class DamageOptions

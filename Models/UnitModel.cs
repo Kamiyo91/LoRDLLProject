@@ -1,10 +1,14 @@
-﻿namespace BigDLL4221.Models
+﻿using System.Collections.Generic;
+
+namespace BigDLL4221.Models
 {
     public class UnitModel
     {
         public UnitModel(int id, string packageId, int unitNameId = 0, string name = "",
             bool lockedEmotion = false, int maxEmotionLevel = 0, bool autoPlay = false, bool summonedOnPlay = false,
-            XmlVector2 customPos = null, string skinName = "", bool isMainEnemy = false)
+            XmlVector2 customPos = null, string skinName = "", bool isMainEnemy = false,
+            List<LorId> additionalPassiveIds = null, bool forcedEgoOnStart = false,
+            List<BattleUnitBuf> additionalBuffs = null)
         {
             Id = id;
             PackageId = packageId;
@@ -17,6 +21,9 @@
             CustomPos = customPos;
             SkinName = skinName;
             IsMainEnemy = isMainEnemy;
+            AdditionalPassiveIds = additionalPassiveIds ?? new List<LorId>();
+            ForcedEgoOnStart = forcedEgoOnStart;
+            AdditionalBuffs = additionalBuffs;
         }
 
         public int Id { get; set; }
@@ -30,5 +37,8 @@
         public XmlVector2 CustomPos { get; set; }
         public string SkinName { get; set; }
         public bool IsMainEnemy { get; set; }
+        public bool ForcedEgoOnStart { get; set; }
+        public List<LorId> AdditionalPassiveIds { get; set; }
+        public List<BattleUnitBuf> AdditionalBuffs { get; set; }
     }
 }

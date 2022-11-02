@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.BaseClass;
 using BigDLL4221.Models;
@@ -24,7 +25,7 @@ namespace BigDLL4221.Passives
             if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
             Util.MechBuff();
             Util.PermanentBuffs();
-            Util.Restart();
+            if (!Util.Restart()) Util.InitStartMech();
         }
 
         public override void OnRoundStart()
@@ -99,11 +100,11 @@ namespace BigDLL4221.Passives
 
         public override void OnDie()
         {
-            if (Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions))
-                if (mechOptions.MechOnDeath)
-                    Util.Model.PhaseChanging = true;
-            if (!Util.Model.OnDeathOtherDies) return;
-            foreach (var unit in BattleObjectManager.instance.GetAliveList(owner.faction))
+            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)) return;
+            if (mechOptions.MechOnDeath)
+                Util.Model.PhaseChanging = true;
+            foreach (var unit in BattleObjectManager.instance.GetAliveList(owner.faction)
+                         .Where(x => mechOptions.UnitsThatDieTogetherByPassive.Contains(x.Book.BookId)))
                 unit.DieFake();
         }
 
@@ -116,8 +117,10 @@ namespace BigDLL4221.Passives
 
         public override void OnRoundEndTheLast_ignoreDead()
         {
+            Util.ReviveCheck();
             Util.CheckPhase();
             Util.ReturnFromEgoMap();
+            if (owner.IsDead()) Util.ReturnFromEgoAssimilationMap();
         }
 
         public override int GetDamageReduction(BattleDiceBehavior behavior)

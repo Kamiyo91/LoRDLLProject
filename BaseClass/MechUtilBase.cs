@@ -11,11 +11,13 @@ namespace BigDLL4221.BaseClass
 {
     public class MechUtilBase
     {
+        public readonly StageLibraryFloorModel Floor;
         public MechUtilBaseModel Model;
 
         public MechUtilBase(MechUtilBaseModel model)
         {
             Model = model;
+            Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         }
 
         public virtual void SurviveCheck(int dmg)
@@ -32,6 +34,20 @@ namespace BigDLL4221.BaseClass
             Model.Owner.bufListDetail.AddBufWithoutDuplication(
                 new BattleUnitBuf_ImmunityToStatusAlimentType_DLL4221());
             Model.Owner.bufListDetail.AddBufWithoutDuplication(new BattleUnitBuf_Immortal_DLL4221());
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.ActiveEgoOnSurvive) ForcedEgo();
+        }
+
+        public virtual void ReviveCheck()
+        {
+            if (!Model.ReviveOnDeath) return;
+            Model.ReviveOnDeath = false;
+            UnitUtil.UnitReviveAndRecovery(Model.Owner, Model.RecoverHpOnRevive, Model.RecoverLightOnSurvive);
+            if (Model.ReviveAbDialogList.Any())
+                UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
+                    Model.ReviveAbDialogColor);
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.ActiveEgoOnDeath) EgoActive();
         }
 
         public virtual void EgoActive()
@@ -47,23 +63,27 @@ namespace BigDLL4221.BaseClass
             foreach (var card in Model.PersonalCards.Where(x =>
                          x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase))
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
+            var egoNextFormCard = Model.PersonalCards.FirstOrDefault(x =>
+                x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase + 1 && x.Value.ActiveEgoCard);
+            if (egoNextFormCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoNextFormCard.Key);
             if (Model.EgoOptions == null) return;
             if (egoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
             if (egoOptions.EgoAbDialogList.Any())
                 UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, egoOptions.EgoAbDialogList,
                     egoOptions.EgoAbColorColor);
+            if (!egoOptions.SummonUnit.Any()) return;
+            foreach (var unitModel in egoOptions.SummonUnit)
+                UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
+                    BattleObjectManager.instance.GetList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Count);
         }
 
-        public virtual void DeactiveEgo()
+        public virtual void DeactiveEgo(EgoOptions egoOptions)
         {
-            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
-            if (egoOptions.Duration == 0 ||
-                egoOptions.Count != egoOptions.Duration) return;
             egoOptions.Count = 0;
             foreach (var card in Model.PersonalCards.Where(x => x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.RemoveCard(card.Key);
-            var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0);
-            if (egoCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
+            if (Model.ReusableEgo && Model.FirstEgoFormCard != null)
+                Model.Owner.personalEgoDetail.AddCard(Model.FirstEgoFormCard);
             foreach (var item in Model.EgoOptions)
                 Model.Owner.bufListDetail.RemoveBufAll(item.Value.EgoType.GetType());
             foreach (var item in Model.EgoOptions)
@@ -77,6 +97,26 @@ namespace BigDLL4221.BaseClass
 
             if (egoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
             if (Model.ActivatedMap != null) ReturnFromEgoAssimilationMap();
+        }
+
+        public virtual void DeactiveEgoDuration()
+        {
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.Duration == 0 ||
+                egoOptions.Count != egoOptions.Duration) return;
+            DeactiveEgo(egoOptions);
+        }
+
+        public virtual void DeactiveEgoOnBreak()
+        {
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.DeactiveEgoOnBreak) DeactiveEgo(egoOptions);
+        }
+
+        public virtual void ForcedDeactiveEgo()
+        {
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            DeactiveEgo(egoOptions);
         }
 
         public virtual void EgoDurationCount()
@@ -94,7 +134,7 @@ namespace BigDLL4221.BaseClass
             var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Key == cardId);
             if (egoCard.Key == null) return;
             if (!egoCard.Value.ActiveEgoCard) return;
-            Model.EgoPhase = egoCard.Value.EgoPhase + 1;
+            Model.EgoPhase = egoCard.Value.EgoPhase;
             if (Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions))
             {
                 foreach (var passiveId in egoOptions.AdditionalPassiveIds)
@@ -127,8 +167,7 @@ namespace BigDLL4221.BaseClass
 
         public virtual void AddExpireCards()
         {
-            var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == 0);
-            if (egoCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoCard.Key);
+            if (Model.FirstEgoFormCard != null) Model.Owner.personalEgoDetail.AddCard(Model.FirstEgoFormCard);
             foreach (var card in Model.PersonalCards.Where(x => !x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
         }

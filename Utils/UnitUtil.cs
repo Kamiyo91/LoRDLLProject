@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.Buffs;
 using BigDLL4221.Enum;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Passives;
 using HarmonyLib;
@@ -371,6 +372,10 @@ namespace BigDLL4221.Utils
                         ? name
                         : unitParameters.Name
                     : unitParameters.Name);
+                if (unitParameters.AdditionalPassiveIds.Any())
+                    foreach (var passive in unitParameters.AdditionalPassiveIds.Where(x =>
+                                 !unitDataModel.bookItem.ClassInfo.EquipEffect.PassiveList.Contains(x)))
+                        unitDataModel.bookItem.ClassInfo.EquipEffect.PassiveList.Add(passive);
                 unitDataModel.CreateDeckByDeckInfo();
                 unitDataModel.forceItemChangeLock = true;
                 if (!string.IsNullOrEmpty(unitParameters.SkinName))
@@ -408,6 +413,14 @@ namespace BigDLL4221.Utils
             var unitBattleData = new UnitBattleDataModel(Singleton<StageController>.Instance.GetStageModel(), unitData);
             unitBattleData.Init();
             allyUnit.SetUnitData(unitBattleData);
+            if (unit.AdditionalPassiveIds.Any())
+                foreach (var passiveId in unit.AdditionalPassiveIds.Where(x =>
+                             !allyUnit.passiveDetail.PassiveList.Exists(y => y.id == x)))
+                {
+                    allyUnit.passiveDetail.AddPassive(passiveId);
+                    allyUnit.passiveDetail.OnCreated();
+                }
+
             allyUnit.OnCreated();
             if (unit.SummonedOnPlay) allyUnit.speedDiceResult = new List<SpeedDice>();
             BattleObjectManager.instance.RegisterUnit(allyUnit);
@@ -420,10 +433,20 @@ namespace BigDLL4221.Utils
             if (addEmotionPassives)
                 AddEmotionPassives(allyUnit);
             allyUnit.OnWaveStart();
+            if (unit.AdditionalBuffs.Any())
+                foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType())))
+                    allyUnit.bufListDetail.AddBuf(buff);
+            if (unit.ForcedEgoOnStart && !unit.SummonedOnPlay)
+                allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>()?.ForcedEgo(0);
             if (!unit.SummonedOnPlay) return allyUnit;
             allyUnit.OnRoundStart_speedDice();
             allyUnit.RollSpeedDice();
             if (unit.AutoPlay) SetAutoCardForPlayer(allyUnit);
+            if (!unit.ForcedEgoOnStart) return allyUnit;
+            var passive = allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>();
+            if (passive == null) return allyUnit;
+            passive.ForcedEgo(0);
+            passive.Util.EgoActive();
             return allyUnit;
         }
 
@@ -447,6 +470,14 @@ namespace BigDLL4221.Utils
             var unitBattleData = new UnitBattleDataModel(Singleton<StageController>.Instance.GetStageModel(), unitData);
             unitBattleData.Init();
             allyUnit.SetUnitData(unitBattleData);
+            if (unit.AdditionalPassiveIds.Any())
+                foreach (var passiveId in unit.AdditionalPassiveIds.Where(x =>
+                             !allyUnit.passiveDetail.PassiveList.Exists(y => y.id == x)))
+                {
+                    allyUnit.passiveDetail.AddPassive(passiveId);
+                    allyUnit.passiveDetail.OnCreated();
+                }
+
             allyUnit.OnCreated();
             if (unit.SummonedOnPlay) allyUnit.speedDiceResult = new List<SpeedDice>();
             BattleObjectManager.instance.RegisterUnit(allyUnit);
@@ -459,10 +490,44 @@ namespace BigDLL4221.Utils
             if (addEmotionPassives)
                 AddEmotionPassives(allyUnit);
             allyUnit.OnWaveStart();
+            if (unit.AdditionalBuffs.Any())
+                foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType())))
+                    allyUnit.bufListDetail.AddBuf(buff);
+            if (unit.ForcedEgoOnStart && !unit.SummonedOnPlay)
+            {
+                if (playerSide)
+                {
+                    allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>()?.ForcedEgo(0);
+                }
+                else
+                {
+                    var passive = allyUnit.GetActivePassive<PassiveAbility_NpcMechBase_DLL4221>();
+                    if (passive == null) return allyUnit;
+                    passive.Util.Model.EgoPhase++;
+                    passive.Util.ForcedEgo();
+                }
+            }
+
             if (!unit.SummonedOnPlay) return allyUnit;
             allyUnit.OnRoundStart_speedDice();
             allyUnit.RollSpeedDice();
             if (unit.AutoPlay) SetAutoCardForPlayer(allyUnit);
+            if (!unit.ForcedEgoOnStart) return allyUnit;
+            if (playerSide)
+            {
+                var passive = allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>();
+                if (passive == null) return allyUnit;
+                passive.ForcedEgo(0);
+                passive.Util.EgoActive();
+            }
+            else
+            {
+                var passive = allyUnit.GetActivePassive<PassiveAbility_NpcMechBase_DLL4221>();
+                if (passive == null) return allyUnit;
+                passive.Util.Model.EgoPhase++;
+                passive.Util.EgoActive();
+            }
+
             return allyUnit;
         }
 
@@ -552,6 +617,31 @@ namespace BigDLL4221.Utils
             if (isBaseGame) return Resources.Load<AudioClip>("Sounds/MotionSound/" + audioName);
             CustomMapHandler.LoadEnemyTheme(audioName, out var audioClip);
             return audioClip;
+        }
+
+        public static BattleUnitModel IgnoreSephiraSelectionTarget(bool ignore)
+        {
+            if (!ignore) return null;
+            if (BattleObjectManager.instance
+                .GetAliveList(Faction.Player).Any(x => !x.UnitData.unitData.isSephirah))
+                return RandomUtil.SelectOne(BattleObjectManager.instance.GetAliveList(Faction.Player)
+                    .Where(x => !x.UnitData.unitData.isSephirah).ToList());
+            return null;
+        }
+
+        public static int AlwaysAimToTheSlowestDice(BattleUnitModel target, int targetSlot, bool aim)
+        {
+            if (!aim) return targetSlot;
+            var speedValue = 999;
+            var finalTarget = 0;
+            foreach (var dice in target.speedDiceResult.Select((x, i) => new { i, x }))
+            {
+                if (speedValue <= dice.x.value) continue;
+                speedValue = dice.x.value;
+                finalTarget = dice.i;
+            }
+
+            return finalTarget;
         }
     }
 }

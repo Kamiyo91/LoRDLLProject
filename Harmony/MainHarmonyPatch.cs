@@ -174,7 +174,7 @@ namespace BigDLL4221.Harmony
             var bookOptions = keypageOptions.FirstOrDefault(x => x.KeypageId == __state.ClassInfo.id.id);
             if (bookOptions?.BookCustomOptions == null) return;
             if (bookOptions.BookCustomOptions.MultiSkin &&
-                __state.ClassInfo.CharacterSkin.Contains(bookOptions.BookCustomOptions.EgoSkin))
+                __state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
                 __state.ClassInfo.CharacterSkin = new List<string>
                 {
                     bookOptions.BookCustomOptions.OriginalSkin
@@ -203,10 +203,12 @@ namespace BigDLL4221.Harmony
             if (ModParameters.PassiveOptions.TryGetValue(targetpassive.originData.currentpassive.id.packageId,
                     out var passiveOptions))
             {
-                var passiveItem = passiveOptions.FirstOrDefault(x => x.PassiveId == targetpassive.originData.currentpassive.id.id && !x.IsBaseGamePassive);
+                var passiveItem = passiveOptions.FirstOrDefault(x =>
+                    x.PassiveId == targetpassive.originData.currentpassive.id.id && !x.IsBaseGamePassive);
                 if (passiveItem == null) return;
                 var unitPassiveList = __instance.GetPassiveModelList();
-                if (__instance.GetPassiveModelList().Exists(x => passiveItem.CannotBeUsedWithPassives.Contains(x.reservedData.currentpassive.id)))
+                if (__instance.GetPassiveModelList().Exists(x =>
+                        passiveItem.CannotBeUsedWithPassives.Contains(x.reservedData.currentpassive.id)))
                 {
                     haspassiveState = GivePassiveState.Lock;
                     __result = false;
@@ -221,7 +223,8 @@ namespace BigDLL4221.Harmony
                     return;
                 }
 
-                if (passiveItem.CanBeUsedWithPassivesOne.Any() && !__instance.GetPassiveModelList().Exists(x => passiveItem.CanBeUsedWithPassivesOne.Contains(x.reservedData.currentpassive.id)))
+                if (passiveItem.CanBeUsedWithPassivesOne.Any() && !__instance.GetPassiveModelList().Exists(x =>
+                        passiveItem.CanBeUsedWithPassivesOne.Contains(x.reservedData.currentpassive.id)))
                 {
                     haspassiveState = GivePassiveState.Lock;
                     __result = false;

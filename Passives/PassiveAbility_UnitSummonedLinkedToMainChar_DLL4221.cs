@@ -120,5 +120,42 @@ namespace BigDLL4221.Passives
 
             return base.GetDamageReduction(behavior);
         }
+
+        public override BattleUnitModel ChangeAttackTarget(BattleDiceCardModel card, int idx)
+        {
+            var unit = UnitUtil.IgnoreSephiraSelectionTarget(Model.IgnoreSephirah);
+            return unit ?? base.ChangeAttackTarget(card, idx);
+        }
+
+        public override int ChangeTargetSlot(BattleDiceCardModel card, BattleUnitModel target, int currentSlot,
+            int targetSlot, bool teamkill)
+        {
+            return UnitUtil.AlwaysAimToTheSlowestDice(target, targetSlot, Model.AimAtTheSlowestDie);
+        }
+
+        public override BattleDiceCardModel OnSelectCardAuto(BattleDiceCardModel origin, int currentDiceSlotIdx)
+        {
+            if (Model.OneTurnCard || Model.MaxCounter < 1 || !Model.MassAttackCards.Any())
+                return base.OnSelectCardAuto(origin, currentDiceSlotIdx);
+            if (Model.Counter < Model.MaxCounter) return base.OnSelectCardAuto(origin, currentDiceSlotIdx);
+            origin = BattleDiceCardModel.CreatePlayingCard(
+                ItemXmlDataList.instance.GetCardItem(RandomUtil.SelectOne(Model.MassAttackCards)));
+            Model.OneTurnCard = true;
+            return base.OnSelectCardAuto(origin, currentDiceSlotIdx);
+        }
+
+        public override void OnRoundStart()
+        {
+            if (Model.MaxCounter > 0) Model.Counter++;
+            Model.OneTurnCard = false;
+        }
+
+        public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)
+        {
+            if (!Model.MassAttackCards.Contains(curCard.card.GetID())) return;
+            Model.Counter = 0;
+            owner.allyCardDetail.ExhaustACardAnywhere(curCard.card);
+            Model.OneTurnCard = false;
+        }
     }
 }

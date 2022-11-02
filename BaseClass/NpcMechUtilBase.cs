@@ -4,19 +4,18 @@ using BigDLL4221.Buffs;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
+using JetBrains.Annotations;
 using Sound;
 
 namespace BigDLL4221.BaseClass
 {
     public class NpcMechUtilBase : MechUtilBase
     {
-        private readonly StageLibraryFloorModel _floor;
         public new NpcMechUtilBaseModel Model;
 
         public NpcMechUtilBase(NpcMechUtilBaseModel model) : base(model)
         {
             Model = model;
-            _floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         }
 
         public virtual void OnUseCardResetCount(BattlePlayingCardDataInUnitModel curCard)
@@ -61,17 +60,9 @@ namespace BigDLL4221.BaseClass
         public virtual int AlwaysAimToTheSlowestDice(BattleUnitModel target, int targetSlot)
         {
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions)) return targetSlot;
-            if (!mechPhaseOptions.AlwaysAimSlowestTargetDie) return targetSlot;
-            var speedValue = 999;
-            var finalTarget = 0;
-            foreach (var dice in target.speedDiceResult.Select((x, i) => new { i, x }))
-            {
-                if (speedValue <= dice.x.value) continue;
-                speedValue = dice.x.value;
-                finalTarget = dice.i;
-            }
-
-            return finalTarget;
+            return !mechPhaseOptions.AlwaysAimSlowestTargetDie
+                ? targetSlot
+                : UnitUtil.AlwaysAimToTheSlowestDice(target, targetSlot, true);
         }
 
         public virtual void RaiseCounter()
@@ -97,6 +88,7 @@ namespace BigDLL4221.BaseClass
         public virtual void OnSelectCardPutMassAttack(ref BattleDiceCardModel origin)
         {
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions)) return;
+            if (!mechPhaseOptions.MassAttackExtraCondition(Model.Owner)) return;
             if (Model.OneTurnCard) return;
             if (mechPhaseOptions.BuffMech != null &&
                 mechPhaseOptions.BuffMech.Buff.stack >= mechPhaseOptions.BuffMech.MassAttackStacks)
@@ -137,11 +129,7 @@ namespace BigDLL4221.BaseClass
             if (!mechPhaseOptions.EgoMassAttackCardsOptions.Any()) return null;
             var card = mechPhaseOptions.EgoMassAttackCardsOptions.FirstOrDefault(x => x.CardId == cardId);
             if (card == null || !card.IgnoreSephirah) return null;
-            if (BattleObjectManager.instance
-                .GetAliveList(Faction.Player).Any(x => !x.UnitData.unitData.isSephirah))
-                return RandomUtil.SelectOne(BattleObjectManager.instance.GetAliveList(Faction.Player)
-                    .Where(x => !x.UnitData.unitData.isSephirah).ToList());
-            return null;
+            return UnitUtil.IgnoreSephiraSelectionTarget(true);
         }
 
         public virtual void RoundStartBuffs()
@@ -186,24 +174,35 @@ namespace BigDLL4221.BaseClass
         public virtual bool UseSpecialBuffCard()
         {
             if (Model.SpecialCardOptions == null) return false;
-            if (Model.Owner.cardSlotDetail.PlayPoint < Model.SpecialCardOptions.SpecialCardCost || !Model.Owner
-                    .bufListDetail
-                    .GetActivatedBufList()
-                    .Exists(x => Model.SpecialCardOptions.SpecialBufType.IsInstanceOfType(x))) return false;
-            Model.Owner.bufListDetail.RemoveBufAll(Model.SpecialCardOptions.SpecialBufType);
+            if (Model.Owner.cardSlotDetail.PlayPoint < Model.SpecialCardOptions.SpecialCardCost) return false;
+            if (Model.SpecialCardOptions.SpecialBufType != null)
+            {
+                if (!Model.Owner
+                        .bufListDetail
+                        .GetActivatedBufList()
+                        .Exists(x =>
+                            Model.SpecialCardOptions.SpecialBufType.IsInstanceOfType(x) &&
+                            x.stack >= Model.SpecialCardOptions.SpecialStackNeeded)) return false;
+                Model.Owner.bufListDetail.RemoveBufAll(Model.SpecialCardOptions.SpecialBufType);
+            }
+
+            if (Model.SpecialCardOptions.SpecialKeywordBuf != KeywordBuf.None)
+            {
+                if (Model.Owner.bufListDetail.GetActivatedBuf(Model.SpecialCardOptions.SpecialKeywordBuf)?.stack <
+                    Model.SpecialCardOptions.SpecialStackNeeded) return false;
+                Model.Owner.bufListDetail.RemoveBufAll(Model.SpecialCardOptions.SpecialBufType);
+            }
+
             Model.Owner.cardSlotDetail.RecoverPlayPoint(-Model.SpecialCardOptions.SpecialCardCost);
             foreach (var buff in Model.SpecialCardOptions.Buffs)
-                Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
+                Model.Owner.bufListDetail.AddBuf(buff);
+            foreach (var keywordBuff in Model.SpecialCardOptions.KeywordBuffs)
+                Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(keywordBuff.Key, keywordBuff.Value, Model.Owner);
             return true;
         }
 
-        public virtual void CheckPhase()
+        public virtual void InitMech(MechPhaseOptions mechOptions)
         {
-            if (!Model.PhaseChanging) return;
-            if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return;
-            Model.PhaseChanging = false;
-            Model.Phase++;
-            Model.EgoPhase = Model.Phase;
             if (mechOptions.MechOnDeath)
                 UnitUtil.UnitReviveAndRecovery(Model.Owner, mechOptions.HpRecoverOnChangePhase, true);
             if (mechOptions.ForceEgo) ForcedEgo();
@@ -228,15 +227,34 @@ namespace BigDLL4221.BaseClass
                              .Where(x => x != Model.Owner))
                     BattleObjectManager.instance.UnregisterUnit(unit);
             foreach (var unitModel in mechOptions.SummonUnit)
-                UnitUtil.AddNewUnitWithDefaultData(_floor, unitModel,
+                UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
                     BattleObjectManager.instance.GetList(Model.Owner.faction).Count, true,
                     Model.Owner.emotionDetail.EmotionLevel, false);
             foreach (var unitModel in mechOptions.SummonPlayerUnit)
-                UnitUtil.AddNewUnitWithDefaultData(_floor, unitModel,
+                UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
                     BattleObjectManager.instance.GetList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Count);
             foreach (var path in mechOptions.SoundEffectPath.Where(x => !string.IsNullOrEmpty(x)))
                 SoundEffectPlayer.PlaySound(path);
             if (mechOptions.SummonUnit.Any() || mechOptions.SummonPlayerUnit.Any()) UnitUtil.RefreshCombatUI();
+            if (mechOptions.OnPhaseChangeDialogList.Any())
+                UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, mechOptions.OnPhaseChangeDialogList,
+                    mechOptions.OnPhaseChangeDialogColor);
+        }
+
+        public virtual void CheckPhase()
+        {
+            if (!Model.PhaseChanging) return;
+            if (!Model.MechOptions.TryGetValue(Model.Phase + 1, out var mechOptions)) return;
+            Model.PhaseChanging = false;
+            Model.Phase++;
+            Model.EgoPhase = Model.Phase;
+            InitMech(mechOptions);
+        }
+
+        public virtual void InitStartMech()
+        {
+            if (!Model.MechOptions.TryGetValue(0, out var mechOptions)) return;
+            InitMech(mechOptions);
         }
 
         public virtual void OnEndBattle()
@@ -251,20 +269,21 @@ namespace BigDLL4221.BaseClass
             currentWaveModel.ResetUnitBattleDataList(list);
         }
 
-        public virtual void Restart()
+        public virtual bool Restart()
         {
             var curPhaseTryGet = Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData<int>(Model.SaveDataId, out var curPhase);
             if (!curPhaseTryGet)
             {
                 Model.Phase = 0;
-                return;
+                return false;
             }
 
             Model.Phase = curPhase;
-            if (Model.Phase < 1) return;
+            if (Model.Phase < 1) return false;
             Model.PhaseChanging = true;
             CheckPhase();
+            return true;
         }
 
         public virtual void ExtraRecovery()

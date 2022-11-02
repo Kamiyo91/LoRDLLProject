@@ -114,6 +114,9 @@ namespace BigDLL4221.StageManagers
         private void ChangeMap()
         {
             if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
+            if (mechOptions.MusicOptions != null)
+                CustomMapHandler.SetMapBgm(mechOptions.MusicOptions.MusicFileName, true,
+                    mechOptions.MusicOptions.MapName);
             if (!mechOptions.HasCustomMap) return;
             CustomMapHandler.EnforceMap(mechOptions.MultiWaveMapOrderIndex);
             Singleton<StageController>.Instance.CheckMapChange();

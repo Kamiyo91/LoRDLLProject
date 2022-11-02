@@ -15,16 +15,18 @@ namespace BigDLL4221.Models
             List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
             List<BattleUnitBuf> permanentBuffList = null,
-            Dictionary<LorId, PersonalCardOptions> personalCards = null,
+            Dictionary<LorId, PersonalCardOptions> personalCards = null, bool reusableEgo = false,
+            bool reviveOnDeath = false, int recoverHpOnRevive = 0,
+            List<AbnormalityCardDialog> reviveAbDialogList = null,
+            AbColorType reviveAbDialogColor = AbColorType.Negative,
             Dictionary<int, MechPhaseOptions> mechOptions = null, int maxCounter = 4,
             bool reloadMassAttackOnLethal = true,
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
-            bool onDeathOtherDies = false) : base(egoOptions, additionalStartDraw, surviveHp, recoverToHp,
+            LorId firstEgoFormCard = null) : base(egoOptions, additionalStartDraw, surviveHp, recoverToHp,
             originalSkinName, survive,
             recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
-            nearDeathBuffType,
-            permanentBuffList,
-            personalCards)
+            nearDeathBuffType, permanentBuffList, personalCards, reusableEgo, reviveOnDeath, recoverHpOnRevive,
+            reviveAbDialogList, reviveAbDialogColor, firstEgoFormCard)
         {
             MechOptions = mechOptions ?? new Dictionary<int, MechPhaseOptions>();
             Counter = 0;
@@ -35,7 +37,6 @@ namespace BigDLL4221.Models
             SpecialCardOptions = specialCardOptions;
             Phase = 0;
             PhaseChanging = false;
-            OnDeathOtherDies = onDeathOtherDies;
             SaveDataId = saveDataId;
         }
 
@@ -48,23 +49,29 @@ namespace BigDLL4221.Models
         public SpecialCardOption SpecialCardOptions { get; set; }
         public int Phase { get; set; }
         public bool PhaseChanging { get; set; }
-        public bool OnDeathOtherDies { get; set; }
         public string SaveDataId { get; set; }
     }
 
     public class SpecialCardOption
     {
         public SpecialCardOption(int specialCardCost = 0, Type specialBufType = null,
-            Dictionary<KeywordBuf, int> buffs = null)
+            KeywordBuf specialKeywordBuf = KeywordBuf.None, List<BattleUnitBuf> buffs = null,
+            Dictionary<KeywordBuf, int> keywordBuffs = null, int specialStackNeeded = 0)
         {
             SpecialCardCost = specialCardCost;
             SpecialBufType = specialBufType;
-            Buffs = buffs ?? new Dictionary<KeywordBuf, int>();
+            SpecialKeywordBuf = specialKeywordBuf;
+            Buffs = buffs ?? new List<BattleUnitBuf>();
+            KeywordBuffs = keywordBuffs ?? new Dictionary<KeywordBuf, int>();
+            SpecialStackNeeded = specialStackNeeded;
         }
 
+        public List<BattleUnitBuf> Buffs { get; set; }
         public int SpecialCardCost { get; set; }
         public Type SpecialBufType { get; set; }
-        public Dictionary<KeywordBuf, int> Buffs { get; set; }
+        public KeywordBuf SpecialKeywordBuf { get; set; }
+        public int SpecialStackNeeded { get; set; }
+        public Dictionary<KeywordBuf, int> KeywordBuffs { get; set; }
     }
 
     public class MechPhaseOptions
@@ -81,7 +88,10 @@ namespace BigDLL4221.Models
             List<string> soundEffectPath = null, int extraLightRecoverEachScene = 0, int extraDrawEachScene = 0,
             int extraRecoverHp = 0, int extraRecoverStagger = 0, int mapOrderIndex = 0,
             DamageOptions damageOptions = null, int hpRecoverOnChangePhase = 0, int multiWaveMapOrderIndex = 0,
-            bool creatureFilter = false, SingletonBufMech buffMech = null)
+            bool creatureFilter = false, SingletonBufMech buffMech = null, MusicOptions musicOptions = null,
+            List<LorId> unitsThatDieTogetherByPassive = null,
+            List<AbnormalityCardDialog> onPhaseChangeDialogList = null,
+            AbColorType onPhaseChangeDialogColor = AbColorType.Negative, Func<BattleUnitModel, bool> massAttackExtraCondition = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -112,6 +122,11 @@ namespace BigDLL4221.Models
             MultiWaveMapOrderIndex = multiWaveMapOrderIndex;
             CreatureFilter = creatureFilter;
             BuffMech = buffMech;
+            MusicOptions = musicOptions;
+            UnitsThatDieTogetherByPassive = unitsThatDieTogetherByPassive ?? new List<LorId>();
+            OnPhaseChangeDialogList = onPhaseChangeDialogList ?? new List<AbnormalityCardDialog>();
+            OnPhaseChangeDialogColor = onPhaseChangeDialogColor;
+            MassAttackExtraCondition = massAttackExtraCondition ?? (model => true);
         }
 
         public int MechHp { get; set; }
@@ -143,6 +158,23 @@ namespace BigDLL4221.Models
         public bool CreatureFilter { get; set; }
         public DamageOptions DamageOptions { get; set; }
         public SingletonBufMech BuffMech { get; set; }
+        public MusicOptions MusicOptions { get; set; }
+        public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
+        public List<AbnormalityCardDialog> OnPhaseChangeDialogList { get; set; }
+        public AbColorType OnPhaseChangeDialogColor { get; set; }
+        public Func<BattleUnitModel,bool> MassAttackExtraCondition { get; set; }
+    }
+
+    public class MusicOptions
+    {
+        public MusicOptions(string musicFileName = "", string mapName = "")
+        {
+            MusicFileName = musicFileName;
+            MapName = mapName;
+        }
+
+        public string MusicFileName { get; set; }
+        public string MapName { get; set; }
     }
 
     public class SingletonBufMech

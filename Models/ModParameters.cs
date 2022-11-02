@@ -141,14 +141,14 @@ namespace BigDLL4221.Models
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
             bool multiSkin = false,
-            string originalSkin = "", string egoSkin = "", LorId customDialogId = null,
+            string originalSkin = "", List<string> egoSkin = null, LorId customDialogId = null,
             BattleDialogCharacter customDialog = null)
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
             MultiSkin = multiSkin;
             OriginalSkin = originalSkin;
-            EgoSkin = egoSkin;
+            EgoSkin = egoSkin ?? new List<string>();
             Name = name;
             CustomDialogId = customDialogId;
             CustomDialog = customDialog;
@@ -159,7 +159,7 @@ namespace BigDLL4221.Models
         public bool CustomFaceData { get; set; }
         public bool MultiSkin { get; set; }
         public string OriginalSkin { get; set; }
-        public string EgoSkin { get; set; }
+        public List<string> EgoSkin { get; set; }
         public LorId CustomDialogId { get; set; }
         public BattleDialogCharacter CustomDialog { get; set; }
     }

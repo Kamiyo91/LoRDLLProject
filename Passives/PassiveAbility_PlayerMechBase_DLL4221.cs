@@ -26,6 +26,11 @@ namespace BigDLL4221.Passives
                     new List<string> { Util.Model.OriginalSkinName };
         }
 
+        public override void OnBreakState()
+        {
+            Util.DeactiveEgoOnBreak();
+        }
+
         public override void OnWaveStart()
         {
             if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
@@ -43,8 +48,15 @@ namespace BigDLL4221.Passives
 
         public override void OnRoundEndTheLast_ignoreDead()
         {
-            Util.DeactiveEgo();
+            Util.ReviveCheck();
+            Util.DeactiveEgoDuration();
             Util.ReturnFromEgoMap();
+            if (owner.IsDead()) Util.ReturnFromEgoAssimilationMap();
+            if (!Util.Model.EgoOptions.TryGetValue(Util.Model.EgoPhase, out var egoOptions)) return;
+            if (egoOptions.RemoveEgoWhenSolo && BattleObjectManager.instance.GetAliveList(owner.faction).Count(x =>
+                    x.passiveDetail.PassiveList.Exists(y => egoOptions.UnitsThatDieTogetherByPassive.Contains(y.id))) >
+                0)
+                Util.ForcedDeactiveEgo();
         }
 
         public override void OnRoundEndTheLast()
@@ -92,14 +104,30 @@ namespace BigDLL4221.Passives
                 owner.Die();
         }
 
+        public override void OnDie()
+        {
+            if (!Util.Model.EgoOptions.TryGetValue(Util.Model.EgoPhase, out var egoOptions)) return;
+            foreach (var unit in BattleObjectManager.instance.GetAliveList(owner.faction)
+                         .Where(x => egoOptions.UnitsThatDieTogetherByPassive.Contains(x.Book.BookId)))
+                unit.Die();
+        }
+
         public void ForcedEgo(int egoPhase)
         {
-            var egoCard =
-                Util.Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == egoPhase);
-            if (egoCard.Key == null) return;
-            if (!Util.Model.EgoOptions.TryGetValue(egoCard.Value.EgoPhase, out var egoOptions)) return;
+            if (egoPhase != 0)
+            {
+                var egoCard =
+                    Util.Model.PersonalCards.FirstOrDefault(x => x.Value.ActiveEgoCard && x.Value.EgoPhase == egoPhase);
+                if (egoCard.Key == null) return;
+                if (!Util.Model.EgoOptions.TryGetValue(egoCard.Value.EgoPhase, out _)) return;
+                owner.personalEgoDetail.RemoveCard(egoCard.Key);
+            }
+            else
+            {
+                owner.personalEgoDetail.RemoveCard(Util.Model.FirstEgoFormCard);
+            }
+
             Util.Model.EgoPhase = egoPhase;
-            owner.personalEgoDetail.RemoveCard(egoCard.Key);
             Util.ForcedEgo();
         }
 
