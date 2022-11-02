@@ -93,7 +93,7 @@ namespace BigDLL4221.Models
             Count = 0;
             ActiveEgoOnDeath = activeEgoOnDeath;
             ActiveEgoOnSurvive = activeEgoOnSurvive;
-            SummonUnit = summonUnit;
+            SummonUnit = summonUnit ?? new List<UnitModel>();
             UnitsThatDieTogetherByPassive = unitsThatDieTogetherByPassive ?? new List<LorId>();
             RemoveEgoWhenSolo = removeEgoWhenSolo;
             DeactiveEgoOnBreak = deactiveEgoOnBreak;

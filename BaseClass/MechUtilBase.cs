@@ -11,13 +11,12 @@ namespace BigDLL4221.BaseClass
 {
     public class MechUtilBase
     {
-        public readonly StageLibraryFloorModel Floor;
+        public StageLibraryFloorModel Floor;
         public MechUtilBaseModel Model;
 
         public MechUtilBase(MechUtilBaseModel model)
         {
             Model = model;
-            Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         }
 
         public virtual void SurviveCheck(int dmg)
@@ -61,7 +60,7 @@ namespace BigDLL4221.BaseClass
                 Model.Owner.bufListDetail.AddBufWithoutDuplication(egoOptions.EgoType);
             Model.Owner.cardSlotDetail.RecoverPlayPoint(Model.Owner.cardSlotDetail.GetMaxPlayPoint());
             foreach (var card in Model.PersonalCards.Where(x =>
-                         x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase))
+                         x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase && !x.Value.ActiveEgoCard))
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
             var egoNextFormCard = Model.PersonalCards.FirstOrDefault(x =>
                 x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase + 1 && x.Value.ActiveEgoCard);
@@ -131,21 +130,18 @@ namespace BigDLL4221.BaseClass
         {
             if (Model.PersonalCards.Any(x => x.Key == cardId && x.Value.ExpireAfterUse))
                 Model.Owner.personalEgoDetail.RemoveCard(cardId);
-            var egoCard = Model.PersonalCards.FirstOrDefault(x => x.Key == cardId);
-            if (egoCard.Key == null) return;
-            if (!egoCard.Value.ActiveEgoCard) return;
-            Model.EgoPhase = egoCard.Value.EgoPhase;
-            if (Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions))
-            {
-                foreach (var passiveId in egoOptions.AdditionalPassiveIds)
-                    Model.Owner.passiveDetail.AddPassive(passiveId);
-                Model.Owner.breakDetail.ResetGauge();
-                Model.Owner.breakDetail.RecoverBreakLife(1, true);
-                Model.Owner.breakDetail.nextTurnBreak = false;
-                egoOptions.EgoActivated = true;
-            }
-
-            Model.Owner.personalEgoDetail.RemoveCard(egoCard.Key);
+            var egoCardBool = Model.PersonalCards.TryGetValue(cardId, out var egoCard);
+            if (!egoCardBool) return;
+            if (!egoCard.ActiveEgoCard) return;
+            Model.EgoPhase = egoCard.EgoPhase;
+            Model.Owner.personalEgoDetail.RemoveCard(cardId);
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            foreach (var passiveId in egoOptions.AdditionalPassiveIds)
+                Model.Owner.passiveDetail.AddPassive(passiveId);
+            Model.Owner.breakDetail.ResetGauge();
+            Model.Owner.breakDetail.RecoverBreakLife(1, true);
+            Model.Owner.breakDetail.nextTurnBreak = false;
+            egoOptions.EgoActivated = true;
         }
 
         public virtual void ReAddOnPlayCard()
@@ -293,6 +289,10 @@ namespace BigDLL4221.BaseClass
                 foreach (var buff in egoOptions.AdditionalBuffs.EachRoundStartKeywordBuffsAloneCountSupportChar)
                     Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
             }
+        }
+
+        public virtual void ExtraMethodCase()
+        {
         }
     }
 }
