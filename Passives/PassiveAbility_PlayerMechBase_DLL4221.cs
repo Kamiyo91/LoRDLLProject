@@ -16,7 +16,6 @@ namespace BigDLL4221.Passives
             Util = util;
             Util.Model.Owner = owner;
             Util.Model.ThisPassiveId = id;
-            Util.Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         }
 
         public override void OnBattleEnd()

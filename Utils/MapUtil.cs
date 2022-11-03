@@ -39,21 +39,23 @@ namespace BigDLL4221.Utils
                 ?.SetValue(Singleton<StageController>.Instance, value);
         }
 
-        public static void ChangeMap(MapModel model, Faction faction = Faction.Player)
+        public static bool ChangeMap(MapModel model, Faction faction = Faction.Player)
         {
             if (CheckStageMap(model.OriginalMapStageIds) || SingletonBehavior<BattleSceneRoot>
                     .Instance.currentMapObject.isEgo ||
-                Singleton<StageController>.Instance.GetStageModel().ClassInfo.stageType == StageType.Creature) return;
+                Singleton<StageController>.Instance.GetStageModel().ClassInfo.stageType == StageType.Creature)
+                return false;
             CustomMapHandler.InitCustomMap(model.Stage, model.Component, model.IsPlayer, model.InitBgm, model.Bgx,
                 model.Bgy, model.Fx, model.Fy);
             if (model.IsPlayer && !model.OneTurnEgo)
             {
                 CustomMapHandler.ChangeToCustomEgoMapByAssimilation(model.Stage, faction);
-                return;
+                return true;
             }
 
             CustomMapHandler.ChangeToCustomEgoMap(model.Stage, faction);
             MapChangedValue(true);
+            return true;
         }
 
         public static void ReturnFromEgoMap(string mapName, List<LorId> ids, bool isAssimilationMap = false)

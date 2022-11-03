@@ -10,6 +10,7 @@ namespace BigDLL4221.BaseClass
 {
     public class NpcMechUtilBase : MechUtilBase
     {
+        public new StageLibraryFloorModel Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         public new NpcMechUtilBaseModel Model;
 
         public NpcMechUtilBase(NpcMechUtilBaseModel model) : base(model)
@@ -131,6 +132,13 @@ namespace BigDLL4221.BaseClass
             return UnitUtil.IgnoreSephiraSelectionTarget(true);
         }
 
+        public override bool EgoActive()
+        {
+            var egoActivated = base.EgoActive();
+            if (egoActivated) Model.EgoPhase++;
+            return egoActivated;
+        }
+
         public virtual void RoundStartBuffs()
         {
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return;
@@ -200,7 +208,7 @@ namespace BigDLL4221.BaseClass
             return true;
         }
 
-        public virtual void InitMech(MechPhaseOptions mechOptions)
+        public virtual void InitMechRoundEnd(MechPhaseOptions mechOptions)
         {
             if (mechOptions.MechOnDeath)
                 UnitUtil.UnitReviveAndRecovery(Model.Owner, mechOptions.HpRecoverOnChangePhase, true);
@@ -217,14 +225,22 @@ namespace BigDLL4221.BaseClass
                     Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
             }
 
-            foreach (var passiveId in mechOptions.AdditionalPassiveByIds)
-                Model.Owner.passiveDetail.AddPassive(passiveId);
+            foreach (var passive in mechOptions.AdditionalPassiveByIds
+                         .Select(passiveId => Model.Owner.passiveDetail.AddPassive(passiveId))
+                         .Where(passive => mechOptions.OnWaveStartEffectOnAddedPassives))
+                passive.OnWaveStart();
             foreach (var passiveId in mechOptions.RemovePassiveByIds)
                 Model.Owner.RemovePassive(passiveId);
             if (mechOptions.RemoveOtherUnits)
                 foreach (var unit in BattleObjectManager.instance.GetList(Model.Owner.faction)
                              .Where(x => x != Model.Owner))
                     BattleObjectManager.instance.UnregisterUnit(unit);
+            foreach (var path in mechOptions.SoundEffectPath.Where(x => !string.IsNullOrEmpty(x)))
+                SoundEffectPlayer.PlaySound(path);
+        }
+
+        public virtual void InitMechRoundStart(MechPhaseOptions mechOptions)
+        {
             foreach (var unitModel in mechOptions.SummonUnit)
                 UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
                     BattleObjectManager.instance.GetList(Model.Owner.faction).Count, true,
@@ -232,28 +248,35 @@ namespace BigDLL4221.BaseClass
             foreach (var unitModel in mechOptions.SummonPlayerUnit)
                 UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
                     BattleObjectManager.instance.GetList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Count);
-            foreach (var path in mechOptions.SoundEffectPath.Where(x => !string.IsNullOrEmpty(x)))
-                SoundEffectPlayer.PlaySound(path);
             if (mechOptions.SummonUnit.Any() || mechOptions.SummonPlayerUnit.Any()) UnitUtil.RefreshCombatUI();
             if (mechOptions.OnPhaseChangeDialogList.Any())
                 UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, mechOptions.OnPhaseChangeDialogList,
                     mechOptions.OnPhaseChangeDialogColor);
         }
 
-        public virtual void CheckPhase()
+        public virtual void CheckPhaseRoundEnd()
         {
             if (!Model.PhaseChanging) return;
             if (!Model.MechOptions.TryGetValue(Model.Phase + 1, out var mechOptions)) return;
             Model.PhaseChanging = false;
-            Model.Phase++;
-            Model.EgoPhase = Model.Phase;
-            InitMech(mechOptions);
+            Model.PhaseChangingRoundStart = true;
+            InitMechRoundEnd(mechOptions);
         }
 
-        public virtual void InitStartMech()
+        public virtual void CheckPhaseRoundStart()
         {
-            if (!Model.MechOptions.TryGetValue(0, out var mechOptions)) return;
-            InitMech(mechOptions);
+            if (!Model.PhaseChangingRoundStart) return;
+            if (!Model.MechOptions.TryGetValue(Model.Phase + 1, out var mechOptions)) return;
+            Model.PhaseChangingRoundStart = false;
+            Model.Phase++;
+            InitMechRoundStart(mechOptions);
+        }
+
+        public virtual void InitRestartMech(int mechPhase)
+        {
+            if (!Model.MechOptions.TryGetValue(mechPhase, out var mechOptions)) return;
+            InitMechRoundEnd(mechOptions);
+            InitMechRoundStart(mechOptions);
         }
 
         public virtual void OnEndBattle()
@@ -268,21 +291,20 @@ namespace BigDLL4221.BaseClass
             currentWaveModel.ResetUnitBattleDataList(list);
         }
 
-        public virtual bool Restart()
+        public virtual void Restart()
         {
             var curPhaseTryGet = Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData<int>(Model.SaveDataId, out var curPhase);
             if (!curPhaseTryGet)
             {
                 Model.Phase = 0;
-                return false;
+                InitRestartMech(Model.Phase);
+                return;
             }
 
             Model.Phase = curPhase;
-            if (Model.Phase < 1) return false;
-            Model.PhaseChanging = true;
-            CheckPhase();
-            return true;
+            if (Model.Phase < 1) return;
+            InitRestartMech(Model.Phase);
         }
 
         public virtual void ExtraRecovery()
@@ -310,6 +332,7 @@ namespace BigDLL4221.BaseClass
         public virtual void OnUseMechBuffAttackCard(LorId cardId)
         {
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return;
+            if (mechOptions.BuffMech == null) return;
             if (mechOptions.BuffMech.MassAttackCards.Contains(cardId)) mechOptions.BuffMech.Buff.OnAddBuf(-9999);
         }
     }

@@ -387,7 +387,7 @@ namespace BigDLL4221.Utils
         }
 
         public static BattleUnitModel AddNewUnitPlayerSideCustomData(StageLibraryFloorModel floor, UnitModel unit,
-            int pos, int emotionLevel = 0, bool addEmotionPassives = true)
+            int pos, int emotionLevel = 0, bool addEmotionPassives = true, bool onWaveStartEffects = true)
         {
             var unitData = new UnitDataModel((int)floor.Sephirah * 10, floor.Sephirah);
             var customBook = Singleton<BookInventoryModel>.Instance.GetBookListAll()
@@ -432,7 +432,7 @@ namespace BigDLL4221.Utils
             allyUnit.cardSlotDetail.RecoverPlayPoint(allyUnit.cardSlotDetail.GetMaxPlayPoint());
             if (addEmotionPassives)
                 AddEmotionPassives(allyUnit);
-            allyUnit.OnWaveStart();
+            if (onWaveStartEffects) allyUnit.OnWaveStart();
             if (unit.AdditionalBuffs.Any())
                 foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType())))
                     allyUnit.bufListDetail.AddBuf(buff);
@@ -451,7 +451,8 @@ namespace BigDLL4221.Utils
         }
 
         public static BattleUnitModel AddNewUnitWithDefaultData(StageLibraryFloorModel floor, UnitModel unit, int pos,
-            bool addEmotionPassives = true, int emotionLevel = 0, bool playerSide = true)
+            bool addEmotionPassives = true, int emotionLevel = 0, bool playerSide = true,
+            bool onWaveStartEffects = true)
         {
             var unitData = new UnitDataModel(new LorId(unit.PackageId, unit.Id),
                 playerSide ? floor.Sephirah : SephirahType.None);
@@ -489,7 +490,7 @@ namespace BigDLL4221.Utils
             allyUnit.cardSlotDetail.RecoverPlayPoint(allyUnit.cardSlotDetail.GetMaxPlayPoint());
             if (addEmotionPassives)
                 AddEmotionPassives(allyUnit);
-            allyUnit.OnWaveStart();
+            if (onWaveStartEffects) allyUnit.OnWaveStart();
             if (unit.AdditionalBuffs.Any())
                 foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType())))
                     allyUnit.bufListDetail.AddBuf(buff);
@@ -573,11 +574,6 @@ namespace BigDLL4221.Utils
                         .Find(x => x is BattleUnitBuf_ImmunityToStatusAlimentType_DLL4221) is
                     BattleUnitBuf_ImmunityToStatusAlimentType_DLL4221 buf2)) return;
             if (buf2.LastOneScene) owner.bufListDetail.RemoveBuf(buf2);
-        }
-
-        public static LorId LorIdMaker(string packageId, int itemId)
-        {
-            return new LorId(packageId, itemId);
         }
 
         public static void PrepareSounds(List<CharacterSound.Sound> motionSounds,

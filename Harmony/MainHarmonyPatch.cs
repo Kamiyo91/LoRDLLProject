@@ -86,7 +86,7 @@ namespace BigDLL4221.Harmony
                 ____onlyCards.AddRange(cardOption.Value
                     .Where(x => x.Option == CardOption.OnlyPage && x.BookId.Contains(__instance.BookId))
                     .Select(card =>
-                        ItemXmlDataList.instance.GetCardItem(UnitUtil.LorIdMaker(cardOption.Key, card.CardId))));
+                        ItemXmlDataList.instance.GetCardItem(new LorId(cardOption.Key, card.CardId))));
         }
 
         [HarmonyPostfix]

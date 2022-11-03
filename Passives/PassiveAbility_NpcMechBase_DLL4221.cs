@@ -17,7 +17,6 @@ namespace BigDLL4221.Passives
             Util = util;
             Util.Model.Owner = owner;
             Util.Model.ThisPassiveId = id;
-            Util.Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         }
 
         public override void OnWaveStart()
@@ -25,17 +24,19 @@ namespace BigDLL4221.Passives
             if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
             Util.MechBuff();
             Util.PermanentBuffs();
-            if (!Util.Restart()) Util.InitStartMech();
+            Util.Restart();
         }
 
         public override void OnRoundStart()
         {
+            Util.CheckPhaseRoundStart();
             Util.MechBuff();
             Util.PermanentBuffs();
             Util.UseSpecialBuffCard();
             Util.RoundStartBuffs();
             Util.ExtraRecovery();
             if (!Util.EgoCheck()) return;
+            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)) return;
             Util.EgoActive();
         }
 
@@ -118,7 +119,7 @@ namespace BigDLL4221.Passives
         public override void OnRoundEndTheLast_ignoreDead()
         {
             Util.ReviveCheck();
-            Util.CheckPhase();
+            Util.CheckPhaseRoundEnd();
             Util.ReturnFromEgoMap();
             if (owner.IsDead()) Util.ReturnFromEgoAssimilationMap();
         }

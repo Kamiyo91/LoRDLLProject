@@ -23,7 +23,7 @@ namespace BigDLL4221.Models
             IsMainEnemy = isMainEnemy;
             AdditionalPassiveIds = additionalPassiveIds ?? new List<LorId>();
             ForcedEgoOnStart = forcedEgoOnStart;
-            AdditionalBuffs = additionalBuffs;
+            AdditionalBuffs = additionalBuffs ?? new List<BattleUnitBuf>();
         }
 
         public int Id { get; set; }

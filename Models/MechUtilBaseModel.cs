@@ -76,7 +76,7 @@ namespace BigDLL4221.Models
             MechBuffOptions additionalBuffs = null,
             List<AbnormalityCardDialog> egoAbDialogList = null, AbColorType egoAbColorColor = AbColorType.Negative,
             int duration = 0, bool activeEgoOnDeath = false, bool activeEgoOnSurvive = false,
-            List<UnitModel> summonUnit = null,
+            List<UnitModel> summonUnitDefaultData = null, List<UnitModel> summonUnitCustomData = null,
             List<LorId> unitsThatDieTogetherByPassive = null, bool removeEgoWhenSolo = false,
             bool deactiveEgoOnBreak = false)
         {
@@ -93,7 +93,8 @@ namespace BigDLL4221.Models
             Count = 0;
             ActiveEgoOnDeath = activeEgoOnDeath;
             ActiveEgoOnSurvive = activeEgoOnSurvive;
-            SummonUnit = summonUnit ?? new List<UnitModel>();
+            SummonUnitDefaultData = summonUnitDefaultData ?? new List<UnitModel>();
+            SummonUnitCustomData = summonUnitCustomData ?? new List<UnitModel>();
             UnitsThatDieTogetherByPassive = unitsThatDieTogetherByPassive ?? new List<LorId>();
             RemoveEgoWhenSolo = removeEgoWhenSolo;
             DeactiveEgoOnBreak = deactiveEgoOnBreak;
@@ -112,7 +113,8 @@ namespace BigDLL4221.Models
         public AbColorType EgoAbColorColor { get; set; }
         public int Duration { get; set; }
         public int Count { get; set; }
-        public List<UnitModel> SummonUnit { get; set; }
+        public List<UnitModel> SummonUnitCustomData { get; set; }
+        public List<UnitModel> SummonUnitDefaultData { get; set; }
         public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
         public bool RemoveEgoWhenSolo { get; set; }
         public bool DeactiveEgoOnBreak { get; set; }

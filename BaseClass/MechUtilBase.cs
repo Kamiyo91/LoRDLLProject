@@ -11,7 +11,7 @@ namespace BigDLL4221.BaseClass
 {
     public class MechUtilBase
     {
-        public StageLibraryFloorModel Floor;
+        public StageLibraryFloorModel Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         public MechUtilBaseModel Model;
 
         public MechUtilBase(MechUtilBaseModel model)
@@ -49,9 +49,9 @@ namespace BigDLL4221.BaseClass
             if (egoOptions.ActiveEgoOnDeath) EgoActive();
         }
 
-        public virtual void EgoActive()
+        public virtual bool EgoActive()
         {
-            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return false;
             //if (Model.Owner.bufListDetail.HasAssimilation()) return;
             egoOptions.EgoActivated = false;
             if (!string.IsNullOrEmpty(egoOptions.EgoSkinName))
@@ -65,15 +65,20 @@ namespace BigDLL4221.BaseClass
             var egoNextFormCard = Model.PersonalCards.FirstOrDefault(x =>
                 x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase + 1 && x.Value.ActiveEgoCard);
             if (egoNextFormCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoNextFormCard.Key);
-            if (Model.EgoOptions == null) return;
+            if (Model.EgoOptions == null) return true;
             if (egoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
             if (egoOptions.EgoAbDialogList.Any())
                 UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, egoOptions.EgoAbDialogList,
                     egoOptions.EgoAbColorColor);
-            if (!egoOptions.SummonUnit.Any()) return;
-            foreach (var unitModel in egoOptions.SummonUnit)
-                UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
-                    BattleObjectManager.instance.GetList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Count);
+            if (egoOptions.SummonUnitDefaultData.Any())
+                foreach (var unitModel in egoOptions.SummonUnitDefaultData)
+                    UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
+                        BattleObjectManager.instance.GetList(Model.Owner.faction).Count);
+            if (!egoOptions.SummonUnitCustomData.Any()) return true;
+            foreach (var unitModel in egoOptions.SummonUnitCustomData)
+                UnitUtil.AddNewUnitPlayerSideCustomData(Floor, unitModel,
+                    BattleObjectManager.instance.GetList(Model.Owner.faction).Count);
+            return true;
         }
 
         public virtual void DeactiveEgo(EgoOptions egoOptions)
@@ -238,8 +243,7 @@ namespace BigDLL4221.BaseClass
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             if (Model.EgoOptions == null || !egoOptions.EgoMaps.TryGetValue(cardId, out var mapModel) ||
                 SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
-            Model.ActivatedMap = mapModel;
-            MapUtil.ChangeMap(mapModel);
+            if (MapUtil.ChangeMap(mapModel)) Model.ActivatedMap = mapModel;
         }
 
         public virtual void PermanentBuffs()

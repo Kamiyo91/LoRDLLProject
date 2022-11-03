@@ -37,6 +37,7 @@ namespace BigDLL4221.Models
             SpecialCardOptions = specialCardOptions;
             Phase = 0;
             PhaseChanging = false;
+            PhaseChangingRoundStart = false;
             SaveDataId = saveDataId;
         }
 
@@ -49,6 +50,7 @@ namespace BigDLL4221.Models
         public SpecialCardOption SpecialCardOptions { get; set; }
         public int Phase { get; set; }
         public bool PhaseChanging { get; set; }
+        public bool PhaseChangingRoundStart { get; set; }
         public string SaveDataId { get; set; }
     }
 
@@ -92,7 +94,7 @@ namespace BigDLL4221.Models
             List<LorId> unitsThatDieTogetherByPassive = null,
             List<AbnormalityCardDialog> onPhaseChangeDialogList = null,
             AbColorType onPhaseChangeDialogColor = AbColorType.Negative,
-            Func<BattleUnitModel, bool> massAttackExtraCondition = null)
+            Func<BattleUnitModel, bool> massAttackExtraCondition = null, bool onWaveStartEffectOnAddedPassives = true)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -128,6 +130,7 @@ namespace BigDLL4221.Models
             OnPhaseChangeDialogList = onPhaseChangeDialogList ?? new List<AbnormalityCardDialog>();
             OnPhaseChangeDialogColor = onPhaseChangeDialogColor;
             MassAttackExtraCondition = massAttackExtraCondition ?? (model => true);
+            OnWaveStartEffectOnAddedPassives = onWaveStartEffectOnAddedPassives;
         }
 
         public int MechHp { get; set; }
@@ -145,6 +148,7 @@ namespace BigDLL4221.Models
         public List<string> SoundEffectPath { get; set; }
         public MechBuffOptions MechBuffOptions { get; set; }
         public List<LorId> AdditionalPassiveByIds { get; set; }
+        public bool OnWaveStartEffectOnAddedPassives { get; set; }
         public List<LorId> RemovePassiveByIds { get; set; }
         public List<UnitModel> SummonUnit { get; set; }
         public List<UnitModel> SummonPlayerUnit { get; set; }
