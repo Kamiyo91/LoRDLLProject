@@ -30,5 +30,6 @@ namespace BigDLL4221.Models
     public static class LoRColorUtil
     {
         public static Color HighlightColor = UIColorManager.Manager.GetUIColor(UIColor.Highlighted);
+        public static Color DefaultColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
     }
 }

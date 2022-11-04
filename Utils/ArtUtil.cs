@@ -316,13 +316,13 @@ namespace BigDLL4221.Utils
         public static void ChangeColorToCombatPageList(Color c)
         {
             foreach (var text in Object.FindObjectsOfType<TextMeshProUGUI>()
-                         .Where(x => x.name.Contains("[Text]Feedbook_TextMesh")))
+                         .Where(x => x.GetComponentInParent<UICustomSelectable>() && x.name.Contains("[Text]Feedbook_TextMesh")))
                 text.color = c;
             foreach (var img in Object.FindObjectsOfType<Image>()
-                         .Where(x => x.name.Contains("[Image]buttonImage")))
+                         .Where(x => x.GetComponentInParent<UICustomSelectable>() && x.name.Contains("[Image]buttonImage")))
                 img.color = c;
             foreach (var img in Object.FindObjectsOfType<Image>()
-                         .Where(x => x.name.Contains("[Image]Line")))
+                         .Where(x => x.GetComponentInParent<UICustomSelectable>() && x.name.Contains("[Image]Line")))
                 img.color = c;
         }
     }

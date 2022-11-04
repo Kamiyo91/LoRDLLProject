@@ -176,7 +176,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___BookName, List<Graphic> ____defaultGraphics, List<Graphic> ____targetGraphics)
         {
             if (__instance.BookModel == null) return;
-            ___BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___BookName.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(__instance.BookModel.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.BookModel.BookId.id);
@@ -211,7 +211,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___BookName)
         {
             if (__instance.BookDataModel == null || gc == LoRColorUtil.HighlightColor) return;
-            ___BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___BookName.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(__instance.BookDataModel.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.BookDataModel.BookId.id);
@@ -232,7 +232,7 @@ namespace BigDLL4221.Harmony
             Image ___img_Frame, GraphicBundle ___Frames)
         {
             if (____unitdata == null) return;
-            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___txt_BookName.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(____unitdata.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ____unitdata.bookItem.BookId.id);
@@ -256,7 +256,7 @@ namespace BigDLL4221.Harmony
             Graphic[] ___graphic_Frames, TextMeshProUGUI ___txt_BookName)
         {
             if (___bookDataModel == null) return;
-            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___txt_BookName.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(___bookDataModel.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___bookDataModel.BookId.id);
@@ -287,8 +287,8 @@ namespace BigDLL4221.Harmony
             List<Graphic> ___targetGraphics, TextMeshProUGUI ___bookName, Image ___icon)
         {
             if (data == null) return;
-            ___bookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
-            ArtUtil.ChangeColorToCombatPageList(UIColorManager.Manager.GetUIColor(UIColor.Default));
+            ___bookName.color = LoRColorUtil.DefaultColor;
+            ArtUtil.ChangeColorToCombatPageList(LoRColorUtil.DefaultColor);
             if (!ModParameters.KeypageOptions.TryGetValue(data.bookItem.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == data.bookItem.BookId.id);
@@ -327,7 +327,7 @@ namespace BigDLL4221.Harmony
             Image ___img_IconGlow, TextMeshProMaterialSetter ___setter_name, TextMeshProUGUI ___txt_name)
         {
             if (____currentbookmodel == null) return;
-            ___txt_name.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___txt_name.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(____currentbookmodel.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ____currentbookmodel.BookId.id);
@@ -346,7 +346,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_BookName)
         {
             if (___bookmodel == null) return;
-            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___txt_BookName.color = LoRColorUtil.DefaultColor;
             if (c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___bookmodel.BookId.packageId, out var keypageOptions))
                 return;
@@ -366,7 +366,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_bookname, TextMeshProUGUI ___txt_booklevel)
         {
             if (___currentbookmodel == null) return;
-            ___txt_bookname.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___txt_bookname.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(___currentbookmodel.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___currentbookmodel.BookId.id);
@@ -396,7 +396,7 @@ namespace BigDLL4221.Harmony
             Image ___img_BookIconGlow, TextMeshProMaterialSetter ___setter_bookname, TextMeshProUGUI ___txt_BookName)
         {
             if (___unitdata == null) return;
-            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___txt_BookName.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
@@ -462,7 +462,7 @@ namespace BigDLL4221.Harmony
         public static void UIGachaEquipSlot_SetDefaultColor(UIGachaEquipSlot __instance)
         {
             if (__instance._book == null) return;
-            __instance.BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            __instance.BookName.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(__instance._book.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance._book.BookId.id);
@@ -487,7 +487,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_BookName)
         {
             if (___unitdata == null) return;
-            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___txt_BookName.color = LoRColorUtil.DefaultColor;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
@@ -517,7 +517,7 @@ namespace BigDLL4221.Harmony
             var keypageItem = keypageOptions.FirstOrDefault(x =>
                 x.KeypageId == UI.UIController.Instance.CurrentUnit.bookItem.BookId.id);
             var color = keypageItem?.KeypageColorOptions?.FrameColor ??
-                        UIColorManager.Manager.GetUIColor(UIColor.Default);
+                        LoRColorUtil.DefaultColor;
             if (eventData.pointerCurrentRaycast.gameObject != null &&
                 eventData.pointerCurrentRaycast.gameObject.name.Contains("[Xbox]SelectableTarget")) return;
             await GenericUtil.PutTaskDelay(30);
