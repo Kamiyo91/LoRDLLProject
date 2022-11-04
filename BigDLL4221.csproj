@@ -90,6 +90,7 @@
     <Compile Include="Buffs\BattleUnitBuf_WolfBlueAura_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
+    <Compile Include="Harmony\ColorPatch.cs" />
     <Compile Include="Models\HSVColors.cs" />
     <Compile Include="Models\SummonedUnitStatModel.cs" />
     <Compile Include="Passives\PassiveAbility_CustomDialogSet_DLL4221.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Extensions\UtilExtensions.cs" />
     <Compile Include="Utils\CardUtil.cs" />
     <Compile Include="Utils\CustomMapUtility.cs" />
+    <Compile Include="Utils\GenericUtil.cs" />
     <Compile Include="Utils\KeypageUtil.cs" />
     <Compile Include="Utils\LocalizeUtil.cs" />
     <Compile Include="Utils\MapUtil.cs" />

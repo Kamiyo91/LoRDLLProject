@@ -10,6 +10,7 @@ using TMPro;
 using UI;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace BigDLL4221.Utils
 {
@@ -310,6 +311,19 @@ namespace BigDLL4221.Utils
             {
                 // ignored
             }
+        }
+
+        public static void ChangeColorToCombatPageList(Color c)
+        {
+            foreach (var text in Object.FindObjectsOfType<TextMeshProUGUI>()
+                         .Where(x => x.name.Contains("[Text]Feedbook_TextMesh")))
+                text.color = c;
+            foreach (var img in Object.FindObjectsOfType<Image>()
+                         .Where(x => x.name.Contains("[Image]buttonImage")))
+                img.color = c;
+            foreach (var img in Object.FindObjectsOfType<Image>()
+                         .Where(x => x.name.Contains("[Image]Line")))
+                img.color = c;
         }
     }
 }
