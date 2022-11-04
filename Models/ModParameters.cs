@@ -66,7 +66,7 @@ namespace BigDLL4221.Models
             bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
             EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null,
             BookCustomOptions bookCustomOptions = null, bool bannedEgoFloorCards = false,
-            bool isBaseGameKeypage = false)
+            bool isBaseGameKeypage = false, KeypageColorOptions keypageColorOptions = null)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -83,6 +83,7 @@ namespace BigDLL4221.Models
             BookCustomOptions = bookCustomOptions;
             BannedEgoFloorCards = bannedEgoFloorCards;
             IsBaseGameKeypage = isBaseGameKeypage;
+            KeypageColorOptions = keypageColorOptions;
         }
 
         public int KeypageId { get; set; }
@@ -100,6 +101,19 @@ namespace BigDLL4221.Models
         public BookCustomOptions BookCustomOptions { get; set; }
         public bool BannedEgoFloorCards { get; set; }
         public bool IsBaseGameKeypage { get; set; }
+        public KeypageColorOptions KeypageColorOptions { get; set; }
+    }
+
+    public class KeypageColorOptions
+    {
+        public KeypageColorOptions(Color frameColor = new Color(), Color nameColor = new Color())
+        {
+            FrameColor = frameColor;
+            NameColor = nameColor;
+        }
+
+        public Color FrameColor { get; set; }
+        public Color NameColor { get; set; }
     }
 
     //int in dictionary in this class mean *Quantity*
@@ -168,7 +182,7 @@ namespace BigDLL4221.Models
     {
         public CardOptions(int cardId, CardOption option = CardOption.Basic, List<string> keywords = null,
             List<LorId> bookId = null, bool onlyAllyTargetCard = false, bool oneSideOnlyCard = false,
-            bool isBaseGameCard = false)
+            bool isBaseGameCard = false, CardColorOptions cardColorOptions = null)
         {
             CardId = cardId;
             Option = option;
@@ -177,6 +191,7 @@ namespace BigDLL4221.Models
             OnlyAllyTargetCard = onlyAllyTargetCard;
             OneSideOnlyCard = oneSideOnlyCard;
             IsBaseGameCard = isBaseGameCard;
+            CardColorOptions = cardColorOptions;
         }
 
         public int CardId { get; set; }
@@ -186,6 +201,24 @@ namespace BigDLL4221.Models
         public bool OnlyAllyTargetCard { get; set; }
         public bool OneSideOnlyCard { get; set; }
         public bool IsBaseGameCard { get; set; }
+        public CardColorOptions CardColorOptions { get; set; }
+    }
+
+    public class CardColorOptions
+    {
+        public CardColorOptions(Color cardColor = new Color(), string customIcon = "",
+            Color customIconColor = new Color(), HSVColor iconColor = null)
+        {
+            CardColor = cardColor;
+            CustomIcon = customIcon;
+            CustomIconColor = customIconColor;
+            IconColor = iconColor;
+        }
+
+        public Color CardColor { get; set; }
+        public string CustomIcon { get; set; }
+        public Color CustomIconColor { get; set; }
+        public HSVColor IconColor { get; set; }
     }
 
     public class StageOptions
@@ -242,7 +275,7 @@ namespace BigDLL4221.Models
             List<LorId> chainReleasePassives = null, bool gainCoins = true,
             bool bannedEmotionCardSelection = false,
             bool bannedEgoFloorCards = false, bool ignoreClashPassive = false, MultiDeckOptions multiDeckOptions = null,
-            bool isBaseGamePassive = false, string passiveScriptId = "")
+            bool isBaseGamePassive = false, string passiveScriptId = "", PassiveColorOptions passiveColorOptions = null)
         {
             PassiveId = passiveId;
             Transferable = transferable;
@@ -260,6 +293,7 @@ namespace BigDLL4221.Models
             MultiDeckOptions = multiDeckOptions ?? new MultiDeckOptions(new List<string>());
             IsBaseGamePassive = isBaseGamePassive;
             PassiveScriptId = passiveScriptId;
+            PassiveColorOptions = passiveColorOptions;
         }
 
         public int PassiveId { get; set; }
@@ -278,6 +312,19 @@ namespace BigDLL4221.Models
         public MultiDeckOptions MultiDeckOptions { get; set; }
         public bool IsBaseGamePassive { get; set; }
         public string PassiveScriptId { get; set; }
+        public PassiveColorOptions PassiveColorOptions { get; set; }
+    }
+
+    public class PassiveColorOptions
+    {
+        public PassiveColorOptions(Color textColor = new Color(), Color fillColor = new Color())
+        {
+            TextColor = textColor;
+            FillColor = fillColor;
+        }
+
+        public Color TextColor { get; set; }
+        public Color FillColor { get; set; }
     }
 
     public class CredenzaOptions

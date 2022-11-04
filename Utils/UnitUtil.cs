@@ -190,6 +190,18 @@ namespace BigDLL4221.Utils
             battleCardResultLog?.SetPassiveAbility(passive);
         }
 
+        public static void SetBuffCombatLog(BattleUnitBuf buf, BattleUnitModel owner)
+        {
+            var battleCardResultLog = owner.battleCardResultLog;
+            battleCardResultLog?.SetNewBufs(buf);
+        }
+
+        public static void SetDieAbility(DiceCardAbilityBase ability, BattleUnitModel owner, bool activateByResult)
+        {
+            var battleCardResultLog = owner.battleCardResultLog;
+            battleCardResultLog?.SetDiceBehaviourAbility(activateByResult, ability.behavior, ability.card.card);
+        }
+
         public static void BattleAbDialog(BattleDialogUI instance, List<AbnormalityCardDialog> dialogs,
             AbColorType colorType)
         {
