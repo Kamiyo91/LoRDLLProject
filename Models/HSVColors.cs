@@ -31,5 +31,6 @@ namespace BigDLL4221.Models
     {
         public static Color HighlightColor = UIColorManager.Manager.GetUIColor(UIColor.Highlighted);
         public static Color DefaultColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
+        public static Color DisabledColor = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
     }
 }

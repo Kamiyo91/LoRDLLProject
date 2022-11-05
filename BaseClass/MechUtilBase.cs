@@ -59,13 +59,18 @@ namespace BigDLL4221.BaseClass
             if (egoOptions.EgoType != null)
                 Model.Owner.bufListDetail.AddBufWithoutDuplication(egoOptions.EgoType);
             Model.Owner.cardSlotDetail.RecoverPlayPoint(Model.Owner.cardSlotDetail.GetMaxPlayPoint());
-            foreach (var card in Model.PersonalCards.Where(x =>
-                         x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase && !x.Value.ActiveEgoCard))
-                Model.Owner.personalEgoDetail.AddCard(card.Key);
-            var egoNextFormCard = Model.PersonalCards.FirstOrDefault(x =>
-                x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase + 1 && x.Value.ActiveEgoCard);
-            if (egoNextFormCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoNextFormCard.Key);
-            if (Model.EgoOptions == null) return true;
+            if (Model.Owner.faction == Faction.Player)
+            {
+                foreach (var card in Model.PersonalCards.Where(x =>
+                             x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase && !x.Value.ActiveEgoCard))
+                    Model.Owner.personalEgoDetail.AddCard(card.Key);
+                var egoNextFormCard = Model.PersonalCards.FirstOrDefault(x =>
+                    x.Value.EgoPersonalCard && x.Value.EgoPhase == Model.EgoPhase + 1 && x.Value.ActiveEgoCard);
+                if (egoNextFormCard.Key != null) Model.Owner.personalEgoDetail.AddCard(egoNextFormCard.Key);
+            }
+
+            if (egoOptions.RecoverHpOnEgo != 0)
+                UnitUtil.UnitReviveAndRecovery(Model.Owner, egoOptions.RecoverHpOnEgo, false);
             if (egoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
             if (egoOptions.EgoAbDialogList.Any())
                 UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, egoOptions.EgoAbDialogList,

@@ -156,19 +156,6 @@ namespace BigDLL4221.Harmony
             }
         }
 
-        [HarmonyPatch(typeof(UIBattleSettingLibrarianInfoPanel), "SetBattlePageSlotColor")]
-        [HarmonyPostfix]
-        public static void UIBattleSettingLibrarianInfoPanel_SetBattlePageSlotColor_Post(Color c,
-            UnitDataModel ___unitdata, Graphic[] ___graphic_battlepageSlot)
-        {
-            if (___unitdata == null || c == LoRColorUtil.HighlightColor) return;
-            if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
-                    out var keypageOptions)) return;
-            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
-            if (keypageItem?.KeypageColorOptions == null) return;
-            foreach (var graphic in ___graphic_battlepageSlot.Where(x => x != null))
-                graphic.color = keypageItem.KeypageColorOptions.FrameColor;
-        }
 
         [HarmonyPatch(typeof(UICharacterBookSlot), "SetHighlighted")]
         [HarmonyPostfix]
@@ -307,11 +294,9 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UILibrarianEquipBookInfoPanel), "SetPassiveSlotColor")]
         [HarmonyPostfix]
         public static void UILibrarianEquipBookInfoPanel_SetPassiveSlotColor(Color c, UnitDataModel ___unitData,
-            Graphic[] ___graphic_passivesSlot, List<Graphic> ___targetGraphics, TextMeshProUGUI ___bookName,
-            Image ___icon)
+            Graphic[] ___graphic_passivesSlot)
         {
-            if (___unitData == null || c == LoRColorUtil.HighlightColor ||
-                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
+            if (___unitData == null || c == LoRColorUtil.HighlightColor) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitData.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitData.bookItem.BookId.id);
@@ -341,13 +326,12 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UIPassiveSuccessionEquipBookSlot), "SetRarityColor")]
         [HarmonyPatch(typeof(UIPassiveEquipBookSlot), "SetRarityColor")]
         [HarmonyPostfix]
-        public static void UIPassiveSuccessionEquipBookSlot_SetRarityColor(BookModel ___bookmodel, Color c,
+        public static void UIPassiveSuccessionEquipBookSlot_SetRarityColor(BookModel ___bookmodel,
             Image ___img_Frame, Image ___img_IconGlow, TextMeshProMaterialSetter ___setter_txtbookname,
             TextMeshProUGUI ___txt_BookName)
         {
             if (___bookmodel == null) return;
             ___txt_BookName.color = LoRColorUtil.DefaultColor;
-            if (c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___bookmodel.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___bookmodel.BookId.id);
@@ -420,8 +404,7 @@ namespace BigDLL4221.Harmony
         public static void UILibrarianInfoInCardPhase_SetPassiveSlotColor(Color c, UnitDataModel ___unitdata,
             Graphic[] ___graphic_passivesSlot)
         {
-            if (___unitdata == null || c == LoRColorUtil.HighlightColor ||
-                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
+            if (___unitdata == null || c == LoRColorUtil.HighlightColor) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
@@ -479,32 +462,6 @@ namespace BigDLL4221.Harmony
             __instance.IconGlow.color = keypageItem.KeypageColorOptions.FrameColor;
         }
 
-        [HarmonyPatch(typeof(UIBattleSettingLibrarianInfoPanel), "SetEquipPageSlotState")]
-        [HarmonyPostfix]
-        public static void UIBattleSettingLibrarianInfoPanel_SetEquipPageSlotState(
-            UIBattleSettingLibrarianInfoPanel __instance, UnitDataModel ___unitdata,
-            TextMeshProMaterialSetter ___setter_bookname, Image ___img_BookIconGlow, Graphic[] ___graphic_Frames,
-            TextMeshProUGUI ___txt_BookName)
-        {
-            if (___unitdata == null) return;
-            ___txt_BookName.color = LoRColorUtil.DefaultColor;
-            if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
-                    out var keypageOptions)) return;
-            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
-            if (keypageItem?.KeypageColorOptions == null) return;
-            ___img_BookIconGlow.color = keypageItem.KeypageColorOptions.FrameColor;
-            ___setter_bookname.underlayColor = keypageItem.KeypageColorOptions.NameColor;
-            ___txt_BookName.color = keypageItem.KeypageColorOptions.NameColor;
-            ___setter_bookname.InitMaterialProperty();
-            foreach (var graphic in ___graphic_Frames.Where(x => x != null))
-                graphic.color = keypageItem.KeypageColorOptions.FrameColor;
-            __instance.SetEquipPageSlotColor(
-                __instance.GetSettingPanel().EditPanel.GetActiveState() &&
-                __instance.GetSettingPanel().EditPanel.CurrentState == UIBattleSettingEditTap.EquipPage
-                    ? LoRColorUtil.HighlightColor
-                    : keypageItem.KeypageColorOptions.FrameColor);
-        }
-
         [HarmonyPatch(typeof(UICustomSelectable), "OnPointerExit")]
         [HarmonyPostfix]
         public static async void UICustomSelectable_OnPointerExit(UICustomSelectable __instance,
@@ -522,6 +479,47 @@ namespace BigDLL4221.Harmony
                 eventData.pointerCurrentRaycast.gameObject.name.Contains("[Xbox]SelectableTarget")) return;
             await GenericUtil.PutTaskDelay(30);
             ArtUtil.ChangeColorToCombatPageList(color);
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingLibrarianInfoPanel), "SetEquipPageSlotColor")]
+        [HarmonyPostfix]
+        public static void UIBattleSettingLibrarianInfoPanel_SetEquipPageSlotColor(
+            UIBattleSettingLibrarianInfoPanel __instance, UnitDataModel ___unitdata,
+            TextMeshProMaterialSetter ___setter_bookname, Image ___img_BookIconGlow, Graphic[] ___graphic_Frames,
+            TextMeshProUGUI ___txt_BookName, bool ___isSephirahPanel)
+        {
+            if (___unitdata == null) return;
+            ___txt_BookName.color = LoRColorUtil.DefaultColor;
+            foreach (var img in __instance.GetComponentsInChildren<Image>()
+                         .Where(x => x.name.Contains("[Image]CenterFrame")))
+                img.color = ___isSephirahPanel ? LoRColorUtil.DefaultColor : LoRColorUtil.DisabledColor;
+            if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
+                    out var keypageOptions)) return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            ___img_BookIconGlow.color = keypageItem.KeypageColorOptions.FrameColor;
+            ___setter_bookname.underlayColor = keypageItem.KeypageColorOptions.NameColor;
+            ___txt_BookName.color = keypageItem.KeypageColorOptions.NameColor;
+            ___setter_bookname.InitMaterialProperty();
+            foreach (var graphic in ___graphic_Frames.Where(x => x != null))
+                graphic.color = keypageItem.KeypageColorOptions.FrameColor;
+            foreach (var img in __instance.GetComponentsInChildren<Image>()
+                         .Where(x => x.name.Contains("[Image]CenterFrame")))
+                img.color = keypageItem.KeypageColorOptions.FrameColor;
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingLibrarianInfoPanel), "SetBattlePageSlotColor")]
+        [HarmonyPostfix]
+        public static void UIBattleSettingLibrarianInfoPanel_SetBattlePageSlotColor_Post(Color c,
+            UnitDataModel ___unitdata, Graphic[] ___graphic_battlepageSlot)
+        {
+            if (___unitdata == null || c == LoRColorUtil.HighlightColor) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
+                    out var keypageOptions)) return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            foreach (var graphic in ___graphic_battlepageSlot.Where(x => x != null))
+                graphic.color = keypageItem.KeypageColorOptions.FrameColor;
         }
     }
 }

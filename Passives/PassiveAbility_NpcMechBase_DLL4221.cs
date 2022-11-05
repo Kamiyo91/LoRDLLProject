@@ -187,5 +187,19 @@ namespace BigDLL4221.Passives
 
             return base.GetDamageReduction(behavior);
         }
+
+        public override int GetMaxHpBonus()
+        {
+            if (Util == null) return base.GetMaxHpBonus();
+            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)) return base.GetMaxHpBonus();
+            return mechOptions.ExtraMaxHp != 0 ? mechOptions.ExtraMaxHp : base.GetMaxBpBonus();
+        }
+
+        public override int GetMaxBpBonus()
+        {
+            if (Util == null) return base.GetMaxBpBonus();
+            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)) return base.GetMaxBpBonus();
+            return mechOptions.ExtraMaxStagger != 0 ? mechOptions.ExtraMaxStagger : base.GetMaxBpBonus();
+        }
     }
 }

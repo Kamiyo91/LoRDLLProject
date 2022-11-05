@@ -94,7 +94,8 @@ namespace BigDLL4221.Models
             List<LorId> unitsThatDieTogetherByPassive = null,
             List<AbnormalityCardDialog> onPhaseChangeDialogList = null,
             AbColorType onPhaseChangeDialogColor = AbColorType.Negative,
-            Func<BattleUnitModel, bool> massAttackExtraCondition = null, bool onWaveStartEffectOnAddedPassives = true)
+            Func<BattleUnitModel, bool> massAttackExtraCondition = null, bool onWaveStartEffectOnAddedPassives = true,
+            int extraMaxHp = 0, int extraMaxStagger = 0)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -131,6 +132,8 @@ namespace BigDLL4221.Models
             OnPhaseChangeDialogColor = onPhaseChangeDialogColor;
             MassAttackExtraCondition = massAttackExtraCondition ?? (model => true);
             OnWaveStartEffectOnAddedPassives = onWaveStartEffectOnAddedPassives;
+            ExtraMaxHp = extraMaxHp;
+            ExtraMaxStagger = extraMaxStagger;
         }
 
         public int MechHp { get; set; }
@@ -167,6 +170,8 @@ namespace BigDLL4221.Models
         public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
         public List<AbnormalityCardDialog> OnPhaseChangeDialogList { get; set; }
         public AbColorType OnPhaseChangeDialogColor { get; set; }
+        public int ExtraMaxHp { get; set; }
+        public int ExtraMaxStagger { get; set; }
         public Func<BattleUnitModel, bool> MassAttackExtraCondition { get; set; }
     }
 

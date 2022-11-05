@@ -78,7 +78,7 @@ namespace BigDLL4221.Models
             int duration = 0, bool activeEgoOnDeath = false, bool activeEgoOnSurvive = false,
             List<UnitModel> summonUnitDefaultData = null, List<UnitModel> summonUnitCustomData = null,
             List<LorId> unitsThatDieTogetherByPassive = null, bool removeEgoWhenSolo = false,
-            bool deactiveEgoOnBreak = false)
+            bool deactiveEgoOnBreak = false, int recoverHpOnEgo = 0, int extraMaxHp = 0, int extraMaxStagger = 0)
         {
             EgoType = egoType;
             EgoMaps = egoMaps ?? new Dictionary<LorId, MapModel>();
@@ -98,6 +98,9 @@ namespace BigDLL4221.Models
             UnitsThatDieTogetherByPassive = unitsThatDieTogetherByPassive ?? new List<LorId>();
             RemoveEgoWhenSolo = removeEgoWhenSolo;
             DeactiveEgoOnBreak = deactiveEgoOnBreak;
+            RecoverHpOnEgo = recoverHpOnEgo;
+            ExtraMaxHp = extraMaxHp;
+            ExtraMaxStagger = extraMaxStagger;
         }
 
         public bool ActiveEgoOnDeath { get; set; }
@@ -109,6 +112,7 @@ namespace BigDLL4221.Models
         public MechBuffOptions AdditionalBuffs { get; set; }
         public bool RefreshUI { get; set; }
         public string EgoSkinName { get; set; }
+        public int RecoverHpOnEgo { get; set; }
         public List<AbnormalityCardDialog> EgoAbDialogList { get; set; }
         public AbColorType EgoAbColorColor { get; set; }
         public int Duration { get; set; }
@@ -118,6 +122,8 @@ namespace BigDLL4221.Models
         public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
         public bool RemoveEgoWhenSolo { get; set; }
         public bool DeactiveEgoOnBreak { get; set; }
+        public int ExtraMaxHp { get; set; }
+        public int ExtraMaxStagger { get; set; }
     }
 
     public class DamageOptions
