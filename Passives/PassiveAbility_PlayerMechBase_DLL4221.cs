@@ -20,10 +20,10 @@ namespace BigDLL4221.Passives
 
         public override void OnBattleEnd()
         {
-            if (!Util.CheckSkinChangeIsActive()) return;
-            if (!string.IsNullOrEmpty(Util.Model.OriginalSkinName))
+            if (Util.CheckSkinChangeIsActive() && !string.IsNullOrEmpty(Util.Model.OriginalSkinName))
                 owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
                     new List<string> { Util.Model.OriginalSkinName };
+            if (owner.faction == Faction.Player && Util.Model.CustomData) owner.Book.owner = null;
         }
 
         public override void OnBreakState()
@@ -33,6 +33,7 @@ namespace BigDLL4221.Passives
 
         public override void OnWaveStart()
         {
+            UnitUtil.CheckSkinProjection(owner);
             if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
             Util.AddExpireCards();
             Util.PermanentBuffs();
@@ -42,12 +43,13 @@ namespace BigDLL4221.Passives
 
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)
         {
-            Util.OnUseExpireCard(curCard.card.GetID());
+            Util.OnUseExpireCard(curCard);
             Util.ChangeToEgoMap(curCard.card.GetID());
         }
 
         public override void OnRoundEndTheLast_ignoreDead()
         {
+            Util.ExtraMethodOnRoundEndTheLastIgnoreDead();
             Util.ReviveCheck();
             Util.DeactiveEgoDuration();
             Util.ReturnFromEgoMap();
@@ -100,6 +102,7 @@ namespace BigDLL4221.Passives
 
         public override void OnKill(BattleUnitModel target)
         {
+            Util.ExtraMethodOnKill(target);
             if (Util.CheckOnDieAtFightEnd())
                 owner.Die();
         }
@@ -164,6 +167,11 @@ namespace BigDLL4221.Passives
             }
 
             return base.GetDamageReduction(behavior);
+        }
+
+        public override void OnDieOtherUnit(BattleUnitModel unit)
+        {
+            Util.ExtraMethodOnOtherUnitDie(unit);
         }
 
         public override int GetBreakDamageReduction(BattleDiceBehavior behavior)

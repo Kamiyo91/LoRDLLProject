@@ -23,8 +23,16 @@ namespace BigDLL4221.BaseClass
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions)) return;
             if (!mechPhaseOptions.EgoMassAttackCardsOptions.Any()) return;
             if (mechPhaseOptions.EgoMassAttackCardsOptions.All(x => x.CardId != curCard.card.GetID())) return;
-            Model.Counter = 0;
+            mechPhaseOptions.Counter = 0;
             Model.Owner.allyCardDetail.ExhaustACardAnywhere(curCard.card);
+        }
+
+        public virtual void AddStartBuffsToPlayerUnits()
+        {
+            foreach (var buff in Model.AddBuffsOnPlayerUnitsAtStart)
+            foreach (var unit in BattleObjectManager.instance.GetAliveList(
+                         UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)))
+                unit.bufListDetail.AddBuf(buff);
         }
 
         public virtual void MechHpCheck(int dmg)
@@ -44,7 +52,9 @@ namespace BigDLL4221.BaseClass
         {
             if (Model.Owner.hp - dmg > Model.SurviveHp || !Model.Survive) return;
             Model.Survive = false;
-            if (Model.ReloadMassAttackOnLethal) SetCounter(Model.MaxCounter);
+            if (Model.ReloadMassAttackOnLethal)
+                if (Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions))
+                    SetCounter(mechPhaseOptions.MaxCounter);
             Model.Owner.SetHp(Model.RecoverToHp);
             Model.Owner.breakDetail.ResetGauge();
             Model.Owner.breakDetail.RecoverBreakLife(1, true);
@@ -67,7 +77,9 @@ namespace BigDLL4221.BaseClass
 
         public virtual void RaiseCounter()
         {
-            if (Model.MassAttackStartCount && Model.Counter < Model.MaxCounter) Model.Counter++;
+            if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions)) return;
+            if (Model.MassAttackStartCount && mechPhaseOptions.Counter < mechPhaseOptions.MaxCounter)
+                mechPhaseOptions.Counter++;
         }
 
         public virtual void SetMassAttack(bool value)
@@ -82,29 +94,35 @@ namespace BigDLL4221.BaseClass
 
         public virtual void SetCounter(int value)
         {
-            Model.Counter = value;
+            if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions)) return;
+            mechPhaseOptions.Counter = value;
         }
 
         public virtual void OnSelectCardPutMassAttack(ref BattleDiceCardModel origin)
         {
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions)) return;
-            if (!mechPhaseOptions.MassAttackExtraCondition(Model.Owner)) return;
+            if (MassAttackExtraCondition()) return;
             if (Model.OneTurnCard) return;
             if (mechPhaseOptions.BuffMech != null &&
                 mechPhaseOptions.BuffMech.Buff.stack >= mechPhaseOptions.BuffMech.MassAttackStacks)
             {
+                var card = RandomUtil.SelectOne(mechPhaseOptions.BuffMech.MassAttackCards);
                 origin = BattleDiceCardModel.CreatePlayingCard(
-                    ItemXmlDataList.instance.GetCardItem(
-                        RandomUtil.SelectOne(mechPhaseOptions.BuffMech.MassAttackCards)));
+                    ItemXmlDataList.instance.GetCardItem(card.CardId));
                 SetOneTurnCard(true);
             }
 
-            if (!Model.MassAttackStartCount || Model.Counter < Model.MaxCounter) return;
+            if (!Model.MassAttackStartCount || mechPhaseOptions.Counter < mechPhaseOptions.MaxCounter) return;
             if (!mechPhaseOptions.EgoMassAttackCardsOptions.Any()) return;
             origin = BattleDiceCardModel.CreatePlayingCard(
                 ItemXmlDataList.instance.GetCardItem(RandomUtil.SelectOne(mechPhaseOptions.EgoMassAttackCardsOptions)
                     .CardId));
             SetOneTurnCard(true);
+        }
+
+        public virtual bool MassAttackExtraCondition()
+        {
+            return true;
         }
 
         public virtual void ExhaustEgoAttackCards()
@@ -119,15 +137,18 @@ namespace BigDLL4221.BaseClass
         {
             foreach (var mechOptions in Model.MechOptions.Where(x => x.Value.BuffMech != null))
             foreach (var card in mechOptions.Value.BuffMech.MassAttackCards.SelectMany(cardItem =>
-                         Model.Owner.allyCardDetail.GetAllDeck().Where(x => cardItem == x.GetID())))
+                         Model.Owner.allyCardDetail.GetAllDeck().Where(x => cardItem.CardId == x.GetID())))
                 Model.Owner.allyCardDetail.ExhaustACardAnywhere(card);
         }
 
         public virtual BattleUnitModel IgnoreSephiraSelectionTarget(LorId cardId)
         {
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechPhaseOptions)) return null;
-            if (!mechPhaseOptions.EgoMassAttackCardsOptions.Any()) return null;
-            var card = mechPhaseOptions.EgoMassAttackCardsOptions.FirstOrDefault(x => x.CardId == cardId);
+            if (!mechPhaseOptions.EgoMassAttackCardsOptions.Any() && (mechPhaseOptions.BuffMech == null ||
+                                                                      !mechPhaseOptions.BuffMech.MassAttackCards.Any()))
+                return null;
+            var card = mechPhaseOptions.EgoMassAttackCardsOptions.FirstOrDefault(x => x.CardId == cardId) ??
+                       mechPhaseOptions.BuffMech.MassAttackCards.FirstOrDefault(x => x.CardId == cardId);
             if (card == null || !card.IgnoreSephirah) return null;
             return UnitUtil.IgnoreSephiraSelectionTarget(true);
         }
@@ -210,11 +231,16 @@ namespace BigDLL4221.BaseClass
 
         public virtual void InitMechRoundEnd(MechPhaseOptions mechOptions)
         {
-            if (mechOptions.MechOnDeath)
-                UnitUtil.UnitReviveAndRecovery(Model.Owner, mechOptions.HpRecoverOnChangePhase, true);
+            if (mechOptions.MechOnDeath) UnitUtil.UnitReviveAndRecovery(Model.Owner, 1, true);
+            if (mechOptions.SetEmotionLevel != 0)
+            {
+                var emotionLevels = mechOptions.SetEmotionLevel - Model.Owner.emotionDetail.EmotionLevel;
+                if (emotionLevels > 0) UnitUtil.LevelUpEmotion(Model.Owner, emotionLevels);
+            }
+
             if (mechOptions.ForceEgo) ForcedEgo();
             if (mechOptions.StartMassAttack.HasValue) SetMassAttack(mechOptions.StartMassAttack.Value);
-            if (mechOptions.SetCounterToMax) SetCounter(Model.MaxCounter);
+            if (mechOptions.SetCounterToMax) mechOptions.Counter = mechOptions.MaxCounter;
             if (mechOptions.ChangeCardCost)
                 UnitUtil.ChangeCardCostByValue(Model.Owner, mechOptions.LoweredCost, mechOptions.MaxCost, true);
             if (mechOptions.MechBuffOptions != null)
@@ -225,42 +251,78 @@ namespace BigDLL4221.BaseClass
                     Model.Owner.bufListDetail.AddKeywordBufThisRoundByEtc(buff.Key, buff.Value, Model.Owner);
             }
 
+            if (mechOptions.BuffMech != null)
+            {
+                MechBuff();
+                if (mechOptions.BuffMech.MaxStackOnPhaseChange) mechOptions.BuffMech.Buff.OnAddBuf(9999);
+            }
+
             foreach (var passive in mechOptions.AdditionalPassiveByIds
                          .Select(passiveId => Model.Owner.passiveDetail.AddPassive(passiveId))
                          .Where(passive => mechOptions.OnWaveStartEffectOnAddedPassives))
                 passive.OnWaveStart();
+            foreach (var buff in mechOptions.AdditionalBuffs)
+                Model.Owner.bufListDetail.AddBuf(buff);
             foreach (var passiveId in mechOptions.RemovePassiveByIds)
                 Model.Owner.RemovePassive(passiveId);
+            foreach (var buff in Model.Owner.bufListDetail.GetActivatedBufList()
+                         .Where(x => mechOptions.RemoveBuffs.Exists(y => x.GetType() == y.GetType())))
+                Model.Owner.bufListDetail.RemoveBuf(buff);
             if (mechOptions.RemoveOtherUnits)
                 foreach (var unit in BattleObjectManager.instance.GetList(Model.Owner.faction)
                              .Where(x => x != Model.Owner))
                     BattleObjectManager.instance.UnregisterUnit(unit);
             foreach (var path in mechOptions.SoundEffectPath.Where(x => !string.IsNullOrEmpty(x)))
                 SoundEffectPlayer.PlaySound(path);
+            if (mechOptions.HasExtraFunctionRoundEnd) ExtraMethodOnPhaseChangeRoundEnd(mechOptions);
         }
 
-        public virtual void InitMechRoundStart(MechPhaseOptions mechOptions)
+        public virtual void InitMechRoundStart(MechPhaseOptions mechOptions, bool restart = false)
         {
+            if (mechOptions.HpRecoverOnChangePhase != 0 && !restart)
+                UnitUtil.UnitReviveAndRecovery(Model.Owner, mechOptions.HpRecoverOnChangePhase, true);
             foreach (var unitModel in mechOptions.SummonUnit)
                 UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
                     BattleObjectManager.instance.GetList(Model.Owner.faction).Count, true,
-                    Model.Owner.emotionDetail.EmotionLevel, false);
+                    mechOptions.SummonedEmotionLevelEnemy ?? Model.Owner.emotionDetail.EmotionLevel, false);
             foreach (var unitModel in mechOptions.SummonPlayerUnit)
                 UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
-                    BattleObjectManager.instance.GetList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Count);
+                    BattleObjectManager.instance.GetList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Count,
+                    emotionLevel: mechOptions.SummonedEmotionLevelAlly ?? Model.Owner.emotionDetail.EmotionLevel);
+            foreach (var index in mechOptions.SummonOriginalUnitByIndex)
+                UnitUtil.AddOriginalPlayerUnit(index,
+                    mechOptions.SummonedEmotionLevelAlly ?? Model.Owner.emotionDetail.EmotionLevel);
             if (mechOptions.SummonUnit.Any() || mechOptions.SummonPlayerUnit.Any()) UnitUtil.RefreshCombatUI();
             if (mechOptions.OnPhaseChangeDialogList.Any())
                 UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, mechOptions.OnPhaseChangeDialogList,
                     mechOptions.OnPhaseChangeDialogColor);
+            if (mechOptions.HasExtraFunctionRoundStart) ExtraMethodOnPhaseChangeRoundStart(mechOptions);
+        }
+
+        public virtual void InitExtraMechRoundPreEnd()
+        {
+            if (!Model.PhaseChanging) return;
+            if (!Model.MechOptions.TryGetValue(Model.Phase + 1, out var mechOptions)) return;
+            if (mechOptions.HasExtraFunctionRoundPreEnd) ExtraMechRoundPreEnd(mechOptions);
+        }
+
+        public virtual void ExtraMechRoundPreEnd(MechPhaseOptions mechOptions)
+        {
         }
 
         public virtual void CheckPhaseRoundEnd()
         {
-            if (!Model.PhaseChanging) return;
             if (!Model.MechOptions.TryGetValue(Model.Phase + 1, out var mechOptions)) return;
+            if (mechOptions.HasSpecialChangePhaseCondition && SpecialChangePhaseCondition()) Model.PhaseChanging = true;
+            if (!Model.PhaseChanging) return;
             Model.PhaseChanging = false;
             Model.PhaseChangingRoundStart = true;
             InitMechRoundEnd(mechOptions);
+        }
+
+        public virtual bool SpecialChangePhaseCondition()
+        {
+            return false;
         }
 
         public virtual void CheckPhaseRoundStart()
@@ -276,7 +338,7 @@ namespace BigDLL4221.BaseClass
         {
             if (!Model.MechOptions.TryGetValue(mechPhase, out var mechOptions)) return;
             InitMechRoundEnd(mechOptions);
-            InitMechRoundStart(mechOptions);
+            InitMechRoundStart(mechOptions, true);
         }
 
         public virtual void OnEndBattle()
@@ -285,6 +347,7 @@ namespace BigDLL4221.BaseClass
             var currentWaveModel = Singleton<StageController>.Instance.GetCurrentWaveModel();
             if (currentWaveModel == null || currentWaveModel.IsUnavailable()) return;
             stageModel.SetStageStorgeData(Model.SaveDataId, Model.Phase);
+            stageModel.SetStageStorgeData(Model.EgoSaveDataId, Model.EgoSaveDataId);
             var list = BattleObjectManager.instance.GetAliveList(Model.Owner.faction)
                 .Where(unit => !UnitUtil.IsSupportCharCheck(unit)).Select(unit => unit.UnitData)
                 .ToList();
@@ -300,6 +363,14 @@ namespace BigDLL4221.BaseClass
                 Model.Phase = 0;
                 InitRestartMech(Model.Phase);
                 return;
+            }
+
+            var curEgoPhaseTryGet = Singleton<StageController>.Instance.GetStageModel()
+                .GetStageStorageData<int>(Model.EgoSaveDataId, out var curEgoPhase);
+            if (curEgoPhaseTryGet && curEgoPhase != 0)
+            {
+                Model.EgoPhase = curEgoPhase - 1;
+                ForcedEgo();
             }
 
             Model.Phase = curPhase;
@@ -324,16 +395,56 @@ namespace BigDLL4221.BaseClass
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return;
             if (mechOptions.BuffMech == null) return;
             var buffType = mechOptions.BuffMech.Buff.GetType();
-            if (Model.Owner.HasBuff(buffType)) return;
+            if (Model.Owner.HasBuff(buffType, out var buff))
+            {
+                mechOptions.BuffMech.Buff = buff;
+                return;
+            }
+
             mechOptions.BuffMech.Buff = (BattleUnitBuf)Activator.CreateInstance(buffType);
             Model.Owner.bufListDetail.AddBuf(mechOptions.BuffMech.Buff);
         }
 
-        public virtual void OnUseMechBuffAttackCard(LorId cardId)
+        public virtual bool OnUseMechBuffAttackCard(BattlePlayingCardDataInUnitModel card)
+        {
+            if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return false;
+            if (mechOptions.BuffMech == null) return false;
+            if (!mechOptions.BuffMech.MassAttackCards.Exists(x => x.CardId == card.card.GetID())) return false;
+            mechOptions.BuffMech.Buff.OnAddBuf(-9999);
+            return true;
+        }
+
+        public virtual void ChangePhaseForSceneCounter()
         {
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return;
-            if (mechOptions.BuffMech == null) return;
-            if (mechOptions.BuffMech.MassAttackCards.Contains(cardId)) mechOptions.BuffMech.Buff.OnAddBuf(-9999);
+            if (!mechOptions.MechOnScenesCount) return;
+            if (mechOptions.SceneCounter >= mechOptions.ScenesBeforeNextPhase) Model.PhaseChanging = true;
+        }
+
+        public virtual void SceneCounter()
+        {
+            if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return;
+            if (mechOptions.MechOnScenesCount) mechOptions.SceneCounter++;
+        }
+
+        public virtual void ExtraMethodOnPhaseChangeRoundEnd(MechPhaseOptions mechOptions)
+        {
+        }
+
+        public virtual void ExtraMethodOnPhaseChangeRoundStart(MechPhaseOptions mechOptions)
+        {
+        }
+
+        public new virtual void ExtraMethodOnRoundEndTheLastIgnoreDead()
+        {
+        }
+
+        public new virtual void ExtraMethodOnOtherUnitDie(BattleUnitModel unit)
+        {
+        }
+
+        public new virtual void ExtraMethodOnKill(BattleUnitModel unit)
+        {
         }
     }
 }

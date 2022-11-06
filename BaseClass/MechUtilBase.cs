@@ -45,6 +45,7 @@ namespace BigDLL4221.BaseClass
             if (Model.ReviveAbDialogList.Any())
                 UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
                     Model.ReviveAbDialogColor);
+            if (Model.ForceRetreatOnRevive) Model.Owner.forceRetreat = true;
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             if (egoOptions.ActiveEgoOnDeath) EgoActive();
         }
@@ -136,8 +137,9 @@ namespace BigDLL4221.BaseClass
                 .Exists(x => x.GetType() == egoOptions.EgoType.GetType())) egoOptions.Count++;
         }
 
-        public virtual void OnUseExpireCard(LorId cardId)
+        public virtual void OnUseExpireCard(BattlePlayingCardDataInUnitModel card)
         {
+            var cardId = card.card.GetID();
             if (Model.PersonalCards.Any(x => x.Key == cardId && x.Value.ExpireAfterUse))
                 Model.Owner.personalEgoDetail.RemoveCard(cardId);
             var egoCardBool = Model.PersonalCards.TryGetValue(cardId, out var egoCard);
@@ -245,8 +247,7 @@ namespace BigDLL4221.BaseClass
 
         public virtual void ChangeToEgoMap(LorId cardId)
         {
-            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
-            if (Model.EgoOptions == null || !egoOptions.EgoMaps.TryGetValue(cardId, out var mapModel) ||
+            if (!Model.EgoMaps.TryGetValue(cardId, out var mapModel) ||
                 SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
             if (MapUtil.ChangeMap(mapModel)) Model.ActivatedMap = mapModel;
         }
@@ -254,7 +255,7 @@ namespace BigDLL4221.BaseClass
         public virtual void PermanentBuffs()
         {
             foreach (var item in Model.PermanentBuffList.Select((buff, index) => (index, buff)).ToList()
-                         .Where(item => !Model.Owner.HasBuff(item.buff.GetType())))
+                         .Where(item => !Model.Owner.HasBuff(item.buff.GetType(), out _)))
             {
                 Model.PermanentBuffList[item.index] = (BattleUnitBuf)Activator.CreateInstance(item.buff.GetType());
                 Model.Owner.bufListDetail.AddBuf(Model.PermanentBuffList[item.index]);
@@ -301,6 +302,18 @@ namespace BigDLL4221.BaseClass
         }
 
         public virtual void ExtraMethodCase()
+        {
+        }
+
+        public virtual void ExtraMethodOnRoundEndTheLastIgnoreDead()
+        {
+        }
+
+        public virtual void ExtraMethodOnOtherUnitDie(BattleUnitModel unit)
+        {
+        }
+
+        public virtual void ExtraMethodOnKill(BattleUnitModel unit)
         {
         }
     }

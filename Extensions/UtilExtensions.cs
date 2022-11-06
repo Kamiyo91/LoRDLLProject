@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BigDLL4221.Passives;
 
 namespace BigDLL4221.Extensions
 {
@@ -33,9 +34,43 @@ namespace BigDLL4221.Extensions
             if (passive != null) passive.destroyed = true;
         }
 
-        public static bool HasBuff(this BattleUnitModel owner, Type buffType)
+        public static bool HasBuff(this BattleUnitModel owner, Type buffType, out BattleUnitBuf buf)
         {
-            return owner.bufListDetail.GetActivatedBufList().Exists(x => x.GetType() == buffType);
+            buf = owner.bufListDetail.GetActivatedBufList().FirstOrDefault(x => x.GetType() == buffType);
+            return buf != null;
+        }
+
+        public static bool HasPassivePlayerMech(this BattleUnitModel owner,
+            out PassiveAbility_PlayerMechBase_DLL4221 passive)
+        {
+            passive = null;
+            var basePassive =
+                owner.passiveDetail.PassiveList.FirstOrDefault(x =>
+                    x.GetType() == typeof(PassiveAbility_PlayerMechBase_DLL4221));
+            if (basePassive != null) passive = (PassiveAbility_PlayerMechBase_DLL4221)basePassive;
+            return passive != null;
+        }
+
+        public static bool HasPassiveNpcMech(this BattleUnitModel owner,
+            out PassiveAbility_NpcMechBase_DLL4221 passive)
+        {
+            passive = null;
+            var basePassive =
+                owner.passiveDetail.PassiveList.FirstOrDefault(x =>
+                    x.GetType() == typeof(PassiveAbility_NpcMechBase_DLL4221));
+            if (basePassive != null) passive = (PassiveAbility_NpcMechBase_DLL4221)basePassive;
+            return passive != null;
+        }
+
+        public static bool ForceEgoPlayer(this BattleUnitModel owner, int egoPhase)
+        {
+            var basePassive =
+                owner.passiveDetail.PassiveList.FirstOrDefault(x =>
+                    x.GetType() == typeof(PassiveAbility_PlayerMechBase_DLL4221));
+            if (basePassive == null) return false;
+            var passive = (PassiveAbility_PlayerMechBase_DLL4221)basePassive;
+            passive.ForcedEgo(egoPhase);
+            return true;
         }
     }
 }

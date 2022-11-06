@@ -88,6 +88,7 @@ namespace BigDLL4221.Utils
 
         public static void UnitReviveAndRecovery(BattleUnitModel owner, int hp, bool recoverLight)
         {
+            hp = Mathf.Clamp(hp, 0, owner.MaxHp);
             if (owner.IsDead())
             {
                 owner.bufListDetail.GetActivatedBufList()
@@ -446,7 +447,7 @@ namespace BigDLL4221.Utils
                 AddEmotionPassives(allyUnit);
             if (onWaveStartEffects) allyUnit.OnWaveStart();
             if (unit.AdditionalBuffs.Any())
-                foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType())))
+                foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType(), out _)))
                     allyUnit.bufListDetail.AddBuf(buff);
             if (unit.ForcedEgoOnStart && !unit.SummonedOnPlay)
                 allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>()?.ForcedEgo(0);
@@ -459,6 +460,17 @@ namespace BigDLL4221.Utils
             if (passive == null) return allyUnit;
             passive.ForcedEgo(0);
             passive.Util.EgoActive();
+            return allyUnit;
+        }
+
+        public static BattleUnitModel AddOriginalPlayerUnit(int index, int emotionLevel)
+        {
+            var allyUnit = Singleton<StageController>.Instance.CreateLibrarianUnit_fromBattleUnitData(index);
+            allyUnit.OnWaveStart();
+            allyUnit.allyCardDetail.DrawCards(allyUnit.UnitData.unitData.GetStartDraw());
+            LevelUpEmotion(allyUnit, emotionLevel);
+            allyUnit.cardSlotDetail.RecoverPlayPoint(allyUnit.cardSlotDetail.GetMaxPlayPoint());
+            AddEmotionPassives(allyUnit);
             return allyUnit;
         }
 
@@ -504,7 +516,7 @@ namespace BigDLL4221.Utils
                 AddEmotionPassives(allyUnit);
             if (onWaveStartEffects) allyUnit.OnWaveStart();
             if (unit.AdditionalBuffs.Any())
-                foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType())))
+                foreach (var buff in unit.AdditionalBuffs.Where(x => !allyUnit.HasBuff(x.GetType(), out _)))
                     allyUnit.bufListDetail.AddBuf(buff);
             if (unit.ForcedEgoOnStart && !unit.SummonedOnPlay)
             {
@@ -650,6 +662,25 @@ namespace BigDLL4221.Utils
             }
 
             return finalTarget;
+        }
+
+        public static void ApplyEmotionCards(BattleUnitModel unit, IEnumerable<BattleEmotionCardModel> emotionCardList)
+        {
+            foreach (var card in emotionCardList) unit.emotionDetail.ApplyEmotionCard(card.XmlInfo);
+        }
+
+        public static IEnumerable<BattleEmotionCardModel> GetEmotionCardByUnit(BattleUnitModel unit)
+        {
+            return unit.emotionDetail.PassiveList.ToList();
+        }
+
+        public static List<BattleEmotionCardModel> AddValueToEmotionCardList(
+            IEnumerable<BattleEmotionCardModel> addedEmotionCards, List<BattleEmotionCardModel> savedEmotionCards,
+            bool ignoreDuplication = false)
+        {
+            savedEmotionCards.AddRange(addedEmotionCards.Where(emotionCard =>
+                !savedEmotionCards.Exists(x => x.XmlInfo.Equals(emotionCard.XmlInfo) || ignoreDuplication)));
+            return savedEmotionCards;
         }
     }
 }

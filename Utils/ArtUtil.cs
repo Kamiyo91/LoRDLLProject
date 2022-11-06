@@ -6,6 +6,7 @@ using System.Reflection;
 using BigDLL4221.Enum;
 using BigDLL4221.Models;
 using HarmonyLib;
+using Sound;
 using TMPro;
 using UI;
 using UnityEngine;
@@ -326,6 +327,39 @@ namespace BigDLL4221.Utils
             foreach (var img in Object.FindObjectsOfType<Image>()
                          .Where(x => x.GetComponentInParent<UICustomSelectable>() && x.name.Contains("[Image]Line")))
                 img.color = c;
+        }
+
+        public static void BurnEffect(BattleUnitModel owner)
+        {
+            var gameObject = Util.LoadPrefab("Battle/DiceAttackEffects/New/FX/DamageDebuff/FX_DamageDebuff_Fire");
+            if (gameObject != null)
+                if (owner?.view != null)
+                {
+                    gameObject.transform.parent = owner.view.camRotationFollower;
+                    gameObject.transform.localPosition = Vector3.zero;
+                    gameObject.transform.localScale = Vector3.one;
+                    gameObject.transform.localRotation = Quaternion.identity;
+                }
+
+            SoundEffectPlayer.PlaySound("Buf/Effect_Burn");
+        }
+
+        public static void IndexReleaseBreakEffect(BattleUnitModel owner)
+        {
+            var object2 = Resources.Load("Prefabs/Battle/SpecialEffect/IndexRelease_ActivateParticle");
+            if (object2 != null)
+            {
+                var gameObject2 = Object.Instantiate(object2) as GameObject;
+                if (gameObject2 != null)
+                {
+                    gameObject2.transform.parent = owner.view.charAppearance.transform;
+                    gameObject2.transform.localPosition = Vector3.zero;
+                    gameObject2.transform.localRotation = Quaternion.identity;
+                    gameObject2.transform.localScale = Vector3.one;
+                }
+            }
+
+            SingletonBehavior<SoundEffectManager>.Instance.PlayClip("Buf/Effect_Index_Unlock");
         }
     }
 }

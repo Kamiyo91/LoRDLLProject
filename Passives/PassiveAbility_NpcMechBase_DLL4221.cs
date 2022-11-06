@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.BaseClass;
-using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
 
@@ -21,23 +20,32 @@ namespace BigDLL4221.Passives
 
         public override void OnWaveStart()
         {
+            UnitUtil.CheckSkinProjection(owner);
+            Util.AddStartBuffsToPlayerUnits();
             if (Util.Model.AdditionalStartDraw > 0) owner.allyCardDetail.DrawCards(Util.Model.AdditionalStartDraw);
-            Util.MechBuff();
             Util.PermanentBuffs();
+            Util.MechBuff();
             Util.Restart();
         }
 
         public override void OnRoundStart()
         {
             Util.CheckPhaseRoundStart();
-            Util.MechBuff();
             Util.PermanentBuffs();
+            Util.MechBuff();
             Util.UseSpecialBuffCard();
             Util.RoundStartBuffs();
             Util.ExtraRecovery();
+            Util.SceneCounter();
+            Util.ChangePhaseForSceneCounter();
             if (!Util.EgoCheck()) return;
             if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)) return;
             Util.EgoActive();
+        }
+
+        public override void OnKill(BattleUnitModel target)
+        {
+            Util.ExtraMethodOnKill(target);
         }
 
         public override int SpeedDiceNumAdder()
@@ -63,15 +71,9 @@ namespace BigDLL4221.Passives
 
         public override void OnBattleEnd()
         {
-            if (Util.CheckSkinChangeIsActive())
-                if (ModParameters.KeypageOptions.TryGetValue(owner.Book.BookId.packageId, out var bookOptions))
-                {
-                    var bookOption = bookOptions.FirstOrDefault(x => x.KeypageId == owner.Book.BookId.id);
-                    if (bookOption?.BookCustomOptions != null)
-                        owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
-                            new List<string> { bookOption.BookCustomOptions.OriginalSkin };
-                }
-
+            if (Util.CheckSkinChangeIsActive() && !string.IsNullOrEmpty(Util.Model.OriginalSkinName))
+                owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
+                    new List<string> { Util.Model.OriginalSkinName };
             Util.OnEndBattle();
         }
 
@@ -112,12 +114,19 @@ namespace BigDLL4221.Passives
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)
         {
             Util.OnUseCardResetCount(curCard);
-            Util.OnUseMechBuffAttackCard(curCard.card.GetID());
+            Util.OnUseMechBuffAttackCard(curCard);
             Util.ChangeToEgoMap(curCard.card.GetID());
+        }
+
+        public override void OnRoundEndTheLast()
+        {
+            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechPhase)) return;
+            Util.InitExtraMechRoundPreEnd();
         }
 
         public override void OnRoundEndTheLast_ignoreDead()
         {
+            Util.ExtraMethodOnRoundEndTheLastIgnoreDead();
             Util.ReviveCheck();
             Util.CheckPhaseRoundEnd();
             Util.ReturnFromEgoMap();
@@ -200,6 +209,11 @@ namespace BigDLL4221.Passives
             if (Util == null) return base.GetMaxBpBonus();
             if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)) return base.GetMaxBpBonus();
             return mechOptions.ExtraMaxStagger != 0 ? mechOptions.ExtraMaxStagger : base.GetMaxBpBonus();
+        }
+
+        public override void OnDieOtherUnit(BattleUnitModel unit)
+        {
+            Util.ExtraMethodOnOtherUnitDie(unit);
         }
     }
 }

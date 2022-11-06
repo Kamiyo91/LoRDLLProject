@@ -19,18 +19,18 @@ namespace BigDLL4221.Models
             bool reviveOnDeath = false, int recoverHpOnRevive = 0,
             List<AbnormalityCardDialog> reviveAbDialogList = null,
             AbColorType reviveAbDialogColor = AbColorType.Negative,
-            Dictionary<int, MechPhaseOptions> mechOptions = null, int maxCounter = 4,
+            Dictionary<int, MechPhaseOptions> mechOptions = null,
             bool reloadMassAttackOnLethal = true,
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
-            LorId firstEgoFormCard = null) : base(egoOptions, additionalStartDraw, surviveHp, recoverToHp,
+            LorId firstEgoFormCard = null, string egoSaveDataId = "", Dictionary<LorId, MapModel> egoMaps = null,
+            List<BattleUnitBuf> addBuffsOnPlayerUnitsAtStart = null) : base(egoOptions, additionalStartDraw, surviveHp,
+            recoverToHp,
             originalSkinName, survive,
             recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
             nearDeathBuffType, permanentBuffList, personalCards, reusableEgo, reviveOnDeath, recoverHpOnRevive,
-            reviveAbDialogList, reviveAbDialogColor, firstEgoFormCard)
+            reviveAbDialogList, reviveAbDialogColor, firstEgoFormCard, false, egoMaps)
         {
             MechOptions = mechOptions ?? new Dictionary<int, MechPhaseOptions>();
-            Counter = 0;
-            MaxCounter = maxCounter;
             ReloadMassAttackOnLethal = reloadMassAttackOnLethal;
             OneTurnCard = false;
             MassAttackStartCount = massAttackStartCount;
@@ -39,11 +39,11 @@ namespace BigDLL4221.Models
             PhaseChanging = false;
             PhaseChangingRoundStart = false;
             SaveDataId = saveDataId;
+            EgoSaveDataId = egoSaveDataId;
+            AddBuffsOnPlayerUnitsAtStart = addBuffsOnPlayerUnitsAtStart ?? new List<BattleUnitBuf>();
         }
 
         public Dictionary<int, MechPhaseOptions> MechOptions { get; set; }
-        public int Counter { get; set; }
-        public int MaxCounter { get; set; }
         public bool ReloadMassAttackOnLethal { get; set; }
         public bool OneTurnCard { get; set; }
         public bool MassAttackStartCount { get; set; }
@@ -51,7 +51,9 @@ namespace BigDLL4221.Models
         public int Phase { get; set; }
         public bool PhaseChanging { get; set; }
         public bool PhaseChangingRoundStart { get; set; }
+        public List<BattleUnitBuf> AddBuffsOnPlayerUnitsAtStart { get; set; }
         public string SaveDataId { get; set; }
+        public string EgoSaveDataId { get; set; }
     }
 
     public class SpecialCardOption
@@ -83,7 +85,8 @@ namespace BigDLL4221.Models
             bool forceEgo = false, bool hasCustomMap = false, bool setCounterToMax = false,
             bool alwaysAimSlowestTargetDie = false, bool changeCardCost = false,
             int loweredCost = 0,
-            int maxCost = 4, List<LorId> additionalPassiveByIds = null, List<LorId> removePassiveByIds = null,
+            int maxCost = 4, List<LorId> additionalPassiveByIds = null, List<BattleUnitBuf> additionalBuffs = null,
+            List<LorId> removePassiveByIds = null, List<BattleUnitBuf> removebuffs = null,
             MechBuffOptions buffOptions = null,
             bool removeOtherUnits = false,
             List<UnitModel> summonUnit = null, List<UnitModel> summonPlayerUnit = null,
@@ -94,11 +97,18 @@ namespace BigDLL4221.Models
             List<LorId> unitsThatDieTogetherByPassive = null,
             List<AbnormalityCardDialog> onPhaseChangeDialogList = null,
             AbColorType onPhaseChangeDialogColor = AbColorType.Negative,
-            Func<BattleUnitModel, bool> massAttackExtraCondition = null, bool onWaveStartEffectOnAddedPassives = true,
-            int extraMaxHp = 0, int extraMaxStagger = 0)
+            bool hasSpecialChangePhaseCondition = false, bool onWaveStartEffectOnAddedPassives = true,
+            int extraMaxHp = 0, int extraMaxStagger = 0, int maxCounter = 4, int setEmotionLevel = 0,
+            bool hasExtraFunctionRoundEnd = false
+            , bool hasExtraFunctionRoundStart = false, bool mechOnScenesCount = false, int scenesBeforeNextPhase = 0,
+            bool hasExtraFunctionRoundPreEnd = false,
+            List<int> summonOriginalUnitByIndex = null, int? summonedEmotionLevelAlly = null,
+            int? summonedEmotionLevelEnemy = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
+            AdditionalBuffs = additionalBuffs ?? new List<BattleUnitBuf>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
+            RemoveBuffs = removebuffs ?? new List<BattleUnitBuf>();
             MechOnDeath = mechOnDeath;
             MechHp = mechHp;
             EgoMassAttackCardsOptions = egoMassAttackCardsOptions ?? new List<SpecialAttackCardOptions>();
@@ -130,14 +140,29 @@ namespace BigDLL4221.Models
             UnitsThatDieTogetherByPassive = unitsThatDieTogetherByPassive ?? new List<LorId>();
             OnPhaseChangeDialogList = onPhaseChangeDialogList ?? new List<AbnormalityCardDialog>();
             OnPhaseChangeDialogColor = onPhaseChangeDialogColor;
-            MassAttackExtraCondition = massAttackExtraCondition ?? (model => true);
             OnWaveStartEffectOnAddedPassives = onWaveStartEffectOnAddedPassives;
             ExtraMaxHp = extraMaxHp;
             ExtraMaxStagger = extraMaxStagger;
+            Counter = 0;
+            MaxCounter = maxCounter;
+            SetEmotionLevel = setEmotionLevel;
+            HasExtraFunctionRoundEnd = hasExtraFunctionRoundEnd;
+            HasExtraFunctionRoundStart = hasExtraFunctionRoundStart;
+            HasExtraFunctionRoundPreEnd = hasExtraFunctionRoundPreEnd;
+            MechOnScenesCount = mechOnScenesCount;
+            SceneCounter = 0;
+            ScenesBeforeNextPhase = scenesBeforeNextPhase;
+            HasSpecialChangePhaseCondition = hasSpecialChangePhaseCondition;
+            SummonOriginalUnitByIndex = summonOriginalUnitByIndex ?? new List<int>();
+            SummonedEmotionLevelAlly = summonedEmotionLevelAlly;
+            SummonedEmotionLevelEnemy = summonedEmotionLevelEnemy;
         }
 
         public int MechHp { get; set; }
         public bool MechOnDeath { get; set; }
+        public bool MechOnScenesCount { get; set; }
+        public int SceneCounter { get; set; }
+        public int ScenesBeforeNextPhase { get; set; }
         public int HpRecoverOnChangePhase { get; set; }
         public List<SpecialAttackCardOptions> EgoMassAttackCardsOptions { get; set; }
         public bool? StartMassAttack { get; set; }
@@ -151,10 +176,15 @@ namespace BigDLL4221.Models
         public List<string> SoundEffectPath { get; set; }
         public MechBuffOptions MechBuffOptions { get; set; }
         public List<LorId> AdditionalPassiveByIds { get; set; }
+        public List<BattleUnitBuf> AdditionalBuffs { get; set; }
         public bool OnWaveStartEffectOnAddedPassives { get; set; }
         public List<LorId> RemovePassiveByIds { get; set; }
+        public List<BattleUnitBuf> RemoveBuffs { get; set; }
         public List<UnitModel> SummonUnit { get; set; }
         public List<UnitModel> SummonPlayerUnit { get; set; }
+        public List<int> SummonOriginalUnitByIndex { get; set; }
+        public int? SummonedEmotionLevelAlly { get; set; }
+        public int? SummonedEmotionLevelEnemy { get; set; }
         public bool RemoveOtherUnits { get; set; }
         public int SpeedDieAdder { get; set; }
         public int ExtraLightRecoverEachScene { get; set; }
@@ -163,6 +193,7 @@ namespace BigDLL4221.Models
         public int ExtraRecoverStagger { get; set; }
         public int MapOrderIndex { get; set; }
         public int MultiWaveMapOrderIndex { get; set; }
+        public int SetEmotionLevel { get; set; }
         public bool CreatureFilter { get; set; }
         public DamageOptions DamageOptions { get; set; }
         public SingletonBufMech BuffMech { get; set; }
@@ -172,7 +203,12 @@ namespace BigDLL4221.Models
         public AbColorType OnPhaseChangeDialogColor { get; set; }
         public int ExtraMaxHp { get; set; }
         public int ExtraMaxStagger { get; set; }
-        public Func<BattleUnitModel, bool> MassAttackExtraCondition { get; set; }
+        public int Counter { get; set; }
+        public int MaxCounter { get; set; }
+        public bool HasExtraFunctionRoundEnd { get; set; }
+        public bool HasExtraFunctionRoundStart { get; set; }
+        public bool HasExtraFunctionRoundPreEnd { get; set; }
+        public bool HasSpecialChangePhaseCondition { get; set; }
     }
 
     public class MusicOptions
@@ -189,16 +225,19 @@ namespace BigDLL4221.Models
 
     public class SingletonBufMech
     {
-        public SingletonBufMech(BattleUnitBuf buff = null, int massAttackStacks = 0, List<LorId> massAttackCards = null)
+        public SingletonBufMech(BattleUnitBuf buff = null, int massAttackStacks = 0,
+            List<SpecialAttackCardOptions> massAttackCards = null, bool maxStackOnPhaseChange = false)
         {
             Buff = buff;
             MassAttackStacks = massAttackStacks;
-            MassAttackCards = massAttackCards ?? new List<LorId>();
+            MassAttackCards = massAttackCards ?? new List<SpecialAttackCardOptions>();
+            MaxStackOnPhaseChange = maxStackOnPhaseChange;
         }
 
         public BattleUnitBuf Buff { get; set; }
         public int MassAttackStacks { get; set; }
-        public List<LorId> MassAttackCards { get; set; }
+        public List<SpecialAttackCardOptions> MassAttackCards { get; set; }
+        public bool MaxStackOnPhaseChange { get; set; }
     }
 
     public class MechBuffOptions

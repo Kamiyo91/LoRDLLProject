@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
@@ -12,12 +13,18 @@ namespace BigDLL4221.Passives
         private PassiveAbilityBase _mainCharPassive;
         public SummonedUnitStatModelLinked Model;
 
-        public void SetParameters(SummonedUnitStatModelLinked model, int hpRecoveredOnRevive = 0,
+        public override void OnWaveStart()
+        {
+            if (Model.LoweredCardCost != 0)
+                UnitUtil.ChangeCardCostByValue(owner, Model.LoweredCardCost, Model.MaxCardCost, false);
+            if (Model.EgoOptions != null && Model.EgoOptions.ActiveEgoOnStart) Model.EgoOptions.EgoActivated = true;
+        }
+
+        public void SetParameters(SummonedUnitStatModelLinked model,
             bool removeFromUIAfterDeath = false)
         {
             Model = model;
             Model.RemoveFromUIAfterDeath = removeFromUIAfterDeath;
-            Model.HpRecoveredWithRevive = hpRecoveredOnRevive;
             _mainChar = BattleObjectManager.instance.GetAliveList(owner.faction).FirstOrDefault(x =>
                 x.HasPassive(model.LinkedCharByPassive.GetType(), out _mainCharPassive));
         }
@@ -33,8 +40,16 @@ namespace BigDLL4221.Passives
             UnitUtil.RefreshCombatUI();
         }
 
+        public override int SpeedDiceNumAdder()
+        {
+            return Model.AdditionalSpeedDie;
+        }
+
         public override void OnBattleEnd()
         {
+            if (!string.IsNullOrEmpty(Model.OriginalSkinName))
+                owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
+                    new List<string> { Model.OriginalSkinName };
             if (owner.faction == Faction.Player && Model.UseCustomData) owner.Book.owner = null;
         }
 
@@ -47,8 +62,8 @@ namespace BigDLL4221.Passives
         private void ReviveMech(int reviveAfterScenes)
         {
             if (_mainChar.IsDead()) return;
-            if ((!Model.LowerOrHigherRange && _mainChar.hp < Model.MainCharHpForRevive) ||
-                (Model.LowerOrHigherRange && _mainChar.hp > Model.MainCharHpForRevive)) return;
+            if ((!Model.LowerOrHigherRange && _mainChar.hp <= Model.MainCharHpForRevive) ||
+                (Model.LowerOrHigherRange && _mainChar.hp >= Model.MainCharHpForRevive)) return;
             if (reviveAfterScenes < 0) return;
             if (owner.IsDead() && reviveAfterScenes == Model.ReviveCount)
             {
@@ -135,7 +150,7 @@ namespace BigDLL4221.Passives
 
         public override BattleDiceCardModel OnSelectCardAuto(BattleDiceCardModel origin, int currentDiceSlotIdx)
         {
-            if (Model.OneTurnCard || Model.MaxCounter < 1 || !Model.MassAttackCards.Any())
+            if (Model.OneTurnCard || Model.MaxCounter < 0 || !Model.MassAttackCards.Any())
                 return base.OnSelectCardAuto(origin, currentDiceSlotIdx);
             if (Model.Counter < Model.MaxCounter) return base.OnSelectCardAuto(origin, currentDiceSlotIdx);
             origin = BattleDiceCardModel.CreatePlayingCard(
@@ -144,10 +159,38 @@ namespace BigDLL4221.Passives
             return base.OnSelectCardAuto(origin, currentDiceSlotIdx);
         }
 
+        public override bool BeforeTakeDamage(BattleUnitModel attacker, int dmg)
+        {
+            if (Model.EgoActivated || Model.EgoOptions == null || Model.EgoOptions.EgoActivated)
+                return base.BeforeTakeDamage(attacker, dmg);
+            if (Model.EgoOptions.ActiveEgoOnHpRange == 0 || owner.hp - dmg > Model.EgoOptions.ActiveEgoOnHpRange)
+                return base.BeforeTakeDamage(attacker, dmg);
+            Model.EgoOptions.EgoActivated = true;
+            return base.BeforeTakeDamage(attacker, dmg);
+        }
+
         public override void OnRoundStart()
         {
+            if (Model.EgoOptions != null && Model.EgoOptions.EgoActivated && !Model.EgoActivated) EgoActive();
             if (Model.MaxCounter > 0) Model.Counter++;
             Model.OneTurnCard = false;
+        }
+
+        public virtual void EgoActive()
+        {
+            Model.EgoOptions.EgoActivated = false;
+            Model.EgoActivated = true;
+            if (!string.IsNullOrEmpty(Model.EgoOptions.EgoSkinName))
+                owner.view.SetAltSkin(Model.EgoOptions.EgoSkinName);
+            if (Model.EgoOptions.EgoType != null)
+                owner.bufListDetail.AddBufWithoutDuplication(Model.EgoOptions.EgoType);
+            owner.cardSlotDetail.RecoverPlayPoint(owner.cardSlotDetail.GetMaxPlayPoint());
+            if (Model.EgoOptions.RecoverHpOnEgo != 0)
+                UnitUtil.UnitReviveAndRecovery(owner, Model.EgoOptions.RecoverHpOnEgo, false);
+            if (Model.EgoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
+            if (Model.EgoOptions.EgoAbDialogList.Any())
+                UnitUtil.BattleAbDialog(owner.view.dialogUI, Model.EgoOptions.EgoAbDialogList,
+                    Model.EgoOptions.EgoAbColorColor);
         }
 
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)
@@ -156,6 +199,11 @@ namespace BigDLL4221.Passives
             Model.Counter = 0;
             owner.allyCardDetail.ExhaustACardAnywhere(curCard.card);
             Model.OneTurnCard = false;
+        }
+
+        public virtual void SetCounter(int value)
+        {
+            Model.Counter = value;
         }
     }
 }

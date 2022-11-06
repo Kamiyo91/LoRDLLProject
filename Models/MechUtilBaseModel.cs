@@ -16,7 +16,8 @@ namespace BigDLL4221.Models
             Dictionary<LorId, PersonalCardOptions> personalCards = null, bool reusableEgo = true,
             bool reviveOnDeath = false, int recoverHpOnRevive = 0,
             List<AbnormalityCardDialog> reviveAbDialogList = null,
-            AbColorType reviveAbDialogColor = AbColorType.Negative, LorId firstEgoFormCard = null)
+            AbColorType reviveAbDialogColor = AbColorType.Negative, LorId firstEgoFormCard = null,
+            bool customData = false, Dictionary<LorId, MapModel> egoMaps = null, bool forceRetreatOnRevive = false)
         {
             EgoOptions = egoOptions ?? new Dictionary<int, EgoOptions>();
             AdditionalStartDraw = additionalStartDraw;
@@ -40,6 +41,9 @@ namespace BigDLL4221.Models
             ReviveAbDialogList = reviveAbDialogList ?? new List<AbnormalityCardDialog>();
             ReviveAbDialogColor = reviveAbDialogColor;
             FirstEgoFormCard = firstEgoFormCard;
+            CustomData = customData;
+            EgoMaps = egoMaps ?? new Dictionary<LorId, MapModel>();
+            ForceRetreatOnRevive = forceRetreatOnRevive;
         }
 
         public BattleUnitModel Owner { get; set; }
@@ -47,6 +51,7 @@ namespace BigDLL4221.Models
         public Dictionary<int, EgoOptions> EgoOptions { get; set; }
         public int AdditionalStartDraw { get; set; }
         public bool ReviveOnDeath { get; set; }
+        public bool ForceRetreatOnRevive { get; set; }
         public int RecoverHpOnRevive { get; set; }
         public int SurviveHp { get; set; }
         public int RecoverToHp { get; set; }
@@ -66,22 +71,23 @@ namespace BigDLL4221.Models
         public int EgoPhase { get; set; }
         public MapModel ActivatedMap { get; set; }
         public bool ReusableEgo { get; set; }
+        public bool CustomData { get; set; }
+        public Dictionary<LorId, MapModel> EgoMaps { get; set; }
     }
 
     public class EgoOptions
     {
         public EgoOptions(BattleUnitBuf egoType = null, string egoSkinName = "",
-            bool refreshUI = false,
-            Dictionary<LorId, MapModel> egoMaps = null, List<LorId> additionalPassiveIds = null,
+            bool refreshUI = false, List<LorId> additionalPassiveIds = null,
             MechBuffOptions additionalBuffs = null,
             List<AbnormalityCardDialog> egoAbDialogList = null, AbColorType egoAbColorColor = AbColorType.Negative,
             int duration = 0, bool activeEgoOnDeath = false, bool activeEgoOnSurvive = false,
             List<UnitModel> summonUnitDefaultData = null, List<UnitModel> summonUnitCustomData = null,
             List<LorId> unitsThatDieTogetherByPassive = null, bool removeEgoWhenSolo = false,
-            bool deactiveEgoOnBreak = false, int recoverHpOnEgo = 0, int extraMaxHp = 0, int extraMaxStagger = 0)
+            bool deactiveEgoOnBreak = false, int recoverHpOnEgo = 0, int extraMaxHp = 0, int extraMaxStagger = 0,
+            int activeEgoOnHpRange = 0, bool activeEgoOnStart = false)
         {
             EgoType = egoType;
-            EgoMaps = egoMaps ?? new Dictionary<LorId, MapModel>();
             EgoActivated = false;
             AdditionalPassiveIds = additionalPassiveIds ?? new List<LorId>();
             AdditionalBuffs = additionalBuffs;
@@ -101,12 +107,15 @@ namespace BigDLL4221.Models
             RecoverHpOnEgo = recoverHpOnEgo;
             ExtraMaxHp = extraMaxHp;
             ExtraMaxStagger = extraMaxStagger;
+            ActiveEgoOnHpRange = activeEgoOnHpRange;
+            ActiveEgoOnStart = activeEgoOnStart;
         }
 
+        public bool ActiveEgoOnStart { get; set; }
         public bool ActiveEgoOnDeath { get; set; }
         public bool ActiveEgoOnSurvive { get; set; }
+        public int ActiveEgoOnHpRange { get; set; }
         public BattleUnitBuf EgoType { get; set; }
-        public Dictionary<LorId, MapModel> EgoMaps { get; set; }
         public bool EgoActivated { get; set; }
         public List<LorId> AdditionalPassiveIds { get; set; }
         public MechBuffOptions AdditionalBuffs { get; set; }
