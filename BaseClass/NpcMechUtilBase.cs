@@ -261,8 +261,6 @@ namespace BigDLL4221.BaseClass
                          .Select(passiveId => Model.Owner.passiveDetail.AddPassive(passiveId))
                          .Where(passive => mechOptions.OnWaveStartEffectOnAddedPassives))
                 passive.OnWaveStart();
-            foreach (var buff in mechOptions.AdditionalBuffs)
-                Model.Owner.bufListDetail.AddBuf(buff);
             foreach (var passiveId in mechOptions.RemovePassiveByIds)
                 Model.Owner.RemovePassive(passiveId);
             foreach (var buff in Model.Owner.bufListDetail.GetActivatedBufList()

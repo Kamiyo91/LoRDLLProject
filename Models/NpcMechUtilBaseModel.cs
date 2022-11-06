@@ -85,7 +85,7 @@ namespace BigDLL4221.Models
             bool forceEgo = false, bool hasCustomMap = false, bool setCounterToMax = false,
             bool alwaysAimSlowestTargetDie = false, bool changeCardCost = false,
             int loweredCost = 0,
-            int maxCost = 4, List<LorId> additionalPassiveByIds = null, List<BattleUnitBuf> additionalBuffs = null,
+            int maxCost = 4, List<LorId> additionalPassiveByIds = null,
             List<LorId> removePassiveByIds = null, List<BattleUnitBuf> removebuffs = null,
             MechBuffOptions buffOptions = null,
             bool removeOtherUnits = false,
@@ -106,7 +106,6 @@ namespace BigDLL4221.Models
             int? summonedEmotionLevelEnemy = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
-            AdditionalBuffs = additionalBuffs ?? new List<BattleUnitBuf>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
             RemoveBuffs = removebuffs ?? new List<BattleUnitBuf>();
             MechOnDeath = mechOnDeath;
@@ -176,7 +175,6 @@ namespace BigDLL4221.Models
         public List<string> SoundEffectPath { get; set; }
         public MechBuffOptions MechBuffOptions { get; set; }
         public List<LorId> AdditionalPassiveByIds { get; set; }
-        public List<BattleUnitBuf> AdditionalBuffs { get; set; }
         public bool OnWaveStartEffectOnAddedPassives { get; set; }
         public List<LorId> RemovePassiveByIds { get; set; }
         public List<BattleUnitBuf> RemoveBuffs { get; set; }
