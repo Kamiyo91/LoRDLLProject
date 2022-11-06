@@ -85,7 +85,7 @@ namespace BigDLL4221.Models
             List<UnitModel> summonUnitDefaultData = null, List<UnitModel> summonUnitCustomData = null,
             List<LorId> unitsThatDieTogetherByPassive = null, bool removeEgoWhenSolo = false,
             bool deactiveEgoOnBreak = false, int recoverHpOnEgo = 0, int extraMaxHp = 0, int extraMaxStagger = 0,
-            int activeEgoOnHpRange = 0, bool activeEgoOnStart = false)
+            int activeEgoOnHpRange = 0, bool activeEgoOnStart = false, LorId assimilationEgoWithMap = null)
         {
             EgoType = egoType;
             EgoActivated = false;
@@ -109,6 +109,8 @@ namespace BigDLL4221.Models
             ExtraMaxStagger = extraMaxStagger;
             ActiveEgoOnHpRange = activeEgoOnHpRange;
             ActiveEgoOnStart = activeEgoOnStart;
+            AssimilationEgoWithMap = assimilationEgoWithMap;
+            EgoActive = false;
         }
 
         public bool ActiveEgoOnStart { get; set; }
@@ -133,6 +135,8 @@ namespace BigDLL4221.Models
         public bool DeactiveEgoOnBreak { get; set; }
         public int ExtraMaxHp { get; set; }
         public int ExtraMaxStagger { get; set; }
+        public LorId AssimilationEgoWithMap { get; set; }
+        public bool EgoActive { get; set; }
     }
 
     public class DamageOptions

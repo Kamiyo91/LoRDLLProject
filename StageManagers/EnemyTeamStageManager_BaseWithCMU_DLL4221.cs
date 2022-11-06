@@ -13,6 +13,7 @@ namespace BigDLL4221.StageManagers
         private List<MapModel> _mapModels;
         private int _mapPhase;
         private int _phase;
+        private int _sceneCount;
         private NpcMechUtilBase _util;
 
         public void SetParameters(NpcMechUtilBase util, List<MapModel> mapModels = null)
@@ -28,6 +29,7 @@ namespace BigDLL4221.StageManagers
             Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData(_util.Model.SaveDataId, out _phase);
             _mapPhase = GetMapPhase();
+            _sceneCount = 0;
             if (_mapPhase == -1) return;
             CustomMapHandler.EnforceMap(_mapPhase);
             Singleton<StageController>.Instance.CheckMapChange();
@@ -48,7 +50,12 @@ namespace BigDLL4221.StageManagers
         private void CheckPhase()
         {
             if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
-            if (mechOptions.MechHp == 0 || _util.Model.Owner.hp > mechOptions.MechHp) return;
+            if (mechOptions.MechOnScenesCount) _sceneCount += 1;
+            if (mechOptions.MechOnDeath && !_util.Model.Owner.IsDead()) return;
+            if (mechOptions.MechOnScenesCount && _sceneCount < mechOptions.ScenesBeforeNextPhase) return;
+            if ((mechOptions.MechHp == 0 || _util.Model.Owner.hp > mechOptions.MechHp) && !mechOptions.MechOnDeath &&
+                !mechOptions.MechOnScenesCount) return;
+            _sceneCount = 0;
             _phase++;
             ChangeMap();
         }
@@ -64,14 +71,12 @@ namespace BigDLL4221.StageManagers
             if (_util.Model.MechOptions == null ||
                 !_util.Model.MechOptions.TryGetValue(_phase, out var mechPhaseOptions)) return -1;
             if (_phase == 0 && !mechPhaseOptions.HasCustomMap) return -1;
+            if (mechPhaseOptions.HasCustomMap) return mechPhaseOptions.MapOrderIndex;
             var subPhase = _util.Model.MechOptions.Where(x => x.Key < _phase).Reverse().Any(x => x.Value.HasCustomMap);
-            return !mechPhaseOptions.HasCustomMap && subPhase
-                ? (from phaseOption in _util.Model.MechOptions.Where(x => x.Key < _phase).Reverse()
-                    where phaseOption.Value.HasCustomMap
-                    select phaseOption.Value.MapOrderIndex).FirstOrDefault()
-                : mechPhaseOptions.HasCustomMap
-                    ? mechPhaseOptions.MapOrderIndex
-                    : -1;
+            if (!subPhase) return -1;
+            return (from phaseOption in _util.Model.MechOptions.Where(x => x.Key < _phase).Reverse()
+                where phaseOption.Value.HasCustomMap
+                select phaseOption.Value.MapOrderIndex).FirstOrDefault();
         }
 
         private void PrepareUtil()
@@ -92,7 +97,7 @@ namespace BigDLL4221.StageManagers
                 CustomMapHandler.SetMapBgm(mechOptions.MusicOptions.MusicFileName, true,
                     mechOptions.MusicOptions.MapName);
             if (!mechOptions.HasCustomMap) return;
-            CustomMapHandler.EnforceMap(mechOptions.MultiWaveMapOrderIndex);
+            CustomMapHandler.EnforceMap(mechOptions.MapOrderIndex);
             Singleton<StageController>.Instance.CheckMapChange();
             MapUtil.ActiveCreatureBattleCamFilterComponent(mechOptions.CreatureFilter);
         }

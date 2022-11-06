@@ -55,14 +55,16 @@ namespace BigDLL4221.Passives
             Util.ReturnFromEgoMap();
             if (owner.IsDead()) Util.ReturnFromEgoAssimilationMap();
             if (!Util.Model.EgoOptions.TryGetValue(Util.Model.EgoPhase, out var egoOptions)) return;
-            if (egoOptions.RemoveEgoWhenSolo && BattleObjectManager.instance.GetAliveList(owner.faction).Count(x =>
+            if (!egoOptions.RemoveEgoWhenSolo) return;
+            if (BattleObjectManager.instance.GetAliveList(owner.faction).Count(x =>
                     x.passiveDetail.PassiveList.Exists(y => egoOptions.UnitsThatDieTogetherByPassive.Contains(y.id))) >
-                0)
-                Util.ForcedDeactiveEgo();
+                0) return;
+            Util.ForcedDeactiveEgo();
         }
 
         public override void OnRoundEndTheLast()
         {
+            Util.ExtraMethodOnRoundEndTheLast();
             if (Util.EgoCheck()) Util.EgoActive();
         }
 

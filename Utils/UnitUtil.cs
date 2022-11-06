@@ -351,11 +351,6 @@ namespace BigDLL4221.Utils
                     !x.passiveDetail.PassiveList.Any(y => y is PassiveAbility_SupportChar_DLL4221));
         }
 
-        public static bool IsSupportCharCheck(BattleUnitModel owner)
-        {
-            return owner.passiveDetail.PassiveList.Exists(x => x is PassiveAbility_SupportChar_DLL4221);
-        }
-
         public static List<BattleUnitModel> ExcludeSupportChars(BattleUnitModel owner, bool otherSide = false)
         {
             return BattleObjectManager.instance
@@ -522,14 +517,19 @@ namespace BigDLL4221.Utils
             {
                 if (playerSide)
                 {
-                    allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>()?.ForcedEgo(0);
+                    var passive = allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>();
+                    if (passive != null)
+                    {
+                        passive.ForcedEgo(0);
+                        passive.Util.EgoActive();
+                    }
                 }
                 else
                 {
                     var passive = allyUnit.GetActivePassive<PassiveAbility_NpcMechBase_DLL4221>();
                     if (passive == null) return allyUnit;
+                    passive.Util.EgoActive();
                     passive.Util.Model.EgoPhase++;
-                    passive.Util.ForcedEgo();
                 }
             }
 
@@ -549,8 +549,8 @@ namespace BigDLL4221.Utils
             {
                 var passive = allyUnit.GetActivePassive<PassiveAbility_NpcMechBase_DLL4221>();
                 if (passive == null) return allyUnit;
-                passive.Util.Model.EgoPhase++;
                 passive.Util.EgoActive();
+                passive.Util.Model.EgoPhase++;
             }
 
             return allyUnit;

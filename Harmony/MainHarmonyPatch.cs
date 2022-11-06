@@ -853,7 +853,6 @@ namespace BigDLL4221.Harmony
                 skinInfo.skinName = charName;
             }
 
-            Debug.LogError(charName);
             var currentMotionDetail = __instance.charAppearance.GetCurrentMotionDetail();
             __instance.DestroySkin();
             var gameObject =

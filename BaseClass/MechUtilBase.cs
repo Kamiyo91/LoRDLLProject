@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.Buffs;
+using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
@@ -39,7 +40,7 @@ namespace BigDLL4221.BaseClass
 
         public virtual void ReviveCheck()
         {
-            if (!Model.ReviveOnDeath) return;
+            if (!Model.ReviveOnDeath || !Model.Owner.IsDead()) return;
             Model.ReviveOnDeath = false;
             UnitUtil.UnitReviveAndRecovery(Model.Owner, Model.RecoverHpOnRevive, Model.RecoverLightOnSurvive);
             if (Model.ReviveAbDialogList.Any())
@@ -55,6 +56,7 @@ namespace BigDLL4221.BaseClass
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return false;
             //if (Model.Owner.bufListDetail.HasAssimilation()) return;
             egoOptions.EgoActivated = false;
+            egoOptions.EgoActive = true;
             if (!string.IsNullOrEmpty(egoOptions.EgoSkinName))
                 Model.Owner.view.SetAltSkin(egoOptions.EgoSkinName);
             if (egoOptions.EgoType != null)
@@ -84,17 +86,26 @@ namespace BigDLL4221.BaseClass
             foreach (var unitModel in egoOptions.SummonUnitCustomData)
                 UnitUtil.AddNewUnitPlayerSideCustomData(Floor, unitModel,
                     BattleObjectManager.instance.GetList(Model.Owner.faction).Count);
+            if (egoOptions.SummonUnitDefaultData.Any() || egoOptions.SummonUnitCustomData.Any())
+                UnitUtil.RefreshCombatUI();
+            if (egoOptions.AssimilationEgoWithMap != null) ChangeToEgoMap(egoOptions.AssimilationEgoWithMap);
             return true;
         }
 
         public virtual void DeactiveEgo(EgoOptions egoOptions)
         {
-            egoOptions.Count = 0;
+            if (!egoOptions.EgoActive) return;
+            foreach (var egoOption in Model.EgoOptions)
+            {
+                egoOption.Value.EgoActive = false;
+                egoOption.Value.Count = 0;
+            }
+
             foreach (var card in Model.PersonalCards.Where(x => x.Value.EgoPersonalCard))
                 Model.Owner.personalEgoDetail.RemoveCard(card.Key);
             if (Model.ReusableEgo && Model.FirstEgoFormCard != null)
                 Model.Owner.personalEgoDetail.AddCard(Model.FirstEgoFormCard);
-            foreach (var item in Model.EgoOptions)
+            foreach (var item in Model.EgoOptions.Where(x => x.Value.EgoType != null))
                 Model.Owner.bufListDetail.RemoveBufAll(item.Value.EgoType.GetType());
             foreach (var item in Model.EgoOptions)
                 Model.Owner.passiveDetail.PassiveList.RemoveAll(x => item.Value.AdditionalPassiveIds.Contains(x.id));
@@ -212,7 +223,8 @@ namespace BigDLL4221.BaseClass
 
         public virtual bool EgoCheck()
         {
-            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return false;
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions))
+                return false;
             return egoOptions != null && egoOptions.EgoActivated;
         }
 
@@ -222,10 +234,12 @@ namespace BigDLL4221.BaseClass
             egoOptions.EgoActivated = true;
         }
 
-        public virtual void ChangeEgoAbDialog(List<AbnormalityCardDialog> value)
+        public virtual void ChangeEgoAbDialog(List<AbnormalityCardDialog> value,
+            AbColorType color = AbColorType.Negative)
         {
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             egoOptions.EgoAbDialogList = value;
+            egoOptions.EgoAbColorColor = color;
         }
 
         public virtual void ReturnFromEgoMap()
@@ -241,7 +255,7 @@ namespace BigDLL4221.BaseClass
         {
             if (Model.ActivatedMap == null) return;
             MapUtil.ReturnFromEgoMap(Model.ActivatedMap.Stage,
-                Model.ActivatedMap.OriginalMapStageIds);
+                Model.ActivatedMap.OriginalMapStageIds, true);
             Model.ActivatedMap = null;
         }
 
@@ -314,6 +328,10 @@ namespace BigDLL4221.BaseClass
         }
 
         public virtual void ExtraMethodOnKill(BattleUnitModel unit)
+        {
+        }
+
+        public virtual void ExtraMethodOnRoundEndTheLast()
         {
         }
     }

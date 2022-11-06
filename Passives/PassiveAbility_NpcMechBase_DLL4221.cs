@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.BaseClass;
+using BigDLL4221.Buffs;
+using BigDLL4221.Extensions;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
 
@@ -33,14 +35,18 @@ namespace BigDLL4221.Passives
             Util.CheckPhaseRoundStart();
             Util.PermanentBuffs();
             Util.MechBuff();
-            Util.UseSpecialBuffCard();
             Util.RoundStartBuffs();
             Util.ExtraRecovery();
+            if (!Util.EgoCheck()) return;
+            Util.EgoActive();
+        }
+
+        public override void OnRoundStartAfter()
+        {
+            Util.CheckPhaseRoundStartAfter();
             Util.SceneCounter();
             Util.ChangePhaseForSceneCounter();
-            if (!Util.EgoCheck()) return;
-            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechOptions)) return;
-            Util.EgoActive();
+            Util.UseSpecialBuffCard();
         }
 
         public override void OnKill(BattleUnitModel target)
@@ -91,8 +97,9 @@ namespace BigDLL4221.Passives
 
         public override bool BeforeTakeDamage(BattleUnitModel attacker, int dmg)
         {
-            Util.MechHpCheck(dmg);
-            Util.SurviveCheck(dmg);
+            if (owner.HasBuff(typeof(BattleUnitBuf_Immortal_DLL4221), out _))
+                return base.BeforeTakeDamage(attacker, dmg);
+            if (Util.MechHpCheck(dmg)) Util.SurviveCheck(dmg);
             return base.BeforeTakeDamage(attacker, dmg);
         }
 
@@ -108,7 +115,8 @@ namespace BigDLL4221.Passives
                 Util.Model.PhaseChanging = true;
             foreach (var unit in BattleObjectManager.instance.GetAliveList(owner.faction)
                          .Where(x => mechOptions.UnitsThatDieTogetherByPassive.Contains(x.Book.BookId)))
-                unit.DieFake();
+                if (mechOptions.DieFake) unit.DieFake();
+                else unit.Die();
         }
 
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)
@@ -120,7 +128,7 @@ namespace BigDLL4221.Passives
 
         public override void OnRoundEndTheLast()
         {
-            if (!Util.Model.MechOptions.TryGetValue(Util.Model.Phase, out var mechPhase)) return;
+            Util.ExtraMethodOnRoundEndTheLast();
             Util.InitExtraMechRoundPreEnd();
         }
 
@@ -128,6 +136,7 @@ namespace BigDLL4221.Passives
         {
             Util.ExtraMethodOnRoundEndTheLastIgnoreDead();
             Util.ReviveCheck();
+            Util.CheckSpecialPhaseRoundEnd();
             Util.CheckPhaseRoundEnd();
             Util.ReturnFromEgoMap();
             if (owner.IsDead()) Util.ReturnFromEgoAssimilationMap();

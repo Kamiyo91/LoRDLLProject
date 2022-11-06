@@ -23,7 +23,8 @@ namespace BigDLL4221.Models
             bool reloadMassAttackOnLethal = true,
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
             LorId firstEgoFormCard = null, string egoSaveDataId = "", Dictionary<LorId, MapModel> egoMaps = null,
-            List<BattleUnitBuf> addBuffsOnPlayerUnitsAtStart = null) : base(egoOptions, additionalStartDraw, surviveHp,
+            List<BattleUnitBuf> addBuffsOnPlayerUnitsAtStart = null, bool phaseChangingRoundStartAfter = false) : base(
+            egoOptions, additionalStartDraw, surviveHp,
             recoverToHp,
             originalSkinName, survive,
             recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
@@ -41,6 +42,7 @@ namespace BigDLL4221.Models
             SaveDataId = saveDataId;
             EgoSaveDataId = egoSaveDataId;
             AddBuffsOnPlayerUnitsAtStart = addBuffsOnPlayerUnitsAtStart ?? new List<BattleUnitBuf>();
+            PhaseChangingRoundStartAfter = phaseChangingRoundStartAfter;
         }
 
         public Dictionary<int, MechPhaseOptions> MechOptions { get; set; }
@@ -51,6 +53,7 @@ namespace BigDLL4221.Models
         public int Phase { get; set; }
         public bool PhaseChanging { get; set; }
         public bool PhaseChangingRoundStart { get; set; }
+        public bool PhaseChangingRoundStartAfter { get; set; }
         public List<BattleUnitBuf> AddBuffsOnPlayerUnitsAtStart { get; set; }
         public string SaveDataId { get; set; }
         public string EgoSaveDataId { get; set; }
@@ -93,7 +96,7 @@ namespace BigDLL4221.Models
             List<string> soundEffectPath = null, int extraLightRecoverEachScene = 0, int extraDrawEachScene = 0,
             int extraRecoverHp = 0, int extraRecoverStagger = 0, int mapOrderIndex = 0,
             DamageOptions damageOptions = null, int hpRecoverOnChangePhase = 0, int multiWaveMapOrderIndex = 0,
-            bool creatureFilter = false, SingletonBufMech buffMech = null, MusicOptions musicOptions = null,
+            bool creatureFilter = false, SingletonBufMech singletonBufMech = null, MusicOptions musicOptions = null,
             List<LorId> unitsThatDieTogetherByPassive = null,
             List<AbnormalityCardDialog> onPhaseChangeDialogList = null,
             AbColorType onPhaseChangeDialogColor = AbColorType.Negative,
@@ -103,7 +106,7 @@ namespace BigDLL4221.Models
             , bool hasExtraFunctionRoundStart = false, bool mechOnScenesCount = false, int scenesBeforeNextPhase = 0,
             bool hasExtraFunctionRoundPreEnd = false,
             List<int> summonOriginalUnitByIndex = null, int? summonedEmotionLevelAlly = null,
-            int? summonedEmotionLevelEnemy = null)
+            int? summonedEmotionLevelEnemy = null, bool dieFake = false)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -134,7 +137,7 @@ namespace BigDLL4221.Models
             HpRecoverOnChangePhase = hpRecoverOnChangePhase;
             MultiWaveMapOrderIndex = multiWaveMapOrderIndex;
             CreatureFilter = creatureFilter;
-            BuffMech = buffMech;
+            SingletonBufMech = singletonBufMech;
             MusicOptions = musicOptions;
             UnitsThatDieTogetherByPassive = unitsThatDieTogetherByPassive ?? new List<LorId>();
             OnPhaseChangeDialogList = onPhaseChangeDialogList ?? new List<AbnormalityCardDialog>();
@@ -155,6 +158,7 @@ namespace BigDLL4221.Models
             SummonOriginalUnitByIndex = summonOriginalUnitByIndex ?? new List<int>();
             SummonedEmotionLevelAlly = summonedEmotionLevelAlly;
             SummonedEmotionLevelEnemy = summonedEmotionLevelEnemy;
+            DieFake = dieFake;
         }
 
         public int MechHp { get; set; }
@@ -194,7 +198,7 @@ namespace BigDLL4221.Models
         public int SetEmotionLevel { get; set; }
         public bool CreatureFilter { get; set; }
         public DamageOptions DamageOptions { get; set; }
-        public SingletonBufMech BuffMech { get; set; }
+        public SingletonBufMech SingletonBufMech { get; set; }
         public MusicOptions MusicOptions { get; set; }
         public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
         public List<AbnormalityCardDialog> OnPhaseChangeDialogList { get; set; }
@@ -207,6 +211,7 @@ namespace BigDLL4221.Models
         public bool HasExtraFunctionRoundStart { get; set; }
         public bool HasExtraFunctionRoundPreEnd { get; set; }
         public bool HasSpecialChangePhaseCondition { get; set; }
+        public bool DieFake { get; set; }
     }
 
     public class MusicOptions

@@ -13,7 +13,7 @@ namespace BigDLL4221.Passives
         {
             if (Model.LoweredCardCost != 0)
                 UnitUtil.ChangeCardCostByValue(owner, Model.LoweredCardCost, Model.MaxCardCost, false);
-            if (Model.EgoOptions != null && Model.EgoOptions.ActiveEgoOnStart) Model.EgoOptions.EgoActivated = true;
+            if (Model.EgoOptions != null && Model.EgoOptions.ActiveEgoOnStart) EgoActive();
         }
 
         public void SetParameters(SummonedUnitStatModel model,

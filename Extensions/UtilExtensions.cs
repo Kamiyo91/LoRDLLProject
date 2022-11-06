@@ -8,17 +8,17 @@ namespace BigDLL4221.Extensions
     {
         public static T GetActivePassive<T>(this BattleUnitModel owner) where T : PassiveAbilityBase
         {
-            return (T)owner.passiveDetail.PassiveList.FirstOrDefault(x => x is T);
+            return (T)owner.passiveDetail.PassiveList.FirstOrDefault(x => x is T && !x.destroyed);
         }
 
         public static T GetActiveBuff<T>(this BattleUnitModel owner) where T : BattleUnitBuf
         {
-            return (T)owner.bufListDetail.GetActivatedBufList().FirstOrDefault(x => x is T);
+            return (T)owner.bufListDetail.GetActivatedBufList().FirstOrDefault(x => x is T && !x.IsDestroyed());
         }
 
         public static bool HasPassive(this BattleUnitModel owner, Type passiveType, out PassiveAbilityBase passive)
         {
-            passive = owner.passiveDetail.PassiveList.FirstOrDefault(x => x.GetType() == passiveType);
+            passive = owner.passiveDetail.PassiveList.FirstOrDefault(x => x.GetType() == passiveType && !x.destroyed);
             return passive != null;
         }
 
@@ -26,6 +26,11 @@ namespace BigDLL4221.Extensions
         {
             var passive = owner.passiveDetail.PassiveList.FirstOrDefault(x => x.id == passiveId);
             owner.passiveDetail.PassiveList.Remove(passive);
+        }
+
+        public static bool IsSupportCharCheck(this BattleUnitModel owner)
+        {
+            return owner.passiveDetail.PassiveList.Exists(x => x is PassiveAbility_SupportChar_DLL4221);
         }
 
         public static void DestroyPassive(this BattleUnitModel owner, LorId passiveId)
@@ -36,7 +41,8 @@ namespace BigDLL4221.Extensions
 
         public static bool HasBuff(this BattleUnitModel owner, Type buffType, out BattleUnitBuf buf)
         {
-            buf = owner.bufListDetail.GetActivatedBufList().FirstOrDefault(x => x.GetType() == buffType);
+            buf = owner.bufListDetail.GetActivatedBufList()
+                .FirstOrDefault(x => x.GetType() == buffType && !x.IsDestroyed());
             return buf != null;
         }
 
@@ -44,10 +50,9 @@ namespace BigDLL4221.Extensions
             out PassiveAbility_PlayerMechBase_DLL4221 passive)
         {
             passive = null;
-            var basePassive =
-                owner.passiveDetail.PassiveList.FirstOrDefault(x =>
-                    x.GetType() == typeof(PassiveAbility_PlayerMechBase_DLL4221));
-            if (basePassive != null) passive = (PassiveAbility_PlayerMechBase_DLL4221)basePassive;
+            if (owner.passiveDetail.PassiveList.Find(x => x is PassiveAbility_PlayerMechBase_DLL4221 && !x.destroyed) is
+                PassiveAbility_PlayerMechBase_DLL4221 outPassive)
+                passive = outPassive;
             return passive != null;
         }
 
@@ -55,20 +60,17 @@ namespace BigDLL4221.Extensions
             out PassiveAbility_NpcMechBase_DLL4221 passive)
         {
             passive = null;
-            var basePassive =
-                owner.passiveDetail.PassiveList.FirstOrDefault(x =>
-                    x.GetType() == typeof(PassiveAbility_NpcMechBase_DLL4221));
-            if (basePassive != null) passive = (PassiveAbility_NpcMechBase_DLL4221)basePassive;
+            if (owner.passiveDetail.PassiveList.Find(x => x is PassiveAbility_NpcMechBase_DLL4221 && !x.destroyed) is
+                PassiveAbility_NpcMechBase_DLL4221 outPassive)
+                passive = outPassive;
             return passive != null;
         }
 
         public static bool ForceEgoPlayer(this BattleUnitModel owner, int egoPhase)
         {
-            var basePassive =
-                owner.passiveDetail.PassiveList.FirstOrDefault(x =>
-                    x.GetType() == typeof(PassiveAbility_PlayerMechBase_DLL4221));
-            if (basePassive == null) return false;
-            var passive = (PassiveAbility_PlayerMechBase_DLL4221)basePassive;
+            if (!(owner.passiveDetail.PassiveList.Find(x => x is PassiveAbility_PlayerMechBase_DLL4221 && !x.destroyed)
+                    is
+                    PassiveAbility_PlayerMechBase_DLL4221 passive)) return false;
             passive.ForcedEgo(egoPhase);
             return true;
         }
