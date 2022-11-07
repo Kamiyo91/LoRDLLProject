@@ -25,6 +25,7 @@ namespace BigDLL4221.Buffs
         public virtual string BufName { get; set; }
         public virtual int MinStack => 0;
         public virtual int MaxStack => 25;
+        public virtual int AdderStackEachScene => 0;
         public virtual bool DestroyedAt0Stack => false;
 
         public override void Init(BattleUnitModel owner)
@@ -45,6 +46,7 @@ namespace BigDLL4221.Buffs
         public override void OnRoundEnd()
         {
             if (_infinite) return;
+            if(AdderStackEachScene != 0) OnAddBuf(AdderStackEachScene);
             if (_lastForXScenes > 0)
             {
                 if (_lastForXScenes == _sceneCount)
