@@ -17,6 +17,7 @@ namespace BigDLL4221.StageManagers
         private Dictionary<int, List<UnitModel>> _unitModels;
         private NpcMechUtilBase _util;
         private int _wave;
+        private int _sceneCount;
 
         public void SetParameters(NpcMechUtilBase util, List<MapModel> mapModels = null,
             Dictionary<int, List<UnitModel>> unitModels = null)
@@ -35,6 +36,7 @@ namespace BigDLL4221.StageManagers
             Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData(_util.Model.SaveDataId, out _phase);
             _mapPhase = GetMapPhase();
+            _sceneCount = 0;
             if (_mapPhase == -1) return;
             CustomMapHandler.EnforceMap(_mapPhase);
             Singleton<StageController>.Instance.CheckMapChange();
@@ -51,11 +53,13 @@ namespace BigDLL4221.StageManagers
             if (_mapPhase == -1) return;
             CustomMapHandler.EnforceMap(_mapPhase);
         }
-
         private void CheckPhase()
         {
             if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
-            if (_util.Model.Owner.hp > mechOptions.MechHp) return;
+            if (mechOptions.MechOnScenesCount) _sceneCount += 1;
+            if (mechOptions.MechOnDeath && !_util.Model.Owner.IsDead()) return;
+            if (mechOptions.MechOnScenesCount && _sceneCount < mechOptions.ScenesBeforeNextPhase) return;
+            if (_util.Model.Owner.hp > mechOptions.MechHp && !mechOptions.MechOnDeath && !mechOptions.MechOnScenesCount) return;
             if (_util.Model.Owner.IsDead() && !mechOptions.MechOnDeath && mechOptions.MechHp == 0)
             {
                 _phase = 0;
@@ -70,7 +74,6 @@ namespace BigDLL4221.StageManagers
             _phase++;
             ChangeMap();
         }
-
         public override void OnRoundStart_After()
         {
             if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
