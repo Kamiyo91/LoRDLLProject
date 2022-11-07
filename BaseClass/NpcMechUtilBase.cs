@@ -298,7 +298,7 @@ namespace BigDLL4221.BaseClass
         public virtual void InitMechRoundStartAfter(MechPhaseOptions mechOptions)
         {
             foreach (var buff in Model.Owner.bufListDetail.GetActivatedBufList()
-                         .Where(x => mechOptions.RemoveBuffs.Exists(y => x.GetType() == y.GetType())))
+                         .Where(x => mechOptions.RemoveBuffs.Exists(y => x.GetType() == y.GetType())).ToList())
                 Model.Owner.bufListDetail.RemoveBuf(buff);
         }
 

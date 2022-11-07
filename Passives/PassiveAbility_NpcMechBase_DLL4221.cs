@@ -35,7 +35,6 @@ namespace BigDLL4221.Passives
             Util.CheckPhaseRoundStart();
             Util.PermanentBuffs();
             Util.MechBuff();
-            Util.RoundStartBuffs();
             Util.ExtraRecovery();
             if (!Util.EgoCheck()) return;
             Util.EgoActive();
@@ -44,6 +43,7 @@ namespace BigDLL4221.Passives
         public override void OnRoundStartAfter()
         {
             Util.CheckPhaseRoundStartAfter();
+            Util.RoundStartBuffs();
             Util.SceneCounter();
             Util.ChangePhaseForSceneCounter();
             Util.UseSpecialBuffCard();
