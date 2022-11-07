@@ -95,6 +95,7 @@ namespace BigDLL4221.BaseClass
         public virtual void DeactiveEgo(EgoOptions egoOptions)
         {
             if (!egoOptions.EgoActive) return;
+            egoOptions.EgoInDeactiveState = true;
             foreach (var egoOption in Model.EgoOptions)
             {
                 egoOption.Value.EgoActive = false;
@@ -105,8 +106,6 @@ namespace BigDLL4221.BaseClass
                 Model.Owner.personalEgoDetail.RemoveCard(card.Key);
             if (Model.ReusableEgo && Model.FirstEgoFormCard != null)
                 Model.Owner.personalEgoDetail.AddCard(Model.FirstEgoFormCard);
-            foreach (var item in Model.EgoOptions.Where(x => x.Value.EgoType != null))
-                Model.Owner.bufListDetail.RemoveBufAll(item.Value.EgoType.GetType());
             foreach (var item in Model.EgoOptions)
                 Model.Owner.passiveDetail.PassiveList.RemoveAll(x => item.Value.AdditionalPassiveIds.Contains(x.id));
             if (!string.IsNullOrEmpty(egoOptions.EgoSkinName))
@@ -140,12 +139,27 @@ namespace BigDLL4221.BaseClass
             DeactiveEgo(egoOptions);
         }
 
+        public virtual void InitDeactiveEgoAfter()
+        {
+            if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
+            DeactiveEgoAfter(egoOptions);
+        }
+
         public virtual void EgoDurationCount()
         {
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             if (egoOptions.Duration == 0) return;
             if (Model.Owner.bufListDetail.GetActivatedBufList()
                 .Exists(x => x.GetType() == egoOptions.EgoType.GetType())) egoOptions.Count++;
+        }
+
+        public virtual void DeactiveEgoAfter(EgoOptions egoOptions)
+        {
+            if (!egoOptions.EgoInDeactiveState) return;
+            egoOptions.EgoInDeactiveState = false;
+            Model.EgoPhase = 0;
+            foreach (var item in Model.EgoOptions.Where(x => x.Value.EgoType != null))
+                Model.Owner.bufListDetail.RemoveBufAll(item.Value.EgoType.GetType());
         }
 
         public virtual void OnUseExpireCard(BattlePlayingCardDataInUnitModel card)

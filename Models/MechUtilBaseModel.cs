@@ -137,6 +137,7 @@ namespace BigDLL4221.Models
         public int ExtraMaxStagger { get; set; }
         public LorId AssimilationEgoWithMap { get; set; }
         public bool EgoActive { get; set; }
+        public bool EgoInDeactiveState { get; set; }
     }
 
     public class DamageOptions

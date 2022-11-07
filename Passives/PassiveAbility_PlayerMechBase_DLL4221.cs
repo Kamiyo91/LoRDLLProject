@@ -89,6 +89,7 @@ namespace BigDLL4221.Passives
             Util.PermanentBuffs();
             Util.EgoRoundStartBuffs();
             Util.ReAddOnPlayCard();
+            Util.InitDeactiveEgoAfter();
         }
 
         public override void OnStartBattle()

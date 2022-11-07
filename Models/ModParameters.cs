@@ -106,14 +106,14 @@ namespace BigDLL4221.Models
 
     public class KeypageColorOptions
     {
-        public KeypageColorOptions(Color frameColor = new Color(), Color nameColor = new Color())
+        public KeypageColorOptions(Color? frameColor = null, Color? nameColor = null)
         {
             FrameColor = frameColor;
             NameColor = nameColor;
         }
 
-        public Color FrameColor { get; set; }
-        public Color NameColor { get; set; }
+        public Color? FrameColor { get; set; }
+        public Color? NameColor { get; set; }
     }
 
     //int in dictionary in this class mean *Quantity*
@@ -154,13 +154,11 @@ namespace BigDLL4221.Models
     public class BookCustomOptions
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
-            bool multiSkin = false,
             string originalSkin = "", List<string> egoSkin = null, LorId customDialogId = null,
             BattleDialogCharacter customDialog = null)
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
-            MultiSkin = multiSkin;
             OriginalSkin = originalSkin;
             EgoSkin = egoSkin ?? new List<string>();
             Name = name;
@@ -171,7 +169,6 @@ namespace BigDLL4221.Models
         public int NameTextId { get; set; }
         public string Name { get; set; }
         public bool CustomFaceData { get; set; }
-        public bool MultiSkin { get; set; }
         public string OriginalSkin { get; set; }
         public List<string> EgoSkin { get; set; }
         public LorId CustomDialogId { get; set; }
@@ -206,19 +203,21 @@ namespace BigDLL4221.Models
 
     public class CardColorOptions
     {
-        public CardColorOptions(Color cardColor = new Color(), string customIcon = "",
-            Color customIconColor = new Color(), HSVColor iconColor = null)
+        public CardColorOptions(Color? cardColor = null, string customIcon = "",
+            Color? customIconColor = null, HSVColor iconColor = null, bool useHSVFilter = true)
         {
             CardColor = cardColor;
             CustomIcon = customIcon;
             CustomIconColor = customIconColor;
             IconColor = iconColor;
+            UseHSVFilter = useHSVFilter;
         }
 
-        public Color CardColor { get; set; }
+        public Color? CardColor { get; set; }
         public string CustomIcon { get; set; }
-        public Color CustomIconColor { get; set; }
+        public Color? CustomIconColor { get; set; }
         public HSVColor IconColor { get; set; }
+        public bool UseHSVFilter { get; set; }
     }
 
     public class StageOptions
@@ -317,14 +316,14 @@ namespace BigDLL4221.Models
 
     public class PassiveColorOptions
     {
-        public PassiveColorOptions(Color textColor = new Color(), Color fillColor = new Color())
+        public PassiveColorOptions(Color? textColor = null, Color? fillColor = null)
         {
             TextColor = textColor;
             FillColor = fillColor;
         }
 
-        public Color TextColor { get; set; }
-        public Color FillColor { get; set; }
+        public Color? TextColor { get; set; }
+        public Color? FillColor { get; set; }
     }
 
     public class CredenzaOptions

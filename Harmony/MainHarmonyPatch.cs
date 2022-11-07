@@ -173,12 +173,12 @@ namespace BigDLL4221.Harmony
                 return;
             var bookOptions = keypageOptions.FirstOrDefault(x => x.KeypageId == __state.ClassInfo.id.id);
             if (bookOptions?.BookCustomOptions == null) return;
-            if (bookOptions.BookCustomOptions.MultiSkin &&
-                __state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
+            if (__state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
                 __state.ClassInfo.CharacterSkin = new List<string>
                 {
                     bookOptions.BookCustomOptions.OriginalSkin
                 };
+
             if (UnitUtil.CheckSkinUnitData(__instance)) return;
             __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
             var locTryGet = ModParameters.LocalizedItems.TryGetValue(__state.BookId.packageId, out var localizedItem);
@@ -330,18 +330,13 @@ namespace BigDLL4221.Harmony
                     y =>
                         x.Key == y.originData.currentpassive.id.packageId ||
                         x.Key == y.reservedData.currentpassive.id.packageId));
-                var passiveToRelease = new List<PassiveModel>();
-                foreach (var passiveOption in passiveOptions)
-                foreach (var passiveModel in passiveOption.Value
-                             .SelectMany(passiveItem =>
-                                 unequipbook.GetPassiveModelList().Where(passiveModel =>
-                                     !passiveToRelease.Contains(passiveModel) &&
-                                     (passiveItem.ChainReleasePassives.Contains(passiveModel.originData.currentpassive
-                                         .id) || passiveItem.ChainReleasePassives.Contains(passiveModel.reservedData
-                                         .currentpassive.id)))))
-                    passiveToRelease.Add(passiveModel);
+                var passiveToRelease = (from passiveOption in passiveOptions
+                    from passiveId in passiveOption.Value.SelectMany(x => x.ChainReleasePassives)
+                    from passiveModel in __instance.GetPassiveModelList().Where(x =>
+                        x.originData.currentpassive.id == passiveId || x.reservedData.currentpassive.id == passiveId)
+                    select passiveModel).ToList();
                 if (!passiveToRelease.Any()) return;
-                foreach (var passiveRelease in passiveToRelease)
+                foreach (var passiveRelease in passiveToRelease.Distinct())
                     __instance.ReleasePassive(passiveRelease);
             }
             catch (Exception)
