@@ -23,13 +23,15 @@ namespace BigDLL4221.Models
             bool reloadMassAttackOnLethal = true,
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
             LorId firstEgoFormCard = null, string egoSaveDataId = "", Dictionary<LorId, MapModel> egoMaps = null,
-            List<BattleUnitBuf> addBuffsOnPlayerUnitsAtStart = null, bool phaseChangingRoundStartAfter = false) : base(
+            List<BattleUnitBuf> addBuffsOnPlayerUnitsAtStart = null, bool phaseChangingRoundStartAfter = false,
+            bool forcedRetreatOnRevive = false, bool originalSkinIsBaseGame = false) : base(
             egoOptions, additionalStartDraw, surviveHp,
             recoverToHp,
             originalSkinName, survive,
             recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
             nearDeathBuffType, permanentBuffList, personalCards, reusableEgo, reviveOnDeath, recoverHpOnRevive,
-            reviveAbDialogList, reviveAbDialogColor, firstEgoFormCard, false, egoMaps)
+            reviveAbDialogList, reviveAbDialogColor, firstEgoFormCard, false, egoMaps, forcedRetreatOnRevive,
+            originalSkinIsBaseGame)
         {
             MechOptions = mechOptions ?? new Dictionary<int, MechPhaseOptions>();
             ReloadMassAttackOnLethal = reloadMassAttackOnLethal;
@@ -106,7 +108,7 @@ namespace BigDLL4221.Models
             , bool hasExtraFunctionRoundStart = false, bool mechOnScenesCount = false, int scenesBeforeNextPhase = 0,
             bool hasExtraFunctionRoundPreEnd = false,
             List<int> summonOriginalUnitByIndex = null, int? summonedEmotionLevelAlly = null,
-            int? summonedEmotionLevelEnemy = null, bool dieFake = false)
+            int? summonedEmotionLevelEnemy = null, bool dieFake = false, bool forcedRetreatOnDeath = false)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -159,6 +161,7 @@ namespace BigDLL4221.Models
             SummonedEmotionLevelAlly = summonedEmotionLevelAlly;
             SummonedEmotionLevelEnemy = summonedEmotionLevelEnemy;
             DieFake = dieFake;
+            ForcedRetreatOnDeath = forcedRetreatOnDeath;
         }
 
         public int MechHp { get; set; }
@@ -212,6 +215,7 @@ namespace BigDLL4221.Models
         public bool HasExtraFunctionRoundPreEnd { get; set; }
         public bool HasSpecialChangePhaseCondition { get; set; }
         public bool DieFake { get; set; }
+        public bool ForcedRetreatOnDeath { get; set; }
     }
 
     public class MusicOptions

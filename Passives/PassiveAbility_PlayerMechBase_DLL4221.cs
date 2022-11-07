@@ -21,8 +21,11 @@ namespace BigDLL4221.Passives
         public override void OnBattleEnd()
         {
             if (Util.CheckSkinChangeIsActive() && !string.IsNullOrEmpty(Util.Model.OriginalSkinName))
-                owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
-                    new List<string> { Util.Model.OriginalSkinName };
+                if (Util.Model.OriginalSkinIsBaseGame)
+                    owner.UnitData.unitData.bookItem.SetCharacterName(Util.Model.OriginalSkinName);
+                else
+                    owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
+                        new List<string> { Util.Model.OriginalSkinName };
             if (owner.faction == Faction.Player && Util.Model.CustomData) owner.Book.owner = null;
         }
 
@@ -39,6 +42,8 @@ namespace BigDLL4221.Passives
             Util.PermanentBuffs();
             if (UnitUtil.CheckSkinProjection(owner))
                 Util.DoNotChangeSkinOnEgo();
+            if (!Util.Model.EgoOptions.TryGetValue(0, out var egoOptions)) return;
+            if (egoOptions != null && egoOptions.ActiveEgoOnStart) Util.EgoActive();
         }
 
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)

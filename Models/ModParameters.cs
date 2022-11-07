@@ -155,7 +155,7 @@ namespace BigDLL4221.Models
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
             string originalSkin = "", List<string> egoSkin = null, LorId customDialogId = null,
-            BattleDialogCharacter customDialog = null)
+            BattleDialogCharacter customDialog = null, bool originalSkinIsBaseGame = false)
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
@@ -164,6 +164,7 @@ namespace BigDLL4221.Models
             Name = name;
             CustomDialogId = customDialogId;
             CustomDialog = customDialog;
+            OriginalSkinIsBaseGame = originalSkinIsBaseGame;
         }
 
         public int NameTextId { get; set; }
@@ -173,6 +174,7 @@ namespace BigDLL4221.Models
         public List<string> EgoSkin { get; set; }
         public LorId CustomDialogId { get; set; }
         public BattleDialogCharacter CustomDialog { get; set; }
+        public bool OriginalSkinIsBaseGame { get; set; }
     }
 
     public class CardOptions

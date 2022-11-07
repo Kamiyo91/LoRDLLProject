@@ -46,7 +46,7 @@ namespace BigDLL4221.Buffs
         public override void OnRoundEnd()
         {
             if (_infinite) return;
-            if(AdderStackEachScene != 0) OnAddBuf(AdderStackEachScene);
+            if (AdderStackEachScene != 0) OnAddBuf(AdderStackEachScene);
             if (_lastForXScenes > 0)
             {
                 if (_lastForXScenes == _sceneCount)

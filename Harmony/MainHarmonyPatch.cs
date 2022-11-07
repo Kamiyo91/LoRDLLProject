@@ -173,11 +173,15 @@ namespace BigDLL4221.Harmony
                 return;
             var bookOptions = keypageOptions.FirstOrDefault(x => x.KeypageId == __state.ClassInfo.id.id);
             if (bookOptions?.BookCustomOptions == null) return;
-            if (__state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
-                __state.ClassInfo.CharacterSkin = new List<string>
-                {
-                    bookOptions.BookCustomOptions.OriginalSkin
-                };
+            if (bookOptions.BookCustomOptions.EgoSkin.Contains(__state.GetCharacterName()) ||
+                __state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
+                if (bookOptions.BookCustomOptions.OriginalSkinIsBaseGame)
+                    __state.SetCharacterName(bookOptions.BookCustomOptions.OriginalSkin);
+                else
+                    __state.ClassInfo.CharacterSkin = new List<string>
+                    {
+                        bookOptions.BookCustomOptions.OriginalSkin
+                    };
 
             if (UnitUtil.CheckSkinUnitData(__instance)) return;
             __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
@@ -870,7 +874,6 @@ namespace BigDLL4221.Harmony
             __instance.charAppearance.ChangeMotion(currentMotionDetail);
             __instance.charAppearance.ChangeLayer("Character");
             __instance.charAppearance.SetLibrarianOnlySprites(__instance.model.faction);
-            __instance.model.UnitData.unitData.bookItem.ClassInfo.CharacterSkin = new List<string> { charName };
             if (skin.CustomHeight == 0) return;
             __instance.ChangeHeight(skin.CustomHeight);
         }

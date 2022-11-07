@@ -235,6 +235,7 @@ namespace BigDLL4221.BaseClass
         public virtual void InitMechRoundEnd(MechPhaseOptions mechOptions)
         {
             if (mechOptions.MechOnDeath) UnitUtil.UnitReviveAndRecovery(Model.Owner, 1, true);
+            if (mechOptions.ForcedRetreatOnDeath) Model.Owner.forceRetreat = true;
             if (mechOptions.SetEmotionLevel != 0)
             {
                 var emotionLevels = mechOptions.SetEmotionLevel - Model.Owner.emotionDetail.EmotionLevel;

@@ -58,7 +58,16 @@ namespace BigDLL4221.BaseClass
             egoOptions.EgoActivated = false;
             egoOptions.EgoActive = true;
             if (!string.IsNullOrEmpty(egoOptions.EgoSkinName))
+            {
+                if (egoOptions.IsBaseGameSkin)
+                    Model.Owner.UnitData.unitData.bookItem.SetCharacterName(
+                        egoOptions.EgoSkinName.Equals("BlackSilence4") ? "BlackSilence3" : egoOptions.EgoSkinName);
+                else
+                    Model.Owner.UnitData.unitData.bookItem.ClassInfo.CharacterSkin =
+                        new List<string> { egoOptions.EgoSkinName };
                 Model.Owner.view.SetAltSkin(egoOptions.EgoSkinName);
+            }
+
             if (egoOptions.EgoType != null)
                 Model.Owner.bufListDetail.AddBufWithoutDuplication(egoOptions.EgoType);
             Model.Owner.cardSlotDetail.RecoverPlayPoint(Model.Owner.cardSlotDetail.GetMaxPlayPoint());

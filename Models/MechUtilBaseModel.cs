@@ -17,7 +17,8 @@ namespace BigDLL4221.Models
             bool reviveOnDeath = false, int recoverHpOnRevive = 0,
             List<AbnormalityCardDialog> reviveAbDialogList = null,
             AbColorType reviveAbDialogColor = AbColorType.Negative, LorId firstEgoFormCard = null,
-            bool customData = false, Dictionary<LorId, MapModel> egoMaps = null, bool forceRetreatOnRevive = false)
+            bool customData = false, Dictionary<LorId, MapModel> egoMaps = null, bool forceRetreatOnRevive = false,
+            bool originalSkinIsBaseGame = false)
         {
             EgoOptions = egoOptions ?? new Dictionary<int, EgoOptions>();
             AdditionalStartDraw = additionalStartDraw;
@@ -44,6 +45,7 @@ namespace BigDLL4221.Models
             CustomData = customData;
             EgoMaps = egoMaps ?? new Dictionary<LorId, MapModel>();
             ForceRetreatOnRevive = forceRetreatOnRevive;
+            OriginalSkinIsBaseGame = originalSkinIsBaseGame;
         }
 
         public BattleUnitModel Owner { get; set; }
@@ -73,6 +75,7 @@ namespace BigDLL4221.Models
         public bool ReusableEgo { get; set; }
         public bool CustomData { get; set; }
         public Dictionary<LorId, MapModel> EgoMaps { get; set; }
+        public bool OriginalSkinIsBaseGame { get; set; }
     }
 
     public class EgoOptions
@@ -85,7 +88,8 @@ namespace BigDLL4221.Models
             List<UnitModel> summonUnitDefaultData = null, List<UnitModel> summonUnitCustomData = null,
             List<LorId> unitsThatDieTogetherByPassive = null, bool removeEgoWhenSolo = false,
             bool deactiveEgoOnBreak = false, int recoverHpOnEgo = 0, int extraMaxHp = 0, int extraMaxStagger = 0,
-            int activeEgoOnHpRange = 0, bool activeEgoOnStart = false, LorId assimilationEgoWithMap = null)
+            int activeEgoOnHpRange = 0, bool activeEgoOnStart = false, LorId assimilationEgoWithMap = null,
+            bool isBaseGameSkin = false)
         {
             EgoType = egoType;
             EgoActivated = false;
@@ -111,6 +115,7 @@ namespace BigDLL4221.Models
             ActiveEgoOnStart = activeEgoOnStart;
             AssimilationEgoWithMap = assimilationEgoWithMap;
             EgoActive = false;
+            IsBaseGameSkin = isBaseGameSkin;
         }
 
         public bool ActiveEgoOnStart { get; set; }
@@ -138,6 +143,7 @@ namespace BigDLL4221.Models
         public LorId AssimilationEgoWithMap { get; set; }
         public bool EgoActive { get; set; }
         public bool EgoInDeactiveState { get; set; }
+        public bool IsBaseGameSkin { get; set; }
     }
 
     public class DamageOptions
