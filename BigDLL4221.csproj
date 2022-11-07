@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="BaseClass\MechUtilBase.cs" />
     <Compile Include="BaseClass\NpcMechUtilBase.cs" />
+    <Compile Include="Buffs\BattleDiceCardBuf_TempCard_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_BaseBufChanged_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_CustomInstantIndexRelease_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_Immortal_DLL4221.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Models\HSVColors.cs" />
     <Compile Include="Models\SummonedUnitStatModel.cs" />
     <Compile Include="Passives\PassiveAbility_CustomDialogSet_DLL4221.cs" />
+    <Compile Include="Passives\PassiveAbility_DrawSpecialCards_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_SupportChar_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_UnitSummonedLinkedToMainChar_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_UnitSummonedWithCustomData_DLL4221.cs" />
