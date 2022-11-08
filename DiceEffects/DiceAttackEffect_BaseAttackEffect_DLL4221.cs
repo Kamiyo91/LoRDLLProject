@@ -7,6 +7,7 @@ namespace BigDLL4221.DiceEffects
     public class DiceAttackEffect_BaseAttackEffect_DLL4221 : DiceAttackEffect
     {
         private float _duration;
+        public float? Duration;
         public bool OverSelf;
         public string Path;
         public float PositionX;
@@ -14,13 +15,14 @@ namespace BigDLL4221.DiceEffects
         public float Scale;
 
         public void SetParameters(string path, float positionX = 0.3f, float positionY = 0.6f, float scale = 0.5f,
-            bool overSelf = true)
+            bool overSelf = true, float? duration = null)
         {
             Path = path;
             PositionX = positionX;
             PositionY = positionY;
             Scale = scale;
             OverSelf = overSelf;
+            Duration = duration;
         }
 
         public override void Initialize(BattleUnitView self, BattleUnitView target, float destroyTime)
@@ -30,7 +32,7 @@ namespace BigDLL4221.DiceEffects
             _selfTransform = self.atkEffectRoot;
             _targetTransform = OverSelf ? self.atkEffectRoot : target.atkEffectRoot;
             transform.parent = OverSelf ? self.charAppearance.transform : target.transform;
-            _duration = destroyTime;
+            _duration = Duration ?? _destroyTime;
             var texture2D = new Texture2D(1, 1);
             texture2D.LoadImage(File.ReadAllBytes(Path + "/CustomEffect/" +
                                                   GetType().Name.Replace("DiceAttackEffect_", "") + ".png"));

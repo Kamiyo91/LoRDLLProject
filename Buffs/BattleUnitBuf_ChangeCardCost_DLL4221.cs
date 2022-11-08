@@ -7,7 +7,7 @@ namespace BigDLL4221.Buffs
         public int AdditionalDraw;
         public int Cost;
 
-        public BattleUnitBuf_ChangeCardCost_DLL4221(int cost = 999, int additionalDraw = 6,
+        public BattleUnitBuf_ChangeCardCost_DLL4221(int cost = -999, int additionalDraw = 6,
             ActionDetail actionDetail = ActionDetail.NONE, bool infinite = true, bool lastOneScene = false,
             int lastForXScenes = 0) : base(actionDetail, infinite, lastOneScene,
             lastForXScenes)

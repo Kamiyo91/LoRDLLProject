@@ -7,6 +7,7 @@ namespace BigDLL4221.DiceEffects
     public class DiceAttackEffect_BaseUnityEffect_DLL4221 : DiceAttackEffect
     {
         private BattleUnitView _targetView;
+        public float? Duration;
         public GameObject GameObject;
         public float PositionX;
         public float PositionY;
@@ -14,15 +15,17 @@ namespace BigDLL4221.DiceEffects
 
         public override void Initialize(BattleUnitView self, BattleUnitView target, float destroyTime)
         {
-            base.Initialize(self, target, destroyTime);
+            base.Initialize(self, target, Duration ?? _destroyTime);
             _targetView = target;
         }
 
-        public void SetParameters(float positionX = 0f, float positionY = 180f, float positionZ = 0f)
+        public void SetParameters(float positionX = 0f, float positionY = 180f, float positionZ = 0f,
+            float? duration = null)
         {
             PositionX = positionX;
             PositionY = positionY;
             PositionZ = positionZ;
+            Duration = duration;
         }
 
         protected override void Start()
