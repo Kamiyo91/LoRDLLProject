@@ -877,5 +877,18 @@ namespace BigDLL4221.Harmony
             if (skin.CustomHeight == 0) return;
             __instance.ChangeHeight(skin.CustomHeight);
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FarAreaEffect_Xiao_Taotie), "LateInit")]
+        public static void FarAreaEffect_Xiao_Taotie_LateInit(BattleUnitModel ____self)
+        {
+            if (!ModParameters.KeypageOptions.TryGetValue(____self.UnitData.unitData.bookItem.ClassInfo.id.packageId,
+                    out var keypageOptions)) return;
+            var keypageItem =
+                keypageOptions.FirstOrDefault(x => x.KeypageId == ____self.UnitData.unitData.bookItem.ClassInfo.id.id);
+            if (keypageItem?.BookCustomOptions == null ||
+                keypageItem.BookCustomOptions.XiaoTaotieAction == ActionDetail.NONE) return;
+            ____self.view.charAppearance.ChangeMotion(keypageItem.BookCustomOptions.XiaoTaotieAction);
+        }
     }
 }

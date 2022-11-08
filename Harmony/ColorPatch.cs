@@ -695,5 +695,173 @@ namespace BigDLL4221.Harmony
             foreach (var graphic in ___graphic_battlepageSlot.Where(x => x != null))
                 graphic.color = keypageItem.KeypageColorOptions.FrameColor.Value;
         }
+
+        [HarmonyPatch(typeof(UIBookSlot), "SetGlowColor")]
+        [HarmonyPostfix]
+        public static void UIBookSlot_SetGlowColor(UIBookSlot __instance, Color c, Image ___Frame, Image ___Icon,
+            Image ___FrameGlow, Image ___IconGlow, TextMeshProUGUI ___BookName)
+        {
+            if (__instance.BookId == null || c == LoRColorUtil.HighlightColor ||
+                c == LoRColorUtil.DisabledColor) return;
+            if (!ModParameters.DropBookOptions.TryGetValue(__instance.BookId.packageId,
+                    out var dropBookOptions)) return;
+            var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == __instance.BookId.id);
+            if (dropBookOption?.DropBookColorOptions == null) return;
+            if (dropBookOption.DropBookColorOptions.FrameColor.HasValue)
+            {
+                ___Frame.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                ___FrameGlow.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                ___Icon.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                if (___IconGlow != null)
+                    ___IconGlow.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+            }
+
+            if (!dropBookOption.DropBookColorOptions.NameColor.HasValue) return;
+            ___BookName.color = dropBookOption.DropBookColorOptions.NameColor.Value;
+            var component = ___BookName.GetComponent<TextMeshProMaterialSetter>();
+            component.underlayColor = dropBookOption.DropBookColorOptions.NameColor.Value;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        [HarmonyPatch(typeof(UIInvitationDropBookSlot), "SetColor")]
+        [HarmonyPatch(typeof(UIAddedFeedBookSlot), "SetColor")]
+        [HarmonyPostfix]
+        public static void UIInvitation_SetColor(UIInvitationDropBookSlot __instance, Color c, Image ___bookNumBg,
+            TextMeshProUGUI ___txt_bookNum)
+        {
+            if (__instance.BookId == null || c == LoRColorUtil.HighlightColor ||
+                c == LoRColorUtil.DisabledColor) return;
+            if (!ModParameters.DropBookOptions.TryGetValue(__instance.BookId.packageId,
+                    out var dropBookOptions)) return;
+            var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == __instance.BookId.id);
+            if (dropBookOption?.DropBookColorOptions == null) return;
+            if (dropBookOption.DropBookColorOptions.FrameColor.HasValue)
+                ___bookNumBg.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+            if (!dropBookOption.DropBookColorOptions.NameColor.HasValue) return;
+            ___txt_bookNum.color = dropBookOption.DropBookColorOptions.NameColor.Value;
+        }
+
+        [HarmonyPatch(typeof(UIInvenFeedBookSlot), "SetColor")]
+        [HarmonyPostfix]
+        public static void UIInvenFeedBookSlot_SetColor(UIInvenFeedBookSlot __instance, Color c, Image ___bookNumBg,
+            TextMeshProUGUI ___txt_bookNum, GameObject ___bookNumRoot, UICustomGraphicObject ___plusButton,
+            UICustomGraphicObject ___minusButton)
+        {
+            if (__instance.BookId == null || c == LoRColorUtil.HighlightColor || c == LoRColorUtil.DisabledColor ||
+                ___bookNumRoot == null) return;
+            if (!ModParameters.DropBookOptions.TryGetValue(__instance.BookId.packageId,
+                    out var dropBookOptions)) return;
+            var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == __instance.BookId.id);
+            if (dropBookOption?.DropBookColorOptions == null) return;
+            if (dropBookOption.DropBookColorOptions.FrameColor.HasValue)
+            {
+                ___bookNumBg.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                ___plusButton.specialColor = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                ___plusButton.SetDefault();
+                ___minusButton.specialColor = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                ___minusButton.SetDefault();
+            }
+
+            if (!dropBookOption.DropBookColorOptions.NameColor.HasValue) return;
+            ___txt_bookNum.color = dropBookOption.DropBookColorOptions.NameColor.Value;
+        }
+
+        [HarmonyPatch(typeof(UIInvitationBookSlot), "SetColor", typeof(Color))]
+        [HarmonyPostfix]
+        public static void UIInvitationBookSlot_SetColor(UIInvitationBookSlot __instance,
+            UIInvitationRightMainPanel ___rootPanel, Color c, Image ___Frame, Image ___Icon, Image ___FrameGlow,
+            Image ___IconGlow, TextMeshProUGUI ___BookName)
+        {
+            if (__instance.Appliedbookid == null) return;
+            if (c == LoRColorUtil.DefaultColor)
+            {
+                if (!ModParameters.DropBookOptions.TryGetValue(__instance.Appliedbookid.packageId,
+                        out var dropBookOptions)) return;
+                var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == __instance.Appliedbookid.id);
+                if (dropBookOption?.DropBookColorOptions == null) return;
+                if (dropBookOption.DropBookColorOptions.FrameColor.HasValue)
+                {
+                    ___Frame.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                    ___FrameGlow.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                    ___Icon.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                    if (___IconGlow != null)
+                        ___IconGlow.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+                }
+
+                if (!dropBookOption.DropBookColorOptions.NameColor.HasValue) return;
+                ___BookName.color = dropBookOption.DropBookColorOptions.NameColor.Value;
+                ___BookName.fontMaterial.SetColor("_UnderlayColor",
+                    dropBookOption.DropBookColorOptions.NameColor.Value);
+            }
+            else
+            {
+                var recipe = ___rootPanel.GetBookRecipe();
+                if (recipe == null || c == LoRColorUtil.HighlightColor || c == LoRColorUtil.DisabledColor) return;
+                if (!ModParameters.StageOptions.TryGetValue(recipe.id.packageId, out var stageOptions)) return;
+                var stageOption = stageOptions.FirstOrDefault(x => x.StageId == recipe.id.id);
+                if (stageOption?.StageColorOptions == null) return;
+                if (stageOption.StageColorOptions.FrameColor.HasValue)
+                {
+                    ___Frame.color = stageOption.StageColorOptions.FrameColor.Value;
+                    ___FrameGlow.color = stageOption.StageColorOptions.FrameColor.Value;
+                    ___Icon.color = stageOption.StageColorOptions.FrameColor.Value;
+                    if (___IconGlow != null)
+                        ___IconGlow.color = stageOption.StageColorOptions.FrameColor.Value;
+                }
+
+                if (!stageOption.StageColorOptions.TextColor.HasValue) return;
+                ___BookName.color = stageOption.StageColorOptions.TextColor.Value;
+                ___BookName.fontMaterial.SetColor("_UnderlayColor",
+                    stageOption.StageColorOptions.TextColor.Value);
+            }
+        }
+
+        [HarmonyPatch(typeof(UIInvitationRightMainPanel), "SetColorAllFrames")]
+        [HarmonyPostfix]
+        public static void UIInvitationRightMainPanel_SetColorAllFrames(UIInvitationRightMainPanel __instance, Color c,
+            Graphic[] ___AllFrames, TextMeshProMaterialSetter[] ___setter_changetxts, Animator ___ButtonFrameHighlight,
+            UICustomGraphicObject ___button_SendButton)
+        {
+            var recipe = __instance.GetBookRecipe();
+            if (recipe == null || c == LoRColorUtil.HighlightColor || c == LoRColorUtil.DisabledColor) return;
+            if (!ModParameters.StageOptions.TryGetValue(recipe.id.packageId, out var stageOptions)) return;
+            var stageOption = stageOptions.FirstOrDefault(x => x.StageId == recipe.id.id);
+            if (stageOption?.StageColorOptions == null) return;
+            if (stageOption.StageColorOptions.FrameColor.HasValue)
+            {
+                foreach (var t in ___AllFrames)
+                    t.CrossFadeColor(stageOption.StageColorOptions.FrameColor.Value, 0f, false, false);
+                var color = stageOption.StageColorOptions.FrameColor.Value;
+                color.a = 0.5f;
+                ___ButtonFrameHighlight.GetComponent<Image>().color = color;
+                if (___button_SendButton.interactable)
+                    ___button_SendButton.SetColor(stageOption.StageColorOptions.FrameColor.Value);
+            }
+
+            if (!stageOption.StageColorOptions.TextColor.HasValue) return;
+            foreach (var textMeshProMaterialSetter in ___setter_changetxts)
+            {
+                if (textMeshProMaterialSetter.isActiveAndEnabled)
+                    textMeshProMaterialSetter.underlayColor = stageOption.StageColorOptions.TextColor.Value;
+                textMeshProMaterialSetter.enabled = false;
+                textMeshProMaterialSetter.enabled = true;
+            }
+        }
+
+        [HarmonyPatch(typeof(UIInvitationRightMainPanel), "OnPointerExit_SendButton")]
+        [HarmonyPostfix]
+        public static void UIInvitationRightMainPanel_OnPointerExit_SendButton(UIInvitationRightMainPanel __instance,
+            Color ___currentColor, UICustomGraphicObject ___button_SendButton)
+        {
+            var recipe = __instance.GetBookRecipe();
+            if (recipe == null || ___currentColor == LoRColorUtil.DefaultColor ||
+                ___currentColor == LoRColorUtil.DisabledColor) return;
+            if (!ModParameters.StageOptions.TryGetValue(recipe.id.packageId, out var stageOptions)) return;
+            var stageOption = stageOptions.FirstOrDefault(x => x.StageId == recipe.id.id);
+            if (stageOption?.StageColorOptions?.FrameColor == null) return;
+            if (___button_SendButton.interactable)
+                ___button_SendButton.SetColor(stageOption.StageColorOptions.FrameColor.Value);
+        }
     }
 }

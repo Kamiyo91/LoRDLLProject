@@ -18,6 +18,9 @@ namespace BigDLL4221.Models
         public static Dictionary<string, string> DefaultKeyword = new Dictionary<string, string>();
         public static Dictionary<string, Type> CustomEffects = new Dictionary<string, Type>();
 
+        public static Dictionary<string, List<DropBookOptions>> DropBookOptions =
+            new Dictionary<string, List<DropBookOptions>>();
+
         public static Dictionary<string, List<PassiveOptions>> PassiveOptions =
             new Dictionary<string, List<PassiveOptions>>();
 
@@ -155,7 +158,8 @@ namespace BigDLL4221.Models
     {
         public BookCustomOptions(string name = "", int nameTextId = 0, bool customFaceData = true,
             string originalSkin = "", List<string> egoSkin = null, LorId customDialogId = null,
-            BattleDialogCharacter customDialog = null, bool originalSkinIsBaseGame = false)
+            BattleDialogCharacter customDialog = null, bool originalSkinIsBaseGame = false,
+            ActionDetail xiaoTaotieAction = ActionDetail.NONE)
         {
             NameTextId = nameTextId;
             CustomFaceData = customFaceData;
@@ -165,6 +169,7 @@ namespace BigDLL4221.Models
             CustomDialogId = customDialogId;
             CustomDialog = customDialog;
             OriginalSkinIsBaseGame = originalSkinIsBaseGame;
+            XiaoTaotieAction = xiaoTaotieAction;
         }
 
         public int NameTextId { get; set; }
@@ -175,6 +180,7 @@ namespace BigDLL4221.Models
         public LorId CustomDialogId { get; set; }
         public BattleDialogCharacter CustomDialog { get; set; }
         public bool OriginalSkinIsBaseGame { get; set; }
+        public ActionDetail XiaoTaotieAction { get; set; }
     }
 
     public class CardOptions
@@ -225,18 +231,32 @@ namespace BigDLL4221.Models
     public class StageOptions
     {
         public StageOptions(int stageId, bool bannedEmotionLevel = false, RewardOptions stageRewardOptions = null,
-            PreBattleOptions preBattleOptions = null)
+            PreBattleOptions preBattleOptions = null, StageColorOptions stageColorOptions = null)
         {
             StageId = stageId;
             BannedEmotionLevel = bannedEmotionLevel;
             StageRewardOptions = stageRewardOptions;
             PreBattleOptions = preBattleOptions;
+            StageColorOptions = stageColorOptions;
         }
 
         public int StageId { get; set; }
         public bool BannedEmotionLevel { get; set; }
         public RewardOptions StageRewardOptions { get; set; }
         public PreBattleOptions PreBattleOptions { get; set; }
+        public StageColorOptions StageColorOptions { get; set; }
+    }
+
+    public class StageColorOptions
+    {
+        public StageColorOptions(Color? frameColor = null, Color? textColor = null)
+        {
+            FrameColor = frameColor;
+            TextColor = textColor;
+        }
+
+        public Color? FrameColor { get; set; }
+        public Color? TextColor { get; set; }
     }
 
     public class PreBattleOptions
@@ -378,6 +398,30 @@ namespace BigDLL4221.Models
         public Dictionary<int, EffectText> PassiveTexts { get; set; } = new Dictionary<int, EffectText>();
         public List<BattleDialogCharacter> BattleDialogCharacterList { get; set; } = new List<BattleDialogCharacter>();
         public List<BookDesc> Keypages { get; set; } = new List<BookDesc>();
+    }
+
+    public class DropBookOptions
+    {
+        public DropBookOptions(int dropBookId = 0, DropBookColorOptions dropBookColorOptions = null)
+        {
+            DropBookColorOptions = dropBookColorOptions;
+            DropBookId = dropBookId;
+        }
+
+        public int DropBookId { get; set; }
+        public DropBookColorOptions DropBookColorOptions { get; set; }
+    }
+
+    public class DropBookColorOptions
+    {
+        public DropBookColorOptions(Color? frameColor = null, Color? nameColor = null)
+        {
+            FrameColor = frameColor;
+            NameColor = nameColor;
+        }
+
+        public Color? FrameColor { get; set; }
+        public Color? NameColor { get; set; }
     }
 
     public class EffectText
