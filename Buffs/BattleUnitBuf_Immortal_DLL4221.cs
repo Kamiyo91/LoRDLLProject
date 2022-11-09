@@ -6,9 +6,10 @@
         private readonly bool _canRecoverHp;
         private readonly bool _isImmortalBp;
         private readonly bool _isImmortalHp;
+        private readonly bool _isImmortal;
 
         public BattleUnitBuf_Immortal_DLL4221(bool isImmortalHp = true, bool isImmortalBp = false,
-            bool canRecoverHp = false, bool canRecoverBp = true, ActionDetail actionDetail = ActionDetail.NONE,
+            bool canRecoverHp = false, bool canRecoverBp = true,bool isImmortal = true, ActionDetail actionDetail = ActionDetail.NONE,
             bool infinite = false, bool lastOneScene = true, int lastForXScenes = 0) : base(actionDetail, infinite,
             lastOneScene,
             lastForXScenes)
@@ -17,11 +18,12 @@
             _isImmortalBp = isImmortalBp;
             _canRecoverHp = canRecoverHp;
             _canRecoverBp = canRecoverBp;
+            _isImmortal = isImmortal;
         }
 
         public override bool IsImmortal()
         {
-            return true;
+            return _isImmortal;
         }
 
         public override bool IsInvincibleHp(BattleUnitModel attacker)
