@@ -298,7 +298,7 @@ namespace BigDLL4221.BaseClass
         public virtual void PermanentBuffs()
         {
             foreach (var item in Model.PermanentBuffList.Select((buff, index) => (index, buff)).ToList()
-                         .Where(item => !Model.Owner.HasBuff(item.buff.GetType(), out _)))
+                         .Where(item => !Model.Owner.HasBuff(item.buff.Buff.GetType(), out _)))
             {
                 if (!item.buff.IsActive) continue;
                 Model.PermanentBuffList[item.index].Buff =
