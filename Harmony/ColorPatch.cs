@@ -102,6 +102,22 @@ namespace BigDLL4221.Harmony
             ___img_RangeIcon.overrideSprite = icon;
         }
 
+        // May Be Useful
+        //[HarmonyPatch(typeof(UIOriginCardSlot), "SetRangeIconHsv")]
+        //[HarmonyPrefix]
+        //public static void UICard_SetRangeIconHsv_Pre(UIOriginCardSlot __instance, Vector3 hsvvalue,Image ___img_RangeIcon,
+        //    RefineHsv ___hsv_rangeIcon)
+        //{
+        //    if (__instance.CardModel == null || ___hsv_rangeIcon == null) return;
+        //    ___img_RangeIcon.color = Color.white;
+        //    ___hsv_rangeIcon.enabled = true;
+        //    ___hsv_rangeIcon._HueShift = hsvvalue.x;
+        //    ___hsv_rangeIcon._Saturation = hsvvalue.y;
+        //    ___hsv_rangeIcon._ValueBrightness = hsvvalue.z;
+        //    ___hsv_rangeIcon.CallUpdate();
+        //    ___hsv_rangeIcon.enabled = false;
+        //    ___hsv_rangeIcon.enabled = true;
+        //}
         [HarmonyPatch(typeof(UIOriginCardSlot), "SetRangeIconHsv")]
         [HarmonyPostfix]
         public static void UICard_SetRangeIconHsv_Post(UIOriginCardSlot __instance, Vector3 hsvvalue,
@@ -132,10 +148,55 @@ namespace BigDLL4221.Harmony
             ___hsv_rangeIcon.enabled = true;
         }
 
+        [HarmonyPatch(typeof(BattleDiceCardUI), "SetRangeIconHsv")]
+        [HarmonyPostfix]
+        public static void BattleDiceCardUI_SetRangeIconHsv(BattleDiceCardUI __instance, Vector3 hsvvalue,
+            Image ___img_icon,
+            RefineHsv ___hsv_rangeIcon)
+        {
+            if (__instance.CardModel == null) return;
+            if (!ModParameters.CardOptions.TryGetValue(__instance.CardModel.GetID().packageId, out var cardOptions))
+                return;
+            var cardItem = cardOptions.FirstOrDefault(x => x.CardId == __instance.CardModel.GetID().id);
+            if (cardItem?.CardColorOptions == null) return;
+            if (cardItem.CardColorOptions.CustomIconColor.HasValue)
+                ___img_icon.color = cardItem.CardColorOptions.CustomIconColor.Value;
+            if (___hsv_rangeIcon == null) return;
+            if (!cardItem.CardColorOptions.UseHSVFilter)
+            {
+                ___hsv_rangeIcon.enabled = false;
+                return;
+            }
+
+            if (cardItem.CardColorOptions.IconColor == null) return;
+            var hsvColor = HSVColors.White;
+            ___hsv_rangeIcon._HueShift = hsvColor.H;
+            ___hsv_rangeIcon._Saturation = hsvColor.S;
+            ___hsv_rangeIcon._ValueBrightness = hsvColor.V;
+            ___hsv_rangeIcon.CallUpdate();
+            ___hsv_rangeIcon.enabled = false;
+            ___hsv_rangeIcon.enabled = true;
+        }
+
+        [HarmonyPatch(typeof(BattleDiceCardUI), "SetRangeIconHsv")]
+        [HarmonyPrefix]
+        public static void BattleDiceCardUI_SetRangeIconHsv_Pre(BattleDiceCardUI __instance, Vector3 hsvvalue,
+            Image ___img_icon,
+            RefineHsv ___hsv_rangeIcon)
+        {
+            if (__instance.CardModel == null || ___hsv_rangeIcon == null) return;
+            ___img_icon.color = Color.white;
+            ___hsv_rangeIcon.enabled = true;
+            ___hsv_rangeIcon._HueShift = hsvvalue.x;
+            ___hsv_rangeIcon._Saturation = hsvvalue.y;
+            ___hsv_rangeIcon._ValueBrightness = hsvvalue.z;
+            ___hsv_rangeIcon.CallUpdate();
+        }
+
         [HarmonyPatch(typeof(BattleDiceCardUI), "SetCard")]
         [HarmonyPostfix]
         public static void UIBattleCard_SetCard_Post(BattleDiceCardModel cardModel, Image[] ___img_Frames,
-            Image[] ___img_linearDodges, NumbersData ___costNumbers, Image ___img_icon, RefineHsv ___hsv_rangeIcon,
+            Image[] ___img_linearDodges, NumbersData ___costNumbers, Image ___img_icon,
             ref Color ___colorFrame, ref Color ___colorLineardodge, ref Color ___colorLineardodge_deactive)
         {
             if (cardModel == null) return;
@@ -158,23 +219,6 @@ namespace BigDLL4221.Harmony
             if (!string.IsNullOrEmpty(cardItem.CardColorOptions.CustomIcon) &&
                 ModParameters.ArtWorks.TryGetValue(cardItem.CardColorOptions.CustomIcon, out var icon))
                 ___img_icon.overrideSprite = icon;
-            if (cardItem.CardColorOptions.CustomIconColor.HasValue)
-                ___img_icon.color = cardItem.CardColorOptions.CustomIconColor.Value;
-            if (___hsv_rangeIcon == null) return;
-            if (!cardItem.CardColorOptions.UseHSVFilter)
-            {
-                ___hsv_rangeIcon.enabled = false;
-                return;
-            }
-
-            if (cardItem.CardColorOptions.IconColor == null) return;
-            var hsvColor = HSVColors.White;
-            ___hsv_rangeIcon._HueShift = hsvColor.H;
-            ___hsv_rangeIcon._Saturation = hsvColor.S;
-            ___hsv_rangeIcon._ValueBrightness = hsvColor.V;
-            ___hsv_rangeIcon.CallUpdate();
-            ___hsv_rangeIcon.enabled = false;
-            ___hsv_rangeIcon.enabled = true;
         }
 
         [HarmonyPatch(typeof(UICharacterBookSlot), "SetHighlighted")]

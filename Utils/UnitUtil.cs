@@ -682,5 +682,13 @@ namespace BigDLL4221.Utils
                 !savedEmotionCards.Exists(x => x.XmlInfo.Equals(emotionCard.XmlInfo) || ignoreDuplication)));
             return savedEmotionCards;
         }
+
+        public static bool NotTargetableCharCheck(BattleUnitModel target)
+        {
+            if (!ModParameters.KeypageOptions.TryGetValue(target.Book.BookId.packageId, out var keypageOptions))
+                return true;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == target.Book.BookId.id);
+            return keypageItem == null || keypageItem.TargetableBySpecialCards;
+        }
     }
 }

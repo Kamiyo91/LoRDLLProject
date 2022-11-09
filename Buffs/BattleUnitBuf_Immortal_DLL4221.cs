@@ -4,12 +4,13 @@
     {
         private readonly bool _canRecoverBp;
         private readonly bool _canRecoverHp;
+        private readonly bool _isImmortal;
         private readonly bool _isImmortalBp;
         private readonly bool _isImmortalHp;
-        private readonly bool _isImmortal;
 
         public BattleUnitBuf_Immortal_DLL4221(bool isImmortalHp = true, bool isImmortalBp = false,
-            bool canRecoverHp = false, bool canRecoverBp = true,bool isImmortal = true, ActionDetail actionDetail = ActionDetail.NONE,
+            bool canRecoverHp = false, bool canRecoverBp = true, bool isImmortal = true,
+            ActionDetail actionDetail = ActionDetail.NONE,
             bool infinite = false, bool lastOneScene = true, int lastForXScenes = 0) : base(actionDetail, infinite,
             lastOneScene,
             lastForXScenes)
