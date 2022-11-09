@@ -272,10 +272,8 @@ namespace BigDLL4221.BaseClass
             if (mechOptions.HasExtraFunctionRoundEnd) ExtraMethodOnPhaseChangeRoundEnd(mechOptions);
         }
 
-        public virtual void InitMechRoundStart(MechPhaseOptions mechOptions, bool restart = false)
+        public virtual void InitMechRoundStart(MechPhaseOptions mechOptions)
         {
-            if (mechOptions.HpRecoverOnChangePhase != 0 && !restart)
-                UnitUtil.UnitReviveAndRecovery(Model.Owner, mechOptions.HpRecoverOnChangePhase, true);
             foreach (var unitModel in mechOptions.SummonUnit)
                 UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
                     BattleObjectManager.instance.GetList(Model.Owner.faction).Count, true,
@@ -295,11 +293,13 @@ namespace BigDLL4221.BaseClass
             if (mechOptions.HasExtraFunctionRoundStart) ExtraMethodOnPhaseChangeRoundStart(mechOptions);
         }
 
-        public virtual void InitMechRoundStartAfter(MechPhaseOptions mechOptions)
+        public virtual void InitMechRoundStartAfter(MechPhaseOptions mechOptions, bool restart = false)
         {
             foreach (var buff in Model.Owner.bufListDetail.GetActivatedBufList()
                          .Where(x => mechOptions.RemoveBuffs.Exists(y => x.GetType() == y.GetType())).ToList())
                 Model.Owner.bufListDetail.RemoveBuf(buff);
+            if (mechOptions.HpRecoverOnChangePhase != 0 && !restart)
+                UnitUtil.UnitReviveAndRecovery(Model.Owner, mechOptions.HpRecoverOnChangePhase, true);
         }
 
         public virtual void InitExtraMechRoundPreEnd()
@@ -355,7 +355,8 @@ namespace BigDLL4221.BaseClass
         {
             if (!Model.MechOptions.TryGetValue(mechPhase, out var mechOptions)) return;
             InitMechRoundEnd(mechOptions);
-            InitMechRoundStart(mechOptions, true);
+            InitMechRoundStart(mechOptions);
+            InitMechRoundStartAfter(mechOptions,true);
         }
 
         public virtual void OnEndBattle()

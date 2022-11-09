@@ -2,6 +2,7 @@
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
+using UnityEngine;
 
 namespace BigDLL4221.Passives
 {
@@ -12,7 +13,7 @@ namespace BigDLL4221.Passives
         public override void OnWaveStart()
         {
             if (Model.LoweredCardCost != 0)
-                UnitUtil.ChangeCardCostByValue(owner, Model.LoweredCardCost, Model.MaxCardCost, false);
+                UnitUtil.ChangeCardCostByValue(owner, -Model.LoweredCardCost, Model.MaxCardCost, false);
             if (Model.EgoOptions != null && Model.EgoOptions.ActiveEgoOnStart) EgoActive();
         }
 
@@ -56,7 +57,8 @@ namespace BigDLL4221.Passives
             if (owner.IsDead() && reviveAfterScenes == Model.ReviveCount)
             {
                 Model.ReviveCount = 0;
-                owner.Revive(Model.HpRecoveredWithRevive);
+                var hpToRecover = Mathf.Clamp(Model.HpRecoveredWithRevive, 0, owner.MaxHp);
+                owner.Revive(hpToRecover);
                 owner.view.EnableView(true);
                 owner.view.EnableStatNumber(true);
             }
