@@ -5,7 +5,7 @@
         private int _breakedDice;
 
         public BattleUnitBuf_LockedUnit_DLL4221(ActionDetail actionDetail = ActionDetail.NONE,
-            bool infinite = true, bool lastOneScene = false, int lastForXScenes = 0) : base(actionDetail, infinite,
+            bool infinite = false, bool lastOneScene = true, int lastForXScenes = 0) : base(actionDetail, infinite,
             lastOneScene, lastForXScenes)
         {
         }
