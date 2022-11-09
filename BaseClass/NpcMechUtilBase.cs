@@ -356,7 +356,7 @@ namespace BigDLL4221.BaseClass
             if (!Model.MechOptions.TryGetValue(mechPhase, out var mechOptions)) return;
             InitMechRoundEnd(mechOptions);
             InitMechRoundStart(mechOptions);
-            InitMechRoundStartAfter(mechOptions,true);
+            InitMechRoundStartAfter(mechOptions, true);
         }
 
         public virtual void OnEndBattle()

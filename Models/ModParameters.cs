@@ -69,7 +69,8 @@ namespace BigDLL4221.Models
             bool isDeckFixed = false, bool isMultiDeck = false, bool? canNotEquip = null,
             EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null,
             BookCustomOptions bookCustomOptions = null, bool bannedEgoFloorCards = false,
-            bool isBaseGameKeypage = false, KeypageColorOptions keypageColorOptions = null)
+            bool isBaseGameKeypage = false, KeypageColorOptions keypageColorOptions = null,
+            bool bannedEmotionCards = false)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -87,6 +88,7 @@ namespace BigDLL4221.Models
             BannedEgoFloorCards = bannedEgoFloorCards;
             IsBaseGameKeypage = isBaseGameKeypage;
             KeypageColorOptions = keypageColorOptions;
+            BannedEmotionCards = bannedEmotionCards;
         }
 
         public int KeypageId { get; set; }
@@ -103,6 +105,7 @@ namespace BigDLL4221.Models
         public MultiDeckOptions MultiDeckOptions { get; set; }
         public BookCustomOptions BookCustomOptions { get; set; }
         public bool BannedEgoFloorCards { get; set; }
+        public bool BannedEmotionCards { get; set; }
         public bool IsBaseGameKeypage { get; set; }
         public KeypageColorOptions KeypageColorOptions { get; set; }
     }

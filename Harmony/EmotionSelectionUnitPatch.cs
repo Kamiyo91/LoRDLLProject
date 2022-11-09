@@ -22,7 +22,10 @@ namespace BigDLL4221.Harmony
             ModParameters.PassiveOptions.Any(y =>
                 x.passiveDetail.PassiveList.Any(z =>
                     z.id.packageId == y.Key &&
-                    y.Value.Any(v => v.PassiveId == z.id.id && v.BannedEmotionCardSelection)));
+                    y.Value.Any(v => v.PassiveId == z.id.id && v.BannedEmotionCardSelection))) ||
+            ModParameters.KeypageOptions.Any(y =>
+                x.Book.BookId.packageId == y.Key &&
+                y.Value.Any(z => z.KeypageId == x.Book.BookId.id && z.BannedEmotionCards));
 
         [HarmonyPatch]
         public class BlockSelectionBubble
