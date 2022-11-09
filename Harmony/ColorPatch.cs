@@ -183,7 +183,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___BookName)
         {
             if (__instance.BookModel == null) return;
-            ___BookName.color = LoRColorUtil.DefaultColor;
+            ___BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UICharacterBookSlot), "SetHighlighted")]
@@ -233,8 +233,9 @@ namespace BigDLL4221.Harmony
         public static void UIEquip_SetGlowColor_Pre(UIOriginEquipPageSlot __instance, Color gc,
             TextMeshProUGUI ___BookName)
         {
-            if (__instance.BookDataModel == null || gc == LoRColorUtil.HighlightColor) return;
-            ___BookName.color = LoRColorUtil.DefaultColor;
+            if (__instance.BookDataModel == null ||
+                gc == UIColorManager.Manager.GetUIColor(UIColor.Highlighted)) return;
+            ___BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UIOriginEquipPageSlot), "SetGlowColor")]
@@ -243,7 +244,8 @@ namespace BigDLL4221.Harmony
             Image ___IconGlow, Image ___FrameGlow, TextMeshProMaterialSetter ___setter_BookName,
             TextMeshProUGUI ___BookName)
         {
-            if (__instance.BookDataModel == null || gc == LoRColorUtil.HighlightColor) return;
+            if (__instance.BookDataModel == null ||
+                gc == UIColorManager.Manager.GetUIColor(UIColor.Highlighted)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(__instance.BookDataModel.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.BookDataModel.BookId.id);
@@ -267,7 +269,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_BookName)
         {
             if (____unitdata == null) return;
-            ___txt_BookName.color = LoRColorUtil.DefaultColor;
+            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UILibrarianEquipDeckPanel), "SetDefaultColorPanel")]
@@ -305,7 +307,7 @@ namespace BigDLL4221.Harmony
         public static void UIEquipPage_SetData_Pre(BookModel ___bookDataModel, TextMeshProUGUI ___txt_BookName)
         {
             if (___bookDataModel == null) return;
-            ___txt_BookName.color = LoRColorUtil.DefaultColor;
+            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UIEquipPageModelPreviewPanel), "SetData")]
@@ -347,7 +349,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___bookName)
         {
             if (data == null) return;
-            ___bookName.color = LoRColorUtil.DefaultColor;
+            ___bookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UILibrarianEquipBookInfoPanel), "SetUnitData")]
@@ -356,7 +358,7 @@ namespace BigDLL4221.Harmony
             List<Graphic> ___targetGraphics, TextMeshProUGUI ___bookName, Image ___icon)
         {
             if (data == null) return;
-            ArtUtil.ChangeColorToCombatPageList(LoRColorUtil.DefaultColor);
+            ArtUtil.ChangeColorToCombatPageList(UIColorManager.Manager.GetUIColor(UIColor.Default));
             if (!ModParameters.KeypageOptions.TryGetValue(data.bookItem.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == data.bookItem.BookId.id);
@@ -382,7 +384,7 @@ namespace BigDLL4221.Harmony
         public static void UILibrarianEquipBookInfoPanel_SetPassiveSlotColor(Color c, UnitDataModel ___unitData,
             Graphic[] ___graphic_passivesSlot)
         {
-            if (___unitData == null || c == LoRColorUtil.HighlightColor) return;
+            if (___unitData == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitData.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitData.bookItem.BookId.id);
@@ -398,7 +400,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_name)
         {
             if (____currentbookmodel == null) return;
-            ___txt_name.color = LoRColorUtil.DefaultColor;
+            ___txt_name.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UIPassiveSuccessionPreviewBookPanel), "SetColorByRarity")]
@@ -431,11 +433,11 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_BookName)
         {
             if (___bookmodel == null) return;
-            ___txt_BookName.color = LoRColorUtil.DefaultColor;
-            ___img_Frame.color = LoRColorUtil.DisabledColor;
-            ___img_IconGlow.color = LoRColorUtil.DisabledColor;
-            ___setter_txtbookname.underlayColor = LoRColorUtil.DisabledColor;
-            ___setter_txtbookname.faceColor = LoRColorUtil.DefaultColor;
+            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ___img_Frame.color = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            ___img_IconGlow.color = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            ___setter_txtbookname.underlayColor = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            ___setter_txtbookname.faceColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UIPassiveSuccessionEquipBookSlot), "SetRarityColor")]
@@ -445,7 +447,7 @@ namespace BigDLL4221.Harmony
             Image ___img_Frame, Image ___img_IconGlow, TextMeshProMaterialSetter ___setter_txtbookname,
             TextMeshProUGUI ___txt_BookName)
         {
-            if (___bookmodel == null || c == LoRColorUtil.DisabledColor) return;
+            if (___bookmodel == null || c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___bookmodel.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___bookmodel.BookId.id);
@@ -468,7 +470,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_bookname)
         {
             if (___currentbookmodel == null) return;
-            ___txt_bookname.color = LoRColorUtil.DefaultColor;
+            ___txt_bookname.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UIPassiveSuccessionBookSlot), "SetDefaultColor")]
@@ -513,7 +515,7 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_BookName)
         {
             if (___unitdata == null) return;
-            ___txt_BookName.color = LoRColorUtil.DefaultColor;
+            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UILibrarianInfoInCardPhase), "SetData")]
@@ -550,7 +552,7 @@ namespace BigDLL4221.Harmony
         public static void UILibrarianInfoInCardPhase_SetPassiveSlotColor(Color c, UnitDataModel ___unitdata,
             Graphic[] ___graphic_passivesSlot)
         {
-            if (___unitdata == null || c == LoRColorUtil.HighlightColor) return;
+            if (___unitdata == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
@@ -564,7 +566,7 @@ namespace BigDLL4221.Harmony
         public static void UILibrarianInfoInCardPhase_SetBattlePageSlotColor(Color c, UnitDataModel ___unitdata,
             Graphic[] ___graphic_battlepageSlot)
         {
-            if (___unitdata == null || c == LoRColorUtil.HighlightColor) return;
+            if (___unitdata == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
@@ -591,7 +593,7 @@ namespace BigDLL4221.Harmony
         public static void UIGachaEquipSlot_SetDefaultColor_Pre(UIGachaEquipSlot __instance)
         {
             if (__instance._book == null) return;
-            __instance.BookName.color = LoRColorUtil.DefaultColor;
+            __instance.BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
         }
 
         [HarmonyPatch(typeof(UIGachaEquipSlot), "SetDefaultColor")]
@@ -634,7 +636,7 @@ namespace BigDLL4221.Harmony
             var keypageItem = keypageOptions.FirstOrDefault(x =>
                 x.KeypageId == UI.UIController.Instance.CurrentUnit.bookItem.BookId.id);
             var color = keypageItem?.KeypageColorOptions?.FrameColor ??
-                        LoRColorUtil.DefaultColor;
+                        UIColorManager.Manager.GetUIColor(UIColor.Default);
             if (eventData.pointerCurrentRaycast.gameObject != null &&
                 eventData.pointerCurrentRaycast.gameObject.name.Contains("[Xbox]SelectableTarget")) return;
             await GenericUtil.PutTaskDelay(30);
@@ -648,10 +650,12 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_BookName, bool ___isSephirahPanel)
         {
             if (___unitdata == null) return;
-            ___txt_BookName.color = LoRColorUtil.DefaultColor;
+            ___txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
             foreach (var img in __instance.GetComponentsInChildren<Image>()
                          .Where(x => x.name.Contains("[Image]CenterFrame")))
-                img.color = ___isSephirahPanel ? LoRColorUtil.DefaultColor : LoRColorUtil.DisabledColor;
+                img.color = ___isSephirahPanel
+                    ? UIColorManager.Manager.GetUIColor(UIColor.Default)
+                    : UIColorManager.Manager.GetUIColor(UIColor.Disabled);
         }
 
         [HarmonyPatch(typeof(UIBattleSettingLibrarianInfoPanel), "SetEquipPageSlotColor")]
@@ -687,7 +691,7 @@ namespace BigDLL4221.Harmony
         public static void UIBattleSettingLibrarianInfoPanel_SetBattlePageSlotColor_Post(Color c,
             UnitDataModel ___unitdata, Graphic[] ___graphic_battlepageSlot)
         {
-            if (___unitdata == null || c == LoRColorUtil.HighlightColor) return;
+            if (___unitdata == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
                     out var keypageOptions)) return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == ___unitdata.bookItem.BookId.id);
@@ -701,8 +705,8 @@ namespace BigDLL4221.Harmony
         public static void UIBookSlot_SetGlowColor(UIBookSlot __instance, Color c, Image ___Frame, Image ___Icon,
             Image ___FrameGlow, Image ___IconGlow, TextMeshProUGUI ___BookName)
         {
-            if (__instance.BookId == null || c == LoRColorUtil.HighlightColor ||
-                c == LoRColorUtil.DisabledColor) return;
+            if (__instance.BookId == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted) ||
+                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.DropBookOptions.TryGetValue(__instance.BookId.packageId,
                     out var dropBookOptions)) return;
             var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == __instance.BookId.id);
@@ -730,8 +734,8 @@ namespace BigDLL4221.Harmony
         public static void UIInvitation_SetColor(UIInvitationDropBookSlot __instance, Color c, Image ___bookNumBg,
             TextMeshProUGUI ___txt_bookNum)
         {
-            if (__instance.BookId == null || c == LoRColorUtil.HighlightColor ||
-                c == LoRColorUtil.DisabledColor) return;
+            if (__instance.BookId == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted) ||
+                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.DropBookOptions.TryGetValue(__instance.BookId.packageId,
                     out var dropBookOptions)) return;
             var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == __instance.BookId.id);
@@ -748,7 +752,8 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___txt_bookNum, GameObject ___bookNumRoot, UICustomGraphicObject ___plusButton,
             UICustomGraphicObject ___minusButton)
         {
-            if (__instance.BookId == null || c == LoRColorUtil.HighlightColor || c == LoRColorUtil.DisabledColor ||
+            if (__instance.BookId == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted) ||
+                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled) ||
                 ___bookNumRoot == null) return;
             if (!ModParameters.DropBookOptions.TryGetValue(__instance.BookId.packageId,
                     out var dropBookOptions)) return;
@@ -774,7 +779,7 @@ namespace BigDLL4221.Harmony
             Image ___IconGlow, TextMeshProUGUI ___BookName)
         {
             if (__instance.Appliedbookid == null) return;
-            if (c == LoRColorUtil.DefaultColor)
+            if (c == UIColorManager.Manager.GetUIColor(UIColor.Default))
             {
                 if (!ModParameters.DropBookOptions.TryGetValue(__instance.Appliedbookid.packageId,
                         out var dropBookOptions)) return;
@@ -797,7 +802,8 @@ namespace BigDLL4221.Harmony
             else
             {
                 var recipe = ___rootPanel.GetBookRecipe();
-                if (recipe == null || c == LoRColorUtil.HighlightColor || c == LoRColorUtil.DisabledColor) return;
+                if (recipe == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted) ||
+                    c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
                 if (!ModParameters.StageOptions.TryGetValue(recipe.id.packageId, out var stageOptions)) return;
                 var stageOption = stageOptions.FirstOrDefault(x => x.StageId == recipe.id.id);
                 if (stageOption?.StageColorOptions == null) return;
@@ -824,7 +830,8 @@ namespace BigDLL4221.Harmony
             UICustomGraphicObject ___button_SendButton)
         {
             var recipe = __instance.GetBookRecipe();
-            if (recipe == null || c == LoRColorUtil.HighlightColor || c == LoRColorUtil.DisabledColor) return;
+            if (recipe == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted) ||
+                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.StageOptions.TryGetValue(recipe.id.packageId, out var stageOptions)) return;
             var stageOption = stageOptions.FirstOrDefault(x => x.StageId == recipe.id.id);
             if (stageOption?.StageColorOptions == null) return;
@@ -855,8 +862,8 @@ namespace BigDLL4221.Harmony
             Color ___currentColor, UICustomGraphicObject ___button_SendButton)
         {
             var recipe = __instance.GetBookRecipe();
-            if (recipe == null || ___currentColor == LoRColorUtil.DefaultColor ||
-                ___currentColor == LoRColorUtil.DisabledColor) return;
+            if (recipe == null || ___currentColor == UIColorManager.Manager.GetUIColor(UIColor.Default) ||
+                ___currentColor == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.StageOptions.TryGetValue(recipe.id.packageId, out var stageOptions)) return;
             var stageOption = stageOptions.FirstOrDefault(x => x.StageId == recipe.id.id);
             if (stageOption?.StageColorOptions?.FrameColor == null) return;

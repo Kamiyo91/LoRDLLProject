@@ -12,7 +12,7 @@ namespace BigDLL4221.Models
             bool dieOnFightEnd = false, DamageOptions damageOptions = null,
             List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
-            List<BattleUnitBuf> permanentBuffList = null,
+            List<PermanentBuffOptions> permanentBuffList = null,
             Dictionary<LorId, PersonalCardOptions> personalCards = null, bool reusableEgo = true,
             bool reviveOnDeath = false, int recoverHpOnRevive = 0,
             List<AbnormalityCardDialog> reviveAbDialogList = null,
@@ -33,7 +33,7 @@ namespace BigDLL4221.Models
             SurviveAbDialogList = surviveAbDialogList ?? new List<AbnormalityCardDialog>();
             SurviveAbDialogColor = surviveAbDialogColor;
             NearDeathBuffType = nearDeathBuffType;
-            PermanentBuffList = permanentBuffList ?? new List<BattleUnitBuf>();
+            PermanentBuffList = permanentBuffList ?? new List<PermanentBuffOptions>();
             PersonalCards = personalCards ?? new Dictionary<LorId, PersonalCardOptions>();
             EgoPhase = 0;
             ActivatedMap = null;
@@ -67,7 +67,7 @@ namespace BigDLL4221.Models
         public List<AbnormalityCardDialog> SurviveAbDialogList { get; set; }
         public AbColorType SurviveAbDialogColor { get; set; }
         public BattleUnitBuf NearDeathBuffType { get; set; }
-        public List<BattleUnitBuf> PermanentBuffList { get; set; }
+        public List<PermanentBuffOptions> PermanentBuffList { get; set; }
         public Dictionary<LorId, PersonalCardOptions> PersonalCards { get; set; }
         public LorId FirstEgoFormCard { get; set; }
         public int EgoPhase { get; set; }
@@ -76,6 +76,18 @@ namespace BigDLL4221.Models
         public bool CustomData { get; set; }
         public Dictionary<LorId, MapModel> EgoMaps { get; set; }
         public bool OriginalSkinIsBaseGame { get; set; }
+    }
+
+    public class PermanentBuffOptions
+    {
+        public PermanentBuffOptions(BattleUnitBuf buff = null, bool isActive = true)
+        {
+            Buff = buff;
+            IsActive = isActive;
+        }
+
+        public BattleUnitBuf Buff { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public class EgoOptions

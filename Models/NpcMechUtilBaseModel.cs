@@ -14,7 +14,7 @@ namespace BigDLL4221.Models
             bool recoverLightOnSurvive = false, bool dieOnFightEnd = false, DamageOptions damageOptions = null,
             List<AbnormalityCardDialog> surviveAbDialogList = null,
             AbColorType surviveAbDialogColor = AbColorType.Negative, BattleUnitBuf nearDeathBuffType = null,
-            List<BattleUnitBuf> permanentBuffList = null,
+            List<PermanentBuffOptions> permanentBuffList = null,
             Dictionary<LorId, PersonalCardOptions> personalCards = null, bool reusableEgo = false,
             bool reviveOnDeath = false, int recoverHpOnRevive = 0,
             List<AbnormalityCardDialog> reviveAbDialogList = null,

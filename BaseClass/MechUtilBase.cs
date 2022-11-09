@@ -128,6 +128,12 @@ namespace BigDLL4221.BaseClass
             if (Model.ActivatedMap != null) ReturnFromEgoAssimilationMap();
         }
 
+        public virtual void DeactivePermanentBuff(Type buffType)
+        {
+            var buff = Model.PermanentBuffList.FirstOrDefault(x => x.Buff.GetType() == buffType);
+            if (buff != null) buff.IsActive = false;
+        }
+
         public virtual void DeactiveEgoDuration()
         {
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
@@ -294,8 +300,10 @@ namespace BigDLL4221.BaseClass
             foreach (var item in Model.PermanentBuffList.Select((buff, index) => (index, buff)).ToList()
                          .Where(item => !Model.Owner.HasBuff(item.buff.GetType(), out _)))
             {
-                Model.PermanentBuffList[item.index] = (BattleUnitBuf)Activator.CreateInstance(item.buff.GetType());
-                Model.Owner.bufListDetail.AddBuf(Model.PermanentBuffList[item.index]);
+                if (!item.buff.IsActive) continue;
+                Model.PermanentBuffList[item.index].Buff =
+                    (BattleUnitBuf)Activator.CreateInstance(item.buff.Buff.GetType());
+                Model.Owner.bufListDetail.AddBuf(Model.PermanentBuffList[item.index].Buff);
             }
         }
 

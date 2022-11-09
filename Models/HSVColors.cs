@@ -1,7 +1,4 @@
-﻿using UI;
-using UnityEngine;
-
-namespace BigDLL4221.Models
+﻿namespace BigDLL4221.Models
 {
     public static class HSVColors
     {
@@ -25,12 +22,5 @@ namespace BigDLL4221.Models
         public float H { get; set; }
         public float S { get; set; }
         public float V { get; set; }
-    }
-
-    public static class LoRColorUtil
-    {
-        public static Color HighlightColor = UIColorManager.Manager.GetUIColor(UIColor.Highlighted);
-        public static Color DefaultColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
-        public static Color DisabledColor = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
     }
 }
