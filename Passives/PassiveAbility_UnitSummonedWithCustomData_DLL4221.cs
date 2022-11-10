@@ -8,6 +8,7 @@ namespace BigDLL4221.Passives
 {
     public class PassiveAbility_UnitSummonedWithCustomData_DLL4221 : PassiveAbilityBase
     {
+        public bool DefinitiveDeath;
         public SummonedUnitStatModel Model;
 
         public override void OnWaveStart()
@@ -15,6 +16,7 @@ namespace BigDLL4221.Passives
             if (Model.LoweredCardCost != 0)
                 UnitUtil.ChangeCardCostByValue(owner, -Model.LoweredCardCost, Model.MaxCardCost, false);
             if (Model.EgoOptions != null && Model.EgoOptions.ActiveEgoOnStart) EgoActive();
+            DefinitiveDeath = false;
         }
 
         public void SetParameters(SummonedUnitStatModel model,
@@ -31,6 +33,14 @@ namespace BigDLL4221.Passives
             ReviveMech(owner.faction == Faction.Player ? Model.ReviveAfterScenesPlayer : Model.ReviveAfterScenesNpc);
             if (!owner.IsDead() || !Model.RemoveFromUIAfterDeath) return;
             if (owner.faction == Faction.Player && Model.UseCustomData) owner.Book.owner = null;
+            owner.Revive(1);
+            DefinitiveDeath = true;
+        }
+
+        public override void OnRoundStartAfter()
+        {
+            if (!DefinitiveDeath) return;
+            DefinitiveDeath = false;
             BattleObjectManager.instance.UnregisterUnit(owner);
             UnitUtil.RefreshCombatUI();
         }

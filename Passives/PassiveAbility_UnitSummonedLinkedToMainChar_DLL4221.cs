@@ -12,6 +12,7 @@ namespace BigDLL4221.Passives
     {
         private BattleUnitModel _mainChar;
         private PassiveAbilityBase _mainCharPassive;
+        public bool DefinitiveDeath;
         public SummonedUnitStatModelLinked Model;
 
         public override void OnWaveStart()
@@ -37,6 +38,14 @@ namespace BigDLL4221.Passives
             ReviveMech(owner.faction == Faction.Player ? Model.ReviveAfterScenesPlayer : Model.ReviveAfterScenesNpc);
             if (!owner.IsDead() || !Model.RemoveFromUIAfterDeath) return;
             if (owner.faction == Faction.Player && Model.UseCustomData) owner.Book.owner = null;
+            owner.Revive(1);
+            DefinitiveDeath = true;
+        }
+
+        public override void OnRoundStartAfter()
+        {
+            if (!DefinitiveDeath) return;
+            DefinitiveDeath = false;
             BattleObjectManager.instance.UnregisterUnit(owner);
             UnitUtil.RefreshCombatUI();
         }
