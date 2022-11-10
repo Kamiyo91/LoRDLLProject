@@ -198,15 +198,17 @@ namespace BigDLL4221.BaseClass
 
         public virtual void ReAddOnPlayCard()
         {
+            foreach (var card in Model.PersonalCards.Where(x =>
+                         x.Value.OnPlayCard && !x.Value.ExpireAfterUse && !x.Value.EgoPersonalCard))
+            {
+                Model.Owner.personalEgoDetail.RemoveCard(card.Key);
+                Model.Owner.personalEgoDetail.AddCard(card.Key);
+            }
+
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             foreach (var card in Model.PersonalCards.Where(x =>
-                         x.Value.OnPlayCard && !x.Value.ExpireAfterUse && (!x.Value.EgoPersonalCard ||
-                                                                           (Model.EgoOptions != null &&
-                                                                            Model.Owner.bufListDetail
-                                                                                .GetActivatedBufList()
-                                                                                .Any(y => y.GetType() ==
-                                                                                    egoOptions.EgoType
-                                                                                        .GetType())))))
+                         egoOptions.EgoActive && x.Value.EgoPhase == Model.EgoPhase && x.Value.EgoPersonalCard &&
+                         x.Value.OnPlayCard && !x.Value.ExpireAfterUse))
             {
                 Model.Owner.personalEgoDetail.RemoveCard(card.Key);
                 Model.Owner.personalEgoDetail.AddCard(card.Key);
