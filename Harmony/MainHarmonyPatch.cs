@@ -312,16 +312,24 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(BookModel), "ReleasePassive")]
         public static void BookModel_ReleasePassive(BookModel __instance, PassiveModel passive)
         {
-            var currentPassive = passive.originData.currentpassive.id != new LorId(9999999)
-                ? passive.originData.currentpassive
-                : passive.reservedData.currentpassive;
-            if (!ModParameters.PassiveOptions.TryGetValue(currentPassive.id.packageId, out var passiveOptions)) return;
-            var passiveItem = passiveOptions.FirstOrDefault(x => x.PassiveId == currentPassive.id.id);
-            if (passiveItem == null) return;
-            var passivesToRelease = __instance.GetPassiveModelList().Where(x =>
-                passiveItem.ChainReleasePassives.Contains(x.reservedData.currentpassive.id));
-            foreach (var passiveToRelease in passivesToRelease)
-                __instance.ReleasePassive(passiveToRelease);
+            try
+            {
+                var currentPassive = passive.originData.currentpassive.id != new LorId(9999999)
+                    ? passive.originData.currentpassive
+                    : passive.reservedData.currentpassive;
+                if (!ModParameters.PassiveOptions.TryGetValue(currentPassive.id.packageId, out var passiveOptions))
+                    return;
+                var passiveItem = passiveOptions.FirstOrDefault(x => x.PassiveId == currentPassive.id.id);
+                if (passiveItem == null) return;
+                var passivesToRelease = __instance.GetPassiveModelList().Where(x =>
+                    passiveItem.ChainReleasePassives.Contains(x.reservedData.currentpassive.id));
+                foreach (var passiveToRelease in passivesToRelease)
+                    __instance.ReleasePassive(passiveToRelease);
+            }
+            catch (Exception)
+            {
+                //Ignored
+            }
         }
 
         [HarmonyPrefix]
