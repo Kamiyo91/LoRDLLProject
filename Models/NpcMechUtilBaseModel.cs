@@ -259,7 +259,8 @@ namespace BigDLL4221.Models
             List<BattleUnitBuf> eachRoundStartBuffsAloneCountSupportChar = null,
             Dictionary<KeywordBuf, int> eachRoundStartKeywordBuffsAloneCountSupportChar = null,
             List<BattleUnitBuf> eachRoundStartBuffsNotAloneCountSupportChar = null,
-            Dictionary<KeywordBuf, int> eachRoundStartKeywordBuffsNotAloneCountSupportChar = null)
+            Dictionary<KeywordBuf, int> eachRoundStartKeywordBuffsNotAloneCountSupportChar = null,
+            List<OtherSideBuffOption> otherSideBuffs = null)
         {
             Buffs = buffs ?? new List<BattleUnitBuf>();
             OneRoundBuffs = oneRoundBuffs ?? new Dictionary<KeywordBuf, int>();
@@ -278,8 +279,10 @@ namespace BigDLL4221.Models
                 eachRoundStartBuffsAloneCountSupportChar ?? new List<BattleUnitBuf>();
             EachRoundStartKeywordBuffsAloneCountSupportChar = eachRoundStartKeywordBuffsAloneCountSupportChar ??
                                                               new Dictionary<KeywordBuf, int>();
+            OtherSideBuffs = otherSideBuffs ?? new List<OtherSideBuffOption>();
         }
 
+        public List<OtherSideBuffOption> OtherSideBuffs { get; set; }
         public List<BattleUnitBuf> Buffs { get; set; }
         public Dictionary<KeywordBuf, int> OneRoundBuffs { get; set; }
         public List<BattleUnitBuf> EachRoundStartBuffs { get; set; }
@@ -292,6 +295,20 @@ namespace BigDLL4221.Models
         public Dictionary<KeywordBuf, int> EachRoundStartKeywordBuffsNotAloneCountSupportChar { get; set; }
         public List<BattleUnitBuf> EachRoundStartBuffsAloneCountSupportChar { get; set; }
         public Dictionary<KeywordBuf, int> EachRoundStartKeywordBuffsAloneCountSupportChar { get; set; }
+    }
+
+    public class OtherSideBuffOption
+    {
+        public OtherSideBuffOption(BattleUnitBuf buff = null, bool onlySephirah = false, int? index = null)
+        {
+            Buff = buff;
+            OnlySephirah = onlySephirah;
+            Index = index;
+        }
+
+        public BattleUnitBuf Buff { get; set; }
+        public bool OnlySephirah { get; set; }
+        public int? Index { get; set; }
     }
 
     public class SpecialAttackCardOptions

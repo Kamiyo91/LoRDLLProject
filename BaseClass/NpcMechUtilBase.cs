@@ -249,6 +249,13 @@ namespace BigDLL4221.BaseClass
                 UnitUtil.ChangeCardCostByValue(Model.Owner, mechOptions.LoweredCost, mechOptions.MaxCost, true);
             if (mechOptions.MechBuffOptions != null)
             {
+                foreach (var buff in mechOptions.MechBuffOptions.OtherSideBuffs)
+                foreach (var unit in BattleObjectManager.instance
+                             .GetAliveList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Where(x =>
+                                 (buff.OnlySephirah && x.UnitData.unitData.isSephirah) ||
+                                 (buff.Index.HasValue && x.index == buff.Index.Value) ||
+                                 (!buff.OnlySephirah && !buff.Index.HasValue)))
+                    unit.bufListDetail.AddBuf(buff.Buff);
                 foreach (var buff in mechOptions.MechBuffOptions.Buffs)
                     Model.Owner.bufListDetail.AddBuf(buff);
                 foreach (var buff in mechOptions.MechBuffOptions.OneRoundBuffs)

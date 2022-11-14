@@ -631,21 +631,34 @@ namespace BigDLL4221.Harmony
                             y.Value.Any(z => z.PassiveId == x.passive.id.id && z.IsMultiDeck))))
             {
                 var labels = new List<string>();
-                if (!ModParameters.KeypageOptions.TryGetValue(__instance.currentunit.bookItem.BookId.packageId,
-                        out var keypageOptions)) return;
-                var keypageOption = keypageOptions.FirstOrDefault(x =>
-                    x.KeypageId == __instance.currentunit.bookItem.BookId.id && x.IsMultiDeck);
-                if (keypageOption == null)
+                var packageId = string.Empty;
+                var keypageTryGet =
+                    ModParameters.KeypageOptions.TryGetValue(__instance.currentunit.bookItem.BookId.packageId,
+                        out var keypageOptions);
+                if (keypageTryGet)
                 {
-                    labels = keypageOption.MultiDeckOptions.LabelIds;
+                    var keypageOption = keypageOptions.FirstOrDefault(x =>
+                        x.KeypageId == __instance.currentunit.bookItem.BookId.id && x.IsMultiDeck);
+                    if (keypageOption != null)
+                    {
+                        labels = keypageOption.MultiDeckOptions.LabelIds;
+                        packageId = __instance.currentunit.bookItem.BookId.packageId;
+                    }
                 }
-                else
+
+                if (!labels.Any())
                 {
-                    if (!ModParameters.PassiveOptions.TryGetValue(__instance.currentunit.bookItem.BookId.packageId,
-                            out var passiveOptions)) return;
-                    var item = passiveOptions.FirstOrDefault(x => __instance
-                        .currentunit.bookItem.GetPassiveInfoList()
-                        .Any(y => y.passive.id == x.PassiveId && x.IsMultiDeck));
+                    PassiveOptions item = null;
+                    foreach (var passiveOptions in ModParameters.PassiveOptions)
+                    foreach (var passiveOption in passiveOptions.Value.Where(passiveOption =>
+                                 __instance.currentunit.bookItem.GetPassiveInfoList().Exists(x =>
+                                     x.passive.id.packageId == passiveOptions.Key &&
+                                     x.passive.id.id == passiveOption.PassiveId && passiveOption.IsMultiDeck)))
+                    {
+                        item = passiveOption;
+                        packageId = passiveOptions.Key;
+                    }
+
                     if (item == null) return;
                     labels = item.MultiDeckOptions.LabelIds;
                 }
@@ -654,7 +667,7 @@ namespace BigDLL4221.Harmony
                 if (__instance.currentunit.bookItem.GetCurrentDeckIndex() > 1)
                     __instance.currentunit.ReEquipDeck();
                 ArtUtil.PrepareMultiDeckUI(___multiDeckLayout, labels,
-                    __instance.currentunit.bookItem.BookId.packageId);
+                    packageId);
             }
             else if (UIOptions.ChangedMultiView)
             {
