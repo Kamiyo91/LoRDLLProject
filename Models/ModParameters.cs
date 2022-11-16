@@ -266,16 +266,16 @@ namespace BigDLL4221.Models
 
     public class PreBattleOptions
     {
-        public PreBattleOptions(List<SephirahType> sephirah = null, List<UnitModel> unitModels = null,
+        public PreBattleOptions(Dictionary<SephirahType, List<UnitModel>> customUnits = null,
             bool setToggles = false, bool fillWithBaseUnits = false,
-            PreBattleType battleType = PreBattleType.CustomUnits, List<SephirahType> sephirahUnits = null,
+            PreBattleType battleType = PreBattleType.CustomUnits,
+            Dictionary<SephirahType, List<SephirahType>> sephirahUnits = null,
             bool onlySephirah = false, bool sephirahLocked = false, List<SephirahType> unlockedSephirah = null)
         {
-            Sephirah = sephirah ?? new List<SephirahType>();
-            UnitModels = unitModels ?? new List<UnitModel>();
+            CustomUnits = customUnits ?? new Dictionary<SephirahType, List<UnitModel>>();
             SetToggles = setToggles;
             BattleType = battleType;
-            SephirahUnits = sephirahUnits ?? new List<SephirahType>();
+            SephirahUnits = sephirahUnits ?? new Dictionary<SephirahType, List<SephirahType>>();
             OnlySephirah = onlySephirah;
             SephirahLocked = sephirahLocked;
             UnlockedSephirah = unlockedSephirah ?? new List<SephirahType>();
@@ -283,10 +283,9 @@ namespace BigDLL4221.Models
         }
 
         public PreBattleType BattleType { get; set; }
-        public List<SephirahType> Sephirah { get; set; }
-        public List<UnitModel> UnitModels { get; set; }
+        public Dictionary<SephirahType, List<UnitModel>> CustomUnits { get; set; }
         public bool SetToggles { get; set; }
-        public List<SephirahType> SephirahUnits { get; set; }
+        public Dictionary<SephirahType, List<SephirahType>> SephirahUnits { get; set; }
         public bool FillWithBaseUnits { get; set; }
         public bool OnlySephirah { get; set; }
         public bool SephirahLocked { get; set; }

@@ -360,14 +360,11 @@ namespace BigDLL4221.Utils
         }
 
         public static void AddCustomUnits(StageLibraryFloorModel instance, StageModel stage,
-            List<UnitBattleDataModel> unitList, LorId dictionaryId, string packageId)
+            List<UnitBattleDataModel> unitList, PreBattleOptions preBattleOptions, string packageId)
         {
-            if (!ModParameters.StageOptions.TryGetValue(dictionaryId.packageId, out var stageParameters)) return;
-            var stageOptions = stageParameters.FirstOrDefault(x => x.StageId == dictionaryId.id);
-            if (stageOptions?.PreBattleOptions == null ||
-                !stageOptions.PreBattleOptions.Sephirah.Contains(instance.Sephirah)) return;
+            if (!preBattleOptions.CustomUnits.TryGetValue(instance.Sephirah, out var unitModels)) return;
             var localizedTryGet = ModParameters.LocalizedItems.TryGetValue(packageId, out var localizedItem);
-            foreach (var unitParameters in stageOptions.PreBattleOptions.UnitModels)
+            foreach (var unitParameters in unitModels)
             {
                 var unitDataModel = new UnitDataModel(new LorId(packageId, unitParameters.Id),
                     instance.Sephirah, true);
@@ -556,10 +553,11 @@ namespace BigDLL4221.Utils
             return allyUnit;
         }
 
-        public static void AddSephirahUnits(StageModel stage,
+        public static void AddSephirahUnits(StageLibraryFloorModel instance, StageModel stage,
             List<UnitBattleDataModel> unitList, PreBattleOptions options)
         {
-            unitList?.AddRange(options.SephirahUnits.Select(sephirah => InitUnitDefault(stage,
+            if (!options.SephirahUnits.TryGetValue(instance.Sephirah, out var sephirahUnitTypes)) return;
+            unitList?.AddRange(sephirahUnitTypes.Select(sephirah => InitUnitDefault(stage,
                 LibraryModel.Instance.GetOpenedFloorList()
                     .FirstOrDefault(x => x.Sephirah == sephirah)
                     ?.GetUnitDataList()

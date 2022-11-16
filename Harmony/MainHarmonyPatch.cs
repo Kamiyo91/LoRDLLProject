@@ -122,20 +122,21 @@ namespace BigDLL4221.Harmony
             if (!ModParameters.StageOptions.TryGetValue(stage.ClassInfo.id.packageId, out var stageOptions)) return;
             var stageOption = stageOptions.FirstOrDefault(x => x.StageId == stage.ClassInfo.id.id);
             if (stageOption?.PreBattleOptions == null ||
-                !stageOption.PreBattleOptions.Sephirah.Contains(__instance.Sephirah)) return;
+                (!stageOption.PreBattleOptions.CustomUnits.ContainsKey(__instance.Sephirah) &&
+                 !stageOption.PreBattleOptions.SephirahUnits.ContainsKey(__instance.Sephirah))) return;
             ____unitList.Clear();
             switch (stageOption.PreBattleOptions.BattleType)
             {
                 case PreBattleType.CustomUnits:
-                    UnitUtil.AddCustomUnits(__instance, stage, ____unitList, stage.ClassInfo.id,
+                    UnitUtil.AddCustomUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions,
                         stage.ClassInfo.id.packageId);
                     break;
                 case PreBattleType.SephirahUnits:
-                    UnitUtil.AddSephirahUnits(stage, ____unitList, stageOption.PreBattleOptions);
+                    UnitUtil.AddSephirahUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions);
                     break;
                 case PreBattleType.HybridUnits:
-                    UnitUtil.AddSephirahUnits(stage, ____unitList, stageOption.PreBattleOptions);
-                    UnitUtil.AddCustomUnits(__instance, stage, ____unitList, stage.ClassInfo.id,
+                    UnitUtil.AddSephirahUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions);
+                    UnitUtil.AddCustomUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions,
                         stage.ClassInfo.id.packageId);
                     break;
             }
@@ -572,7 +573,9 @@ namespace BigDLL4221.Harmony
                 typeof(UICharacterListPanel).GetField("CharacterList", AccessTools.all)?.GetValue(__instance) as
                     UICharacterList;
             var stageModel = Singleton<StageController>.Instance.GetStageModel();
-            var list = UnitUtil.UnitsToRecover(stageModel, data, unitOptions.PreBattleOptions.SephirahUnits);
+            if (!unitOptions.PreBattleOptions.SephirahUnits.TryGetValue(
+                    Singleton<StageController>.Instance.CurrentFloor, out var sephirahUnitTypes)) return;
+            var list = UnitUtil.UnitsToRecover(stageModel, data, sephirahUnitTypes);
             foreach (var unit in list)
             {
                 unit.Refreshhp();
