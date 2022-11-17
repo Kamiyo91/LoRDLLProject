@@ -154,6 +154,12 @@ namespace BigDLL4221.Harmony
         {
             if (force) return;
             __state = newBook;
+            if (__instance.isSephirah && StaticBoolChecks.EgoAndEmotionCardChanged[__instance.OwnerSephirah].IsActive)
+            {
+                StaticBoolChecks.EgoAndEmotionCardChanged[__instance.OwnerSephirah] = new SavedFloorOptions();
+                CardUtil.RevertAbnoAndEgo(__instance.OwnerSephirah);
+            }
+
             if (!ModParameters.PackageIds.Contains(__instance.bookItem.ClassInfo.id.packageId)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(__instance.bookItem.ClassInfo.id.packageId,
                     out var keypageOptions)) return;
@@ -183,6 +189,12 @@ namespace BigDLL4221.Harmony
                     {
                         bookOptions.BookCustomOptions.OriginalSkin
                     };
+            if (__instance.isSephirah && bookOptions.CustomFloorOptions != null)
+            {
+                StaticBoolChecks.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
+                    new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
+                CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions.FloorCode);
+            }
 
             if (UnitUtil.CheckSkinUnitData(__instance)) return;
             __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
@@ -271,7 +283,6 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
-                // ignored
             }
         }
 
@@ -329,7 +340,6 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
-                //Ignored
             }
         }
 
@@ -354,7 +364,6 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
-                // ignored
             }
         }
 
@@ -384,7 +393,6 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
-                // ignored
             }
         }
 
@@ -694,7 +702,6 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
-                // ignored
             }
         }
 
@@ -928,18 +935,18 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(StageLibraryFloorModel), "StartPickEmotionCard")]
         private static bool StageLibraryFloorModel_StartPickEmotionCard_Pre(StageLibraryFloorModel __instance)
         {
-            if (!string.IsNullOrEmpty(ModParameters.EmotionCardPullCode))
+            if (!string.IsNullOrEmpty(StaticBoolChecks.EmotionCardPullCode))
             {
                 var emotionList = CardUtil.CustomCreateSelectableList(__instance.team.emotionLevel);
-                ModParameters.EmotionCardPullCode = string.Empty;
+                StaticBoolChecks.EmotionCardPullCode = string.Empty;
                 if (emotionList.Count <= 0) return true;
                 SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(0, emotionList);
                 return false;
             }
 
-            if (string.IsNullOrEmpty(ModParameters.EgoCardPullCode)) return true;
+            if (string.IsNullOrEmpty(StaticBoolChecks.EgoCardPullCode)) return true;
             var egoList = CardUtil.CustomCreateSelectableEgoList();
-            ModParameters.EgoCardPullCode = string.Empty;
+            StaticBoolChecks.EgoCardPullCode = string.Empty;
             if (egoList.Count <= 0) return true;
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.InitEgo(0, egoList);
             return false;
@@ -952,6 +959,53 @@ namespace BigDLL4221.Harmony
             if (!ModParameters.EmotionCards.ContainsKey(card.id)) return;
             if (!ModParameters.ArtWorks.TryGetValue(card.Artwork, out var sprite)) return;
             ___artwork.sprite = sprite;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIFloorTitlePanel), "SetData")]
+        public static void UIFloorTitlePanel_SetData_Post(SephirahType sep, ref Image ___img_floorTitle)
+        {
+            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(sep, out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
+                !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
+            ___img_floorTitle.sprite = icon;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UISephirahButton), "SetButtonState")]
+        public static void UISephirahButton_SetButtonState_Post(UISephirahButton.ButtonState value,
+            ref Image ___img_Icon, SephirahType ___sephirahType)
+        {
+            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(___sephirahType, out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
+                !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
+            ___img_Icon.sprite = icon;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UISephirahSelectionButton), "InitAndActivate")]
+        public static void UISephirahSelectionButton_InitAndActivate_Post(ref Image ___sephirahImage,
+            SephirahType _sephirahType)
+        {
+            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(_sephirahType, out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
+                !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
+            ___sephirahImage.sprite = icon;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BattleEmotionBarTeamSlotUI), "InitPlayerTeamIcon")]
+        public static void BattleEmotionBarTeamSlotUI_InitPlayerTeamIcon_Post(ref Image ___img_Icon,
+            EmotionBattleTeamModel team)
+        {
+            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(team.sep, out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
+                !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
+            ___img_Icon.sprite = icon;
         }
     }
 }

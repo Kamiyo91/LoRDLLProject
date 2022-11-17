@@ -142,7 +142,7 @@ namespace BigDLL4221.Utils
         public static List<EmotionCardXmlInfo> CustomCreateSelectableList(int emotionLevel)
         {
             var emotionLevelPull = emotionLevel <= 2 ? 1 : emotionLevel <= 4 ? 2 : 3;
-            var code = ModParameters.EmotionCardPullCode;
+            var code = StaticBoolChecks.EmotionCardPullCode;
             var dataCardList = ModParameters.EmotionCards
                 .Where(x => x.Value.Code.Contains(code) && x.Value.CardXml.EmotionLevel == emotionLevelPull &&
                             !x.Value.CardXml.Locked).Select(x => x.Value.CardXml).ToList();
@@ -212,7 +212,7 @@ namespace BigDLL4221.Utils
 
         public static List<EmotionEgoXmlInfo> CustomCreateSelectableEgoList()
         {
-            var code = ModParameters.EgoCardPullCode;
+            var code = StaticBoolChecks.EgoCardPullCode;
             var dataEgoCardList = ModParameters.EmotionEgoCards.Where(x => x.Value.Code.Contains(code))
                 .Select(x => x.Value.CardXml).ToList();
             var sephirah = Singleton<StageController>.Instance.GetCurrentStageFloorModel().Sephirah;
@@ -282,6 +282,141 @@ namespace BigDLL4221.Utils
                         Debug.LogError("Error loading Effect Texts packageId : " + item.Key + " Language : " +
                                        ModParameters.Language + " Error : " + ex.Message);
                 }
+            }
+        }
+
+        public static void GetOringinAbnoAndEgo()
+        {
+            var sephirahTypeList = new List<SephirahType>
+            {
+                SephirahType.Keter, SephirahType.Hokma, SephirahType.Binah,
+                SephirahType.Chesed, SephirahType.Gebura, SephirahType.Tiphereth,
+                SephirahType.Netzach, SephirahType.Hod, SephirahType.Yesod, SephirahType.Malkuth
+            };
+            foreach (var sephirah in sephirahTypeList)
+            {
+                var listEmotionXmlCards = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
+                    .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
+                if (listEmotionXmlCards != null)
+                {
+                    var listEmotionCards = (from emotionCardXmlInfo in listEmotionXmlCards
+                        where emotionCardXmlInfo.id >= 1 && emotionCardXmlInfo.id <= 15 &&
+                              emotionCardXmlInfo.Sephirah == sephirah
+                        select new EmotionCardXmlInfo
+                        {
+                            Name = emotionCardXmlInfo.Name,
+                            _artwork = emotionCardXmlInfo._artwork,
+                            State = emotionCardXmlInfo.State,
+                            Sephirah = sephirah,
+                            EmotionLevel = emotionCardXmlInfo.EmotionLevel,
+                            TargetType = emotionCardXmlInfo.TargetType,
+                            Script = emotionCardXmlInfo.Script,
+                            Level = emotionCardXmlInfo.Level,
+                            EmotionRate = emotionCardXmlInfo.EmotionRate,
+                            Locked = emotionCardXmlInfo.Locked
+                        }).ToList();
+                    ModParameters.OriginalEmotionCards.Add(sephirah, listEmotionCards);
+                }
+
+                var listEmotionEgoXmlCards = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
+                    .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
+                if (listEmotionEgoXmlCards == null) return;
+                var listFloorEgoCards = (from emotionEgoXmlInfo in listEmotionEgoXmlCards
+                    where emotionEgoXmlInfo.Sephirah == SephirahType.Keter
+                    select new EmotionEgoXmlInfo
+                    {
+                        _CardId = emotionEgoXmlInfo._CardId, id = emotionEgoXmlInfo.id, Sephirah = SephirahType.Keter,
+                        isLock = emotionEgoXmlInfo.isLock
+                    }).ToList();
+                ModParameters.OriginalEgoFloorCards.Add(sephirah, listFloorEgoCards);
+            }
+        }
+
+        public static void ChangeAbnoAndEgo(SephirahType sephirah, string pullCode)
+        {
+            var customEmotionCardList = ModParameters.EmotionCards.Where(x => x.Value.FloorCode.Contains(pullCode))
+                .Select(x => x.Value.CardXml).ToList();
+            if (customEmotionCardList.Any())
+            {
+                var listEmotionXmlCards = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
+                    .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
+                if (listEmotionXmlCards != null)
+                    foreach (var item in listEmotionXmlCards.Where(x => x.Sephirah == sephirah)
+                                 .Select((card, i) => (i, card)))
+                        if (item.i > customEmotionCardList.Count)
+                        {
+                            item.card.Locked = true;
+                        }
+                        else
+                        {
+                            item.card.Name = customEmotionCardList[item.i].Name;
+                            item.card._artwork = customEmotionCardList[item.i]._artwork;
+                            item.card.State = customEmotionCardList[item.i].State;
+                            item.card.Sephirah = sephirah;
+                            item.card.EmotionLevel = customEmotionCardList[item.i].EmotionLevel;
+                            item.card.TargetType = customEmotionCardList[item.i].TargetType;
+                            item.card.Script = customEmotionCardList[item.i].Script;
+                            item.card.Level = customEmotionCardList[item.i].Level;
+                            item.card.EmotionRate = customEmotionCardList[item.i].EmotionRate;
+                            item.card.Locked = customEmotionCardList[item.i].Locked;
+                        }
+            }
+
+            var customEmotionEgoCardList = ModParameters.EmotionEgoCards
+                .Where(x => x.Value.FloorCode.Contains(pullCode)).Select(x => x.Value.CardXml).ToList();
+            if (!customEmotionEgoCardList.Any()) return;
+            var listEmotionEgoXmlCards = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
+                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
+            if (listEmotionEgoXmlCards == null) return;
+            foreach (var item in listEmotionEgoXmlCards.Where(x => x.Sephirah == sephirah)
+                         .Select((card, i) => (i, card)))
+                if (item.i > customEmotionEgoCardList.Count)
+                {
+                    item.card.isLock = true;
+                }
+                else
+                {
+                    item.card.id = customEmotionEgoCardList[item.i].id;
+                    item.card._CardId = customEmotionEgoCardList[item.i]._CardId;
+                    item.card.isLock = customEmotionEgoCardList[item.i].isLock;
+                }
+        }
+
+        public static void RevertAbnoAndEgo(SephirahType sephirah)
+        {
+            if (ModParameters.OriginalEmotionCards.TryGetValue(sephirah, out var emotionCards))
+            {
+                var emotionCardList = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
+                    .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
+                if (emotionCardList != null)
+                    foreach (var emotionCardXmlInfo in emotionCardList.Where(x => x.Sephirah == sephirah))
+                    {
+                        var card = emotionCards.FirstOrDefault(x =>
+                            emotionCardXmlInfo.id == x.id && x.Sephirah == sephirah);
+                        if (card == null) continue;
+                        emotionCardXmlInfo.Name = card.Name;
+                        emotionCardXmlInfo._artwork = card._artwork;
+                        emotionCardXmlInfo.State = card.State;
+                        emotionCardXmlInfo.Sephirah = SephirahType.Keter;
+                        emotionCardXmlInfo.EmotionLevel = card.EmotionLevel;
+                        emotionCardXmlInfo.TargetType = card.TargetType;
+                        emotionCardXmlInfo.Script = card.Script;
+                        emotionCardXmlInfo.Level = card.Level;
+                        emotionCardXmlInfo.EmotionRate = card.EmotionRate;
+                        emotionCardXmlInfo.Locked = card.Locked;
+                    }
+            }
+
+            if (!ModParameters.OriginalEgoFloorCards.TryGetValue(sephirah, out var egoCards)) return;
+            var emotionEgoCardList = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
+                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
+            if (emotionEgoCardList == null) return;
+            foreach (var item in emotionEgoCardList.Where(x => x.Sephirah == sephirah)
+                         .SelectMany(x => egoCards.Select(y => new { customCard = x, original = y })))
+            {
+                item.customCard.id = item.original.id;
+                item.customCard._CardId = item.original._CardId;
+                item.customCard.isLock = item.original.isLock;
             }
         }
     }

@@ -45,36 +45,77 @@ namespace BigDLL4221.Models
 
         public static Dictionary<int, EmotionCardOptions> EmotionCards = new Dictionary<int, EmotionCardOptions>();
         public static Dictionary<int, EmotionEgoOptions> EmotionEgoCards = new Dictionary<int, EmotionEgoOptions>();
-        public static string EmotionCardPullCode = string.Empty;
 
-        public static string EgoCardPullCode = string.Empty;
+        public static Dictionary<SephirahType, List<EmotionCardXmlInfo>> OriginalEmotionCards =
+            new Dictionary<SephirahType, List<EmotionCardXmlInfo>>();
+
+        public static Dictionary<SephirahType, List<EmotionEgoXmlInfo>> OriginalEgoFloorCards =
+            new Dictionary<SephirahType, List<EmotionEgoXmlInfo>>();
 
         //Unity
         public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
     }
 
+    public class StaticBoolChecks
+    {
+        public static string EmotionCardPullCode = string.Empty;
+
+        public static string EgoCardPullCode = string.Empty;
+
+        public static Dictionary<SephirahType, SavedFloorOptions> EgoAndEmotionCardChanged =
+            new Dictionary<SephirahType, SavedFloorOptions>
+            {
+                { SephirahType.Keter, new SavedFloorOptions() },
+                { SephirahType.Hokma, new SavedFloorOptions() },
+                { SephirahType.Binah, new SavedFloorOptions() },
+                { SephirahType.Chesed, new SavedFloorOptions() },
+                { SephirahType.Gebura, new SavedFloorOptions() },
+                { SephirahType.Tiphereth, new SavedFloorOptions() },
+                { SephirahType.Netzach, new SavedFloorOptions() },
+                { SephirahType.Hod, new SavedFloorOptions() },
+                { SephirahType.Yesod, new SavedFloorOptions() },
+                { SephirahType.Malkuth, new SavedFloorOptions() }
+            };
+    }
+
+    public class SavedFloorOptions
+    {
+        public SavedFloorOptions(bool isActive = false, CustomFloorOptions floorOptions = null)
+        {
+            IsActive = isActive;
+            FloorOptions = floorOptions;
+        }
+
+        public bool IsActive { get; set; }
+        public CustomFloorOptions FloorOptions { get; set; }
+    }
+
     public class EmotionEgoOptions
     {
-        public EmotionEgoOptions(EmotionEgoXmlInfo cardXml, List<string> code = null)
+        public EmotionEgoOptions(EmotionEgoXmlInfo cardXml, List<string> code = null, List<string> floorCode = null)
         {
             CardXml = cardXml;
             Code = code ?? new List<string>();
+            FloorCode = floorCode ?? new List<string>();
         }
 
         public EmotionEgoXmlInfo CardXml { get; set; }
         public List<string> Code { get; set; }
+        public List<string> FloorCode { get; set; }
     }
 
     public class EmotionCardOptions
     {
-        public EmotionCardOptions(EmotionCardXmlInfo cardXml, List<string> code = null)
+        public EmotionCardOptions(EmotionCardXmlInfo cardXml, List<string> code = null, List<string> floorCode = null)
         {
             CardXml = cardXml;
             Code = code ?? new List<string>();
+            FloorCode = floorCode ?? new List<string>();
         }
 
         public EmotionCardXmlInfo CardXml { get; set; }
         public List<string> Code { get; set; }
+        public List<string> FloorCode { get; set; }
     }
 
     public static class UIOptions
@@ -101,7 +142,8 @@ namespace BigDLL4221.Models
             EquipRangeType? rangeType = null, MultiDeckOptions multiDeckOptions = null,
             BookCustomOptions bookCustomOptions = null, bool bannedEgoFloorCards = false,
             bool isBaseGameKeypage = false, KeypageColorOptions keypageColorOptions = null,
-            bool bannedEmotionCards = false, bool targetableBySpecialCards = true)
+            bool bannedEmotionCards = false, bool targetableBySpecialCards = true,
+            CustomFloorOptions customFloorOptions = null)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -121,6 +163,7 @@ namespace BigDLL4221.Models
             KeypageColorOptions = keypageColorOptions;
             BannedEmotionCards = bannedEmotionCards;
             TargetableBySpecialCards = targetableBySpecialCards;
+            CustomFloorOptions = customFloorOptions;
         }
 
         public int KeypageId { get; set; }
@@ -141,6 +184,29 @@ namespace BigDLL4221.Models
         public bool IsBaseGameKeypage { get; set; }
         public bool TargetableBySpecialCards { get; set; }
         public KeypageColorOptions KeypageColorOptions { get; set; }
+        public CustomFloorOptions CustomFloorOptions { get; set; }
+    }
+
+    public class CustomFloorOptions
+    {
+        public CustomFloorOptions(string floorCode = "", string iconId = "", string floorName = "",
+            string floorNameId = "", MapModel customFloorMap = null)
+        {
+            FloorCode = floorCode;
+            IconId = iconId;
+            FloorName = floorName;
+            FloorNameId = floorNameId;
+            CustomFloorMap = customFloorMap;
+        }
+
+        public string FloorCode { get; set; }
+        public string IconId { get; set; }
+        public string FloorName { get; set; }
+
+        public string FloorNameId { get; set; }
+
+        //Not Implemented MapModel
+        public MapModel CustomFloorMap { get; set; }
     }
 
     public class KeypageColorOptions
