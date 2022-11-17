@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 using BigDLL4221.Models;
 using HarmonyLib;
 using LOR_DiceSystem;
@@ -109,6 +111,178 @@ namespace BigDLL4221.Utils
                                                    && x.Name.StartsWith("DiceCardSelfAbility_"))
                         .Do(x => dictionary[x.Name.Replace("DiceCardSelfAbility_", "")] =
                             new List<string>(((DiceCardSelfAbilityBase)Activator.CreateInstance(x)).Keywords));
+        }
+
+        public static void AddEmotionEgoCards(string packageId)
+        {
+            var list = typeof(EmotionEgoXmlList).GetField("_list", AccessTools.all)
+                .GetValue(Singleton<EmotionEgoXmlList>.Instance) as List<EmotionEgoXmlInfo>;
+            foreach (var diceCardXmlInfo in ItemXmlDataList.instance.GetCardList()
+                         .FindAll(x => x.id.packageId == packageId && x.optionList.Contains(CardOption.EGO)))
+            {
+                var emotionEgoXmlInfo = new EmotionEgoXmlInfo
+                {
+                    id = diceCardXmlInfo.id.id,
+                    _CardId = diceCardXmlInfo.id.id,
+                    Sephirah = SephirahType.ETC,
+                    isLock = false
+                };
+                list?.Add(emotionEgoXmlInfo);
+                if (ModParameters.EmotionEgoCards.ContainsKey(diceCardXmlInfo.id.id))
+                {
+                    Debug.LogError(
+                        $"Emotion Ego Card with this Id already Exist, being overwritten my Mod Id {packageId}.");
+                    ModParameters.EmotionCards.Remove(diceCardXmlInfo.id.id);
+                }
+
+                ModParameters.EmotionEgoCards.Add(diceCardXmlInfo.id.id, new EmotionEgoOptions(emotionEgoXmlInfo));
+            }
+        }
+
+        public static List<EmotionCardXmlInfo> CustomCreateSelectableList(int emotionLevel)
+        {
+            var emotionLevelPull = emotionLevel <= 2 ? 1 : emotionLevel <= 4 ? 2 : 3;
+            var code = ModParameters.EmotionCardPullCode;
+            var dataCardList = ModParameters.EmotionCards
+                .Where(x => x.Value.Code.Contains(code) && x.Value.CardXml.EmotionLevel == emotionLevelPull &&
+                            !x.Value.CardXml.Locked).Select(x => x.Value.CardXml).ToList();
+            if (!dataCardList.Any()) return dataCardList;
+            var instance = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
+            var selectedList = (List<EmotionCardXmlInfo>)instance.GetType().GetField("_selectedList", AccessTools.all)
+                ?.GetValue(instance);
+            if (selectedList != null && selectedList.Any())
+                foreach (var item in selectedList)
+                    dataCardList.Remove(item);
+            var center = CalcuateSelectionCoins(instance, emotionLevel);
+            dataCardList.Sort((x, y) => Mathf.Abs(x.EmotionRate - center) - Mathf.Abs(y.EmotionRate - center));
+            var list = new List<EmotionCardXmlInfo>();
+            while (dataCardList.Count > 0 && list.Count < 3)
+            {
+                var er = Mathf.Abs(dataCardList[0].EmotionRate - center);
+                var list2 = dataCardList.FindAll(x => Mathf.Abs(x.EmotionRate - center) == er);
+                if (list2.Count + list.Count <= 3)
+                {
+                    list.AddRange(list2);
+                    using (var enumerator2 = list2.GetEnumerator())
+                    {
+                        while (enumerator2.MoveNext())
+                        {
+                            var item2 = enumerator2.Current;
+                            dataCardList.Remove(item2);
+                        }
+
+                        continue;
+                    }
+                }
+
+                var i = 0;
+                while (i < 3 - list.Count && list2.Count != 0)
+                {
+                    var item3 = RandomUtil.SelectOne(list2);
+                    list2.Remove(item3);
+                    dataCardList.Remove(item3);
+                    list.Add(item3);
+                    i++;
+                }
+            }
+
+            return list;
+        }
+
+        public static int CalcuateSelectionCoins(StageLibraryFloorModel instance, int emotionLevel)
+        {
+            var num = 0;
+            var num2 = 0;
+            var unitList =
+                (List<UnitBattleDataModel>)instance.GetType().GetField("_unitList", AccessTools.all)
+                    ?.GetValue(instance);
+            if (unitList == null || !unitList.Any()) return 0;
+            foreach (var unitBattleDataModel in
+                     unitList.Where(unitBattleDataModel => unitBattleDataModel.IsAddedBattle))
+            {
+                num += unitBattleDataModel.emotionDetail.totalPositiveCoins.Count;
+                num2 += unitBattleDataModel.emotionDetail.totalNegativeCoins.Count;
+            }
+
+            var num4 = num + num2 > 0 ? (num - num2) / (float)(num + num2) : 0.5f;
+            var num5 = num4 / ((11f - emotionLevel) / 10f);
+            var center = Mathf.Abs(num5) < 0.1 ? 0 : Mathf.Abs(num5) < 0.3 ? num5 > 0f ? 1 : -1 : num5 > 0f ? 2 : -2;
+            return center;
+        }
+
+        public static List<EmotionEgoXmlInfo> CustomCreateSelectableEgoList()
+        {
+            var code = ModParameters.EgoCardPullCode;
+            var dataEgoCardList = ModParameters.EmotionEgoCards.Where(x => x.Value.Code.Contains(code))
+                .Select(x => x.Value.CardXml).ToList();
+            var sephirah = Singleton<StageController>.Instance.GetCurrentStageFloorModel().Sephirah;
+            var egoCardList = new List<EmotionEgoXmlInfo>();
+            if (!(Singleton<SpecialCardListModel>.Instance.GetType()
+                        .GetField("_cardSelectedDataByFloor", AccessTools.all)
+                        ?.GetValue(Singleton<SpecialCardListModel>.Instance) is
+                    Dictionary<SephirahType, List<BattleDiceCardModel>> dictionary) ||
+                !dictionary.TryGetValue(sephirah, out var cardList)) return egoCardList;
+            if (cardList.Any())
+                using (var enumerator = cardList.GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        var cardModel = enumerator.Current;
+                        dataEgoCardList.RemoveAll(x => cardModel != null && x.CardId == cardModel.GetID());
+                    }
+                }
+
+            egoCardList.AddRange(MathUtil.Combination(3, dataEgoCardList.Count)
+                .Select(index => dataEgoCardList[index]));
+            return egoCardList;
+        }
+
+        public static void LoadEmotionCards(string packageId = "")
+        {
+            foreach (var item in ModParameters.Path.Where(x =>
+                         string.IsNullOrEmpty(packageId) || x.Key.Equals(packageId)))
+            {
+                var error = false;
+                try
+                {
+                    var file = new DirectoryInfo(item.Value + "/EmotionCards").GetFiles().FirstOrDefault();
+                    error = true;
+                    if (file != null)
+                    {
+                        var list = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
+                            .GetField("_list", AccessTools.all).GetValue(Singleton<EmotionCardXmlList>.Instance);
+                        using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
+                        {
+                            using (var enumerator =
+                                   ((EmotionCardXmlRoot)new XmlSerializer(typeof(EmotionCardXmlRoot)).Deserialize(
+                                       stringReader)).emotionCardXmlList.GetEnumerator())
+                            {
+                                while (enumerator.MoveNext())
+                                {
+                                    var a = enumerator.Current;
+                                    if (a == null) continue;
+                                    list.RemoveAll(x => x.id == a.id);
+                                    if (ModParameters.EmotionCards.TryGetValue(a.id, out var oldCard))
+                                    {
+                                        Debug.LogError(
+                                            $"Emotion Card with this Id already Exist, being overwritten my Mod Id {item.Key}.Card script before being overwritten {oldCard.CardXml.Script.FirstOrDefault()} - Card script overwritten with {a.Script.FirstOrDefault()}");
+                                        ModParameters.EmotionCards.Remove(a.id);
+                                    }
+
+                                    ModParameters.EmotionCards.Add(a.id, new EmotionCardOptions(a));
+                                    list.Add(a);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (error)
+                        Debug.LogError("Error loading Effect Texts packageId : " + item.Key + " Language : " +
+                                       ModParameters.Language + " Error : " + ex.Message);
+                }
+            }
         }
     }
 }

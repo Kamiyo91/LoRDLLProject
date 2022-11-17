@@ -914,5 +914,44 @@ namespace BigDLL4221.Harmony
                 keypageItem.BookCustomOptions.XiaoTaotieAction == ActionDetail.NONE) return;
             ____self.view.charAppearance.ChangeMotion(keypageItem.BookCustomOptions.XiaoTaotieAction);
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
+        public static void EmotionPassiveCardUI_SetSprites(EmotionPassiveCardUI __instance, ref Image ___artwork)
+        {
+            if (!ModParameters.EmotionCards.ContainsKey(__instance.Card.id)) return;
+            if (!ModParameters.ArtWorks.TryGetValue(__instance.Card.Artwork, out var sprite)) return;
+            ___artwork.sprite = sprite;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(StageLibraryFloorModel), "StartPickEmotionCard")]
+        private static bool StageLibraryFloorModel_StartPickEmotionCard_Pre(StageLibraryFloorModel __instance)
+        {
+            if (!string.IsNullOrEmpty(ModParameters.EmotionCardPullCode))
+            {
+                var emotionList = CardUtil.CustomCreateSelectableList(__instance.team.emotionLevel);
+                ModParameters.EmotionCardPullCode = string.Empty;
+                if (emotionList.Count <= 0) return true;
+                SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(0, emotionList);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(ModParameters.EgoCardPullCode)) return true;
+            var egoList = CardUtil.CustomCreateSelectableEgoList();
+            ModParameters.EgoCardPullCode = string.Empty;
+            if (egoList.Count <= 0) return true;
+            SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.InitEgo(0, egoList);
+            return false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIAbnormalityCardPreviewSlot), "Init")]
+        public static void UIAbnormalityCardPreviewSlot_Init_Post(EmotionCardXmlInfo card, ref Image ___artwork)
+        {
+            if (!ModParameters.EmotionCards.ContainsKey(card.id)) return;
+            if (!ModParameters.ArtWorks.TryGetValue(card.Artwork, out var sprite)) return;
+            ___artwork.sprite = sprite;
+        }
     }
 }

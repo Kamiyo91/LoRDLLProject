@@ -30,14 +30,19 @@ namespace BigDLL4221.FarAreaEffects
         private float _elapsed;
         public float Duration;
         public float EnemyHit;
+        public string InternalPathEffect;
+        public string PackageId;
         public float PositionX;
         public float PositionY;
         public float PositionZ;
         public float Scale;
 
-        public void SetParameters(float positionX = 0f, float positionY = 9f, float positionZ = 2f,
+        public void SetParameters(string packageId, string internalPathEffect, float positionX = 0f,
+            float positionY = 9f, float positionZ = 2f,
             float scale = 1.2f, float duration = 6.3f, float enemyHit = 2.2f)
         {
+            PackageId = packageId;
+            InternalPathEffect = internalPathEffect;
             PositionX = positionX;
             PositionY = positionY;
             PositionZ = positionZ;
@@ -52,14 +57,8 @@ namespace BigDLL4221.FarAreaEffects
             base.Init(self, args);
             OnEffectStart();
             _elapsed = 0f;
-            if (!ModParameters.AssetBundle.TryGetValue(GetType().Name.Replace("FarAreaEffect_", ""),
-                    out var assetBundle)) return;
-            for (var i = 0; i < assetBundle.GetAllAssetNames().Length; i++)
-            {
-                var assetName = assetBundle.GetAllAssetNames()[i];
-                _effect = Instantiate(assetBundle.LoadAsset<GameObject>(assetName));
-            }
-
+            if (!ModParameters.AssetBundle.TryGetValue(PackageId, out var assets)) return;
+            _effect = Instantiate(assets.GetAsset(InternalPathEffect));
             _effect.transform.SetParent(SingletonBehavior<BattleSceneRoot>.Instance.transform);
             _effect.transform.localPosition = new Vector3(PositionX, PositionY, PositionZ);
             foreach (var component in _effect.GetComponentsInChildren<Component>())

@@ -58,6 +58,31 @@ namespace BigDLL4221.Utils
                 try
                 {
                     error = false;
+                    var dictionary2 = (Dictionary<string, AbnormalityCard>)typeof(AbnormalityCardDescXmlList)
+                        .GetField("_dictionary", AccessTools.all)
+                        .GetValue(Singleton<AbnormalityCardDescXmlList>.Instance);
+                    file = new DirectoryInfo(item.Value + "/Localize/" + ModParameters.Language + "/AbnormalityCards")
+                        .GetFiles().FirstOrDefault();
+                    error = true;
+                    if (file != null)
+                        using (var stringReader2 = new StringReader(File.ReadAllText(file.FullName)))
+                        {
+                            foreach (var abnormalityCard in ((AbnormalityCardsRoot)new XmlSerializer(
+                                         typeof(AbnormalityCardsRoot)).Deserialize(stringReader2)).sephirahList
+                                     .SelectMany(sephirah => sephirah.list))
+                                dictionary2[abnormalityCard.id] = abnormalityCard;
+                        }
+                }
+                catch (Exception ex2)
+                {
+                    if (error)
+                        Debug.LogError(string.Concat("Error loading Abnormality Text packageId : ", packageId,
+                            " Language : ", ModParameters.Language, " Error : ", ex2.Message));
+                }
+
+                try
+                {
+                    error = false;
                     file = new DirectoryInfo(item.Value + "/Localize/" + ModParameters.Language + "/BattlesCards")
                         .GetFiles().FirstOrDefault();
                     error = true;
@@ -333,7 +358,8 @@ namespace BigDLL4221.Utils
                                     passive.desc = passiveDescRoot.descList.Find(x => x.ID == passive.id.id).desc;
                                     localizedItem.PassiveTexts.Add(passive.id.id, new EffectText
                                     {
-                                        Name = passive.name, Desc = passive.desc
+                                        Name = passive.name,
+                                        Desc = passive.desc
                                     });
                                 }
                             }

@@ -281,23 +281,22 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static void GetUnity(DirectoryInfo dir)
-        {
-            if (dir.GetDirectories().Length != 0)
-            {
-                var directories = dir.GetDirectories();
-                foreach (var t in directories)
-                    GetUnity(t);
-            }
+        //public static void GetUnity(DirectoryInfo dir)
+        //{
+        //    if (dir.GetDirectories().Length != 0)
+        //    {
+        //        var directories = dir.GetDirectories();
+        //        foreach (var t in directories)
+        //            GetUnity(t);
+        //    }
 
-            foreach (var fileInfo in dir.GetFiles())
-                AddAssets(Path.GetFileNameWithoutExtension(fileInfo.FullName), fileInfo.FullName);
-        }
+        //    foreach (var fileInfo in dir.GetFiles())
+        //        AddAssets(Path.GetFileNameWithoutExtension(fileInfo.FullName), fileInfo.FullName);
+        //}
 
-        private static void AddAssets(string name, string path)
+        private static void AddAssets(string packageId)
         {
-            var value = AssetBundle.LoadFromFile(path);
-            ModParameters.AssetBundle.Add(name, value);
+            ModParameters.AssetBundle.Add(packageId, new Assets(packageId));
         }
 
         public static void MakeEffect(BattleUnitModel unit, string path, float sizeFactor = 1f,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BigDLL4221.Enum;
+using BigDLL4221.Utils;
 using LOR_DiceSystem;
 using LOR_XML;
 using UnityEngine;
@@ -42,8 +43,38 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<PassiveXmlInfo>> CreatePassives =
             new Dictionary<string, List<PassiveXmlInfo>>();
 
+        public static Dictionary<int, EmotionCardOptions> EmotionCards = new Dictionary<int, EmotionCardOptions>();
+        public static Dictionary<int, EmotionEgoOptions> EmotionEgoCards = new Dictionary<int, EmotionEgoOptions>();
+        public static string EmotionCardPullCode = string.Empty;
+
+        public static string EgoCardPullCode = string.Empty;
+
         //Unity
-        public static Dictionary<string, AssetBundle> AssetBundle = new Dictionary<string, AssetBundle>();
+        public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
+    }
+
+    public class EmotionEgoOptions
+    {
+        public EmotionEgoOptions(EmotionEgoXmlInfo cardXml, List<string> code = null)
+        {
+            CardXml = cardXml;
+            Code = code ?? new List<string>();
+        }
+
+        public EmotionEgoXmlInfo CardXml { get; set; }
+        public List<string> Code { get; set; }
+    }
+
+    public class EmotionCardOptions
+    {
+        public EmotionCardOptions(EmotionCardXmlInfo cardXml, List<string> code = null)
+        {
+            CardXml = cardXml;
+            Code = code ?? new List<string>();
+        }
+
+        public EmotionCardXmlInfo CardXml { get; set; }
+        public List<string> Code { get; set; }
     }
 
     public static class UIOptions

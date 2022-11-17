@@ -9,6 +9,8 @@ namespace BigDLL4221.DiceEffects
         private BattleUnitView _targetView;
         public float? Duration;
         public GameObject GameObject;
+        public string InternalPathEffect;
+        public string PackageId;
         public float PositionX;
         public float PositionY;
         public float PositionZ;
@@ -19,9 +21,12 @@ namespace BigDLL4221.DiceEffects
             _targetView = target;
         }
 
-        public void SetParameters(float positionX = 0f, float positionY = 180f, float positionZ = 0f,
+        public void SetParameters(string packageId, string internalPathEffect, float positionX = 0f,
+            float positionY = 180f, float positionZ = 0f,
             float? duration = null)
         {
+            PackageId = packageId;
+            InternalPathEffect = internalPathEffect;
             PositionX = positionX;
             PositionY = positionY;
             PositionZ = positionZ;
@@ -30,14 +35,8 @@ namespace BigDLL4221.DiceEffects
 
         protected override void Start()
         {
-            if (!ModParameters.AssetBundle.TryGetValue(GetType().Name.Replace("DiceAttackEffect_", ""),
-                    out var assetBundle)) return;
-            for (var i = 0; i < assetBundle.GetAllAssetNames().Length; i++)
-            {
-                var name = assetBundle.GetAllAssetNames()[i];
-                GameObject = Instantiate(assetBundle.LoadAsset<GameObject>(name));
-            }
-
+            if (!ModParameters.AssetBundle.TryGetValue(PackageId, out var assets)) return;
+            GameObject = Instantiate(assets.GetAsset(InternalPathEffect));
             GameObject.transform.parent = _selfTransform;
             GameObject.transform.localPosition = new Vector3(0f, 0f, 0f);
             if (_self.view.WorldPosition.x > _targetView.WorldPosition.x)
