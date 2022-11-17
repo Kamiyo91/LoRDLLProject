@@ -93,6 +93,7 @@
     <Compile Include="Buffs\BattleUnitBuf_Uncontrollable_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_Untargetable_DLL4221.cs" />
     <Compile Include="Buffs\BattleUnitBuf_WolfBlueAura_DLL4221.cs" />
+    <Compile Include="CardAbility\DiceCardSelfAbility_EgoOneScene_DLL4221.cs" />
     <Compile Include="CardAbility\DiceCardSelfAbility_EgoScreenUI_DLL4221.cs" />
     <Compile Include="CardAbility\DiceCardSelfAbility_EmotionScreenUI_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />

@@ -16,7 +16,6 @@ namespace BigDLL4221.CardAbility
         private static void Activate(BattleUnitModel unit)
         {
             var currentStageFloorModel = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
-            unit.view.speedDiceSetterUI.gameObject.SetActive(false);
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
             currentStageFloorModel.StartPickEmotionCard();
         }
