@@ -46,6 +46,25 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static void GetCardArtWorks(DirectoryInfo dir)
+        {
+            if (dir.GetDirectories().Length != 0)
+            {
+                var directories = dir.GetDirectories();
+                foreach (var t in directories) GetArtWorks(t);
+            }
+
+            foreach (var fileInfo in dir.GetFiles())
+            {
+                var texture2D = new Texture2D(2, 2);
+                texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
+                var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
+                    new Vector2(0f, 0f));
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+                ModParameters.CardArtWorks[fileNameWithoutExtension] = value;
+            }
+        }
+
         private static Sprite GetIcon(CredenzaOptions credenzaOptions, string baseIcon)
         {
             return ModParameters.ArtWorks.TryGetValue(credenzaOptions.CustomIconSpriteId, out var customIcon)

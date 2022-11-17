@@ -97,6 +97,7 @@
     <Compile Include="CardAbility\DiceCardSelfAbility_EmotionScreenUI_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
+    <Compile Include="Enum\TypeCardEnum.cs" />
     <Compile Include="FarAreaEffects\BehaviourAction_BaseMassAttackEffect_DLL4221.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
     <Compile Include="Models\HSVColors.cs" />

@@ -12,6 +12,7 @@ namespace BigDLL4221.Models
     {
         public static List<string> PackageIds = new List<string>();
         public static Dictionary<string, Sprite> ArtWorks = new Dictionary<string, Sprite>();
+        public static Dictionary<string, Sprite> CardArtWorks = new Dictionary<string, Sprite>();
         public static Dictionary<string, string> Path = new Dictionary<string, string>();
         public static Dictionary<string, LocalizedItem> LocalizedItems = new Dictionary<string, LocalizedItem>();
         public static string Language = GlobalGameManager.Instance.CurrentOption.language;
@@ -56,11 +57,11 @@ namespace BigDLL4221.Models
         public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
     }
 
-    public class StaticBoolChecks
+    public class StaticModsInfo
     {
         public static string EmotionCardPullCode = string.Empty;
-
         public static string EgoCardPullCode = string.Empty;
+        public static Dictionary<string, Type> EmotionCardAbility = new Dictionary<string, Type>();
 
         public static Dictionary<SephirahType, SavedFloorOptions> EgoAndEmotionCardChanged =
             new Dictionary<SephirahType, SavedFloorOptions>
@@ -92,16 +93,19 @@ namespace BigDLL4221.Models
 
     public class EmotionEgoOptions
     {
-        public EmotionEgoOptions(EmotionEgoXmlInfo cardXml, List<string> code = null, List<string> floorCode = null)
+        public EmotionEgoOptions(EmotionEgoXmlInfo cardXml, List<string> code = null, List<string> floorCode = null,
+            string packageId = null)
         {
             CardXml = cardXml;
             Code = code ?? new List<string>();
             FloorCode = floorCode ?? new List<string>();
+            PackageId = packageId;
         }
 
         public EmotionEgoXmlInfo CardXml { get; set; }
         public List<string> Code { get; set; }
         public List<string> FloorCode { get; set; }
+        public string PackageId { get; set; }
     }
 
     public class EmotionCardOptions
@@ -189,21 +193,16 @@ namespace BigDLL4221.Models
 
     public class CustomFloorOptions
     {
-        public CustomFloorOptions(string floorCode = "", string iconId = "", string floorName = "",
-            string floorNameId = "", MapModel customFloorMap = null)
+        public CustomFloorOptions(string floorCode = "", string iconId = "", MapModel customFloorMap = null)
         {
             FloorCode = floorCode;
             IconId = iconId;
-            FloorName = floorName;
-            FloorNameId = floorNameId;
             CustomFloorMap = customFloorMap;
         }
 
         public string FloorCode { get; set; }
-        public string IconId { get; set; }
-        public string FloorName { get; set; }
 
-        public string FloorNameId { get; set; }
+        public string IconId { get; set; }
 
         //Not Implemented MapModel
         public MapModel CustomFloorMap { get; set; }

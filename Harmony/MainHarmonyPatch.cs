@@ -154,9 +154,9 @@ namespace BigDLL4221.Harmony
         {
             if (force) return;
             __state = newBook;
-            if (__instance.isSephirah && StaticBoolChecks.EgoAndEmotionCardChanged[__instance.OwnerSephirah].IsActive)
+            if (__instance.isSephirah && StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah].IsActive)
             {
-                StaticBoolChecks.EgoAndEmotionCardChanged[__instance.OwnerSephirah] = new SavedFloorOptions();
+                StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] = new SavedFloorOptions();
                 CardUtil.RevertAbnoAndEgo(__instance.OwnerSephirah);
             }
 
@@ -191,7 +191,7 @@ namespace BigDLL4221.Harmony
                     };
             if (__instance.isSephirah && bookOptions.CustomFloorOptions != null)
             {
-                StaticBoolChecks.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
+                StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
                     new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
                 CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions.FloorCode);
             }
@@ -924,29 +924,32 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
-        public static void EmotionPassiveCardUI_SetSprites(EmotionPassiveCardUI __instance, ref Image ___artwork)
+        [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
+        public static void EmotionPassiveCardUI_SetSprites(EmotionCardXmlInfo ____card, ref Image ____artwork)
         {
-            if (!ModParameters.EmotionCards.ContainsKey(__instance.Card.id)) return;
-            if (!ModParameters.ArtWorks.TryGetValue(__instance.Card.Artwork, out var sprite)) return;
-            ___artwork.sprite = sprite;
+            var artworkId = ModParameters.EmotionCards.Where(x => x.Value.CardXml.Artwork.Equals(____card.Artwork))
+                .Select(x => x.Value.CardXml.Artwork).FirstOrDefault();
+            if (string.IsNullOrEmpty(artworkId)) return;
+            if (!ModParameters.CardArtWorks.TryGetValue(____card.Artwork, out var sprite)) return;
+            ____artwork.sprite = sprite;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StageLibraryFloorModel), "StartPickEmotionCard")]
-        private static bool StageLibraryFloorModel_StartPickEmotionCard_Pre(StageLibraryFloorModel __instance)
+        private static bool StageLibraryFloorModel_StartPickEmotionCard(StageLibraryFloorModel __instance)
         {
-            if (!string.IsNullOrEmpty(StaticBoolChecks.EmotionCardPullCode))
+            if (!string.IsNullOrEmpty(StaticModsInfo.EmotionCardPullCode))
             {
                 var emotionList = CardUtil.CustomCreateSelectableList(__instance.team.emotionLevel);
-                StaticBoolChecks.EmotionCardPullCode = string.Empty;
+                StaticModsInfo.EmotionCardPullCode = string.Empty;
                 if (emotionList.Count <= 0) return true;
                 SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(0, emotionList);
                 return false;
             }
 
-            if (string.IsNullOrEmpty(StaticBoolChecks.EgoCardPullCode)) return true;
+            if (string.IsNullOrEmpty(StaticModsInfo.EgoCardPullCode)) return true;
             var egoList = CardUtil.CustomCreateSelectableEgoList();
-            StaticBoolChecks.EgoCardPullCode = string.Empty;
+            StaticModsInfo.EgoCardPullCode = string.Empty;
             if (egoList.Count <= 0) return true;
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.InitEgo(0, egoList);
             return false;
@@ -954,18 +957,20 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIAbnormalityCardPreviewSlot), "Init")]
-        public static void UIAbnormalityCardPreviewSlot_Init_Post(EmotionCardXmlInfo card, ref Image ___artwork)
+        public static void UIAbnormalityCardPreviewSlot_Init(EmotionCardXmlInfo card, ref Image ___artwork)
         {
-            if (!ModParameters.EmotionCards.ContainsKey(card.id)) return;
-            if (!ModParameters.ArtWorks.TryGetValue(card.Artwork, out var sprite)) return;
+            var artworkId = ModParameters.EmotionCards.Where(x => x.Value.CardXml.Artwork.Equals(card.Artwork))
+                .Select(x => x.Value.CardXml.Artwork).FirstOrDefault();
+            if (string.IsNullOrEmpty(artworkId)) return;
+            if (!ModParameters.CardArtWorks.TryGetValue(card.Artwork, out var sprite)) return;
             ___artwork.sprite = sprite;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIFloorTitlePanel), "SetData")]
-        public static void UIFloorTitlePanel_SetData_Post(SephirahType sep, ref Image ___img_floorTitle)
+        public static void UIFloorTitlePanel_SetData(SephirahType sep, ref Image ___img_floorTitle)
         {
-            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(sep, out var savedOptions)) return;
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sep, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
@@ -974,10 +979,10 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UISephirahButton), "SetButtonState")]
-        public static void UISephirahButton_SetButtonState_Post(UISephirahButton.ButtonState value,
+        public static void UISephirahButton_SetButtonState(UISephirahButton.ButtonState value,
             ref Image ___img_Icon, SephirahType ___sephirahType)
         {
-            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(___sephirahType, out var savedOptions)) return;
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(___sephirahType, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
@@ -986,10 +991,10 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UISephirahSelectionButton), "InitAndActivate")]
-        public static void UISephirahSelectionButton_InitAndActivate_Post(ref Image ___sephirahImage,
+        public static void UISephirahSelectionButton_InitAndActivate(ref Image ___sephirahImage,
             SephirahType _sephirahType)
         {
-            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(_sephirahType, out var savedOptions)) return;
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(_sephirahType, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
@@ -998,14 +1003,83 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BattleEmotionBarTeamSlotUI), "InitPlayerTeamIcon")]
-        public static void BattleEmotionBarTeamSlotUI_InitPlayerTeamIcon_Post(ref Image ___img_Icon,
+        public static void BattleEmotionBarTeamSlotUI_InitPlayerTeamIcon(ref Image ___img_Icon,
             EmotionBattleTeamModel team)
         {
-            if (!StaticBoolChecks.EgoAndEmotionCardChanged.TryGetValue(team.sep, out var savedOptions)) return;
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(team.sep, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
             ___img_Icon.sprite = icon;
+        }
+
+        [HarmonyPatch(typeof(EmotionEgoXmlInfo), "CardId", MethodType.Getter)]
+        [HarmonyPostfix]
+        private static void EmotionEgoXmlInfo_get_CardId(EmotionEgoXmlInfo __instance, ref LorId __result,
+            int ____CardId)
+        {
+            if (ModParameters.EmotionEgoCards.TryGetValue(__instance.id, out var egoCardOptions))
+                __result = new LorId(egoCardOptions.PackageId, __instance.id);
+        }
+
+        [HarmonyPatch(typeof(EmotionEgoCardUI), "Init")]
+        [HarmonyPostfix]
+        private static void EmotionEgoCardUI_Init(EmotionEgoCardUI __instance, EmotionEgoXmlInfo card,
+            ref EmotionEgoXmlInfo ____card, TextMeshProUGUI ____cardName)
+        {
+            if (!ModParameters.EmotionEgoCards.TryGetValue(card.id, out var egoCardOptions)) return;
+            __instance.gameObject.SetActive(false);
+            var cardItem = ItemXmlDataList.instance.GetCardItem(new LorId(egoCardOptions.PackageId, card.id));
+            ____cardName.text = cardItem.Name;
+            __instance.gameObject.SetActive(true);
+        }
+
+        [HarmonyPatch(typeof(EmotionEgoXmlList), "GetData", typeof(LorId), typeof(SephirahType))]
+        [HarmonyPostfix]
+        private static void EmotionEgoXmlList_GetData(LorId id, ref EmotionEgoXmlInfo __result,
+            List<EmotionEgoXmlInfo> ____list)
+        {
+            var cardListExist = ModParameters.EmotionEgoCards.Any(x => x.Value.PackageId.Equals(id.packageId));
+            if (cardListExist) __result = ____list.Find(x => x.CardId.id == id.id);
+        }
+
+        [HarmonyPatch(typeof(UIEgoCardPreviewSlot), "Init")]
+        [HarmonyPostfix]
+        private static void UIEgoCardPreviewSlot_Init(DiceCardItemModel cardModel, TextMeshProUGUI ___cardName,
+            TextMeshProUGUI ___cardCost, Image ___artwork)
+        {
+            if (cardModel?.ClassInfo == null) return;
+            if (!ModParameters.EmotionEgoCards.Any(x =>
+                    x.Value.PackageId == cardModel.GetID().packageId &&
+                    x.Value.CardXml.id == cardModel.GetID().id)) return;
+            ___cardName.text = cardModel.ClassInfo.Name;
+            ___cardCost.text = cardModel.GetSpec().Cost.ToString();
+            ___artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(
+                    cardModel.ClassInfo.workshopID, cardModel.GetArtworkSrc());
+        }
+
+        [HarmonyPatch(typeof(BattleEmotionCardModel), MethodType.Constructor, typeof(EmotionCardXmlInfo),
+            typeof(BattleUnitModel))]
+        [HarmonyPostfix]
+        private static void BattleEmotionCardModel_ctor_Post(BattleEmotionCardModel __instance,
+            EmotionCardXmlInfo xmlInfo, ref List<EmotionCardAbilityBase> ____abilityList)
+        {
+            using (var enumerator = xmlInfo.Script.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    var text = enumerator.Current;
+                    if (string.IsNullOrEmpty(text)) continue;
+                    if (!StaticModsInfo.EmotionCardAbility.TryGetValue("EmotionCardAbility_" + text.Trim(),
+                            out var abilityType)) continue;
+                    var ability = (EmotionCardAbilityBase)Activator.CreateInstance(abilityType);
+                    ability.SetEmotionCard(__instance);
+                    ____abilityList.RemoveAll(x =>
+                        x.GetType().Name.Substring("EmotionCardAbility_".Length).Trim() == text);
+                    ____abilityList.Add(ability);
+                }
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace BigDLL4221.CardAbility
 
         public override void OnUseInstance(BattleUnitModel unit, BattleDiceCardModel self, BattleUnitModel targetUnit)
         {
-            StaticBoolChecks.EgoCardPullCode = PoolName;
+            StaticModsInfo.EgoCardPullCode = PoolName;
             Activate(unit);
             self.exhaust = true;
         }
