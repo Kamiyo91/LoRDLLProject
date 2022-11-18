@@ -154,11 +154,12 @@ namespace BigDLL4221.Harmony
         {
             if (force) return;
             __state = newBook;
-            if (__instance.isSephirah && StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah].IsActive)
-            {
-                StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] = new SavedFloorOptions();
-                CardUtil.RevertAbnoAndEgo(__instance.OwnerSephirah);
-            }
+            if (__instance.isSephirah && StaticModsInfo.EgoAndEmotionCardChanged.ContainsKey(__instance.OwnerSephirah))
+                if (StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah].IsActive)
+                {
+                    StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] = new SavedFloorOptions();
+                    CardUtil.RevertAbnoAndEgo(__instance.OwnerSephirah);
+                }
 
             if (!ModParameters.PackageIds.Contains(__instance.bookItem.ClassInfo.id.packageId)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(__instance.bookItem.ClassInfo.id.packageId,
@@ -190,11 +191,12 @@ namespace BigDLL4221.Harmony
                         bookOptions.BookCustomOptions.OriginalSkin
                     };
             if (__instance.isSephirah && bookOptions.CustomFloorOptions != null)
-            {
-                StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
-                    new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
-                CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions.FloorCode);
-            }
+                if (StaticModsInfo.EgoAndEmotionCardChanged.ContainsKey(__instance.OwnerSephirah))
+                {
+                    StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
+                        new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
+                    CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions.FloorCode);
+                }
 
             if (UnitUtil.CheckSkinUnitData(__instance)) return;
             __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);

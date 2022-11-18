@@ -64,19 +64,7 @@ namespace BigDLL4221.Models
         public static Dictionary<string, Type> EmotionCardAbility = new Dictionary<string, Type>();
 
         public static Dictionary<SephirahType, SavedFloorOptions> EgoAndEmotionCardChanged =
-            new Dictionary<SephirahType, SavedFloorOptions>
-            {
-                { SephirahType.Keter, new SavedFloorOptions() },
-                { SephirahType.Hokma, new SavedFloorOptions() },
-                { SephirahType.Binah, new SavedFloorOptions() },
-                { SephirahType.Chesed, new SavedFloorOptions() },
-                { SephirahType.Gebura, new SavedFloorOptions() },
-                { SephirahType.Tiphereth, new SavedFloorOptions() },
-                { SephirahType.Netzach, new SavedFloorOptions() },
-                { SephirahType.Hod, new SavedFloorOptions() },
-                { SephirahType.Yesod, new SavedFloorOptions() },
-                { SephirahType.Malkuth, new SavedFloorOptions() }
-            };
+            new Dictionary<SephirahType, SavedFloorOptions>();
     }
 
     public class SavedFloorOptions

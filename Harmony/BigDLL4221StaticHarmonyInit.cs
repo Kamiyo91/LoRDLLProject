@@ -7,6 +7,7 @@ namespace BigDLL4221.Harmony
         public override void OnInitializeMod()
         {
             CardUtil.GetOringinAbnoAndEgo();
+            CardUtil.FillDictionary();
             new HarmonyLib.Harmony("LOR.BigDLL4221HarmonyPatch_MOD").PatchAll();
         }
     }

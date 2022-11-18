@@ -487,5 +487,17 @@ namespace BigDLL4221.Utils
                     return;
             }
         }
+
+        public static void FillDictionary()
+        {
+            var sephirahTypeList = new List<SephirahType>
+            {
+                SephirahType.Keter, SephirahType.Hokma, SephirahType.Binah,
+                SephirahType.Chesed, SephirahType.Gebura, SephirahType.Tiphereth,
+                SephirahType.Netzach, SephirahType.Hod, SephirahType.Yesod, SephirahType.Malkuth
+            };
+            foreach (var sephirah in sephirahTypeList)
+                StaticModsInfo.EgoAndEmotionCardChanged.Add(sephirah, new SavedFloorOptions());
+        }
     }
 }
