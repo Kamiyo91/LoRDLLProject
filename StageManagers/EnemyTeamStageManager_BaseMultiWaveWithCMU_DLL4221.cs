@@ -10,7 +10,6 @@ namespace BigDLL4221.StageManagers
 {
     public class EnemyTeamStageManager_BaseMultiWaveWithCMU_DLL4221 : EnemyTeamStageManager
     {
-        private StageLibraryFloorModel _floor;
         private List<MapModel> _mapModels;
         private int _mapPhase;
         private int _phase;
@@ -26,7 +25,6 @@ namespace BigDLL4221.StageManagers
             _util = util;
             _unitModels = unitModels;
             _wave = 1;
-            _floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         }
 
         public override void OnWaveStart()
@@ -100,9 +98,9 @@ namespace BigDLL4221.StageManagers
 
         private void AddNewEnemy(UnitModel unit)
         {
-            UnitUtil.AddNewUnitWithDefaultData(_floor, unit,
+            UnitUtil.AddNewUnitWithDefaultData(unit,
                 BattleObjectManager.instance.GetList(Faction.Enemy).Count, true,
-                _util.Model.Owner.emotionDetail.EmotionLevel, false);
+                _util.Model.Owner.emotionDetail.EmotionLevel, Faction.Enemy);
             if (unit.IsMainEnemy) PrepareUtil();
         }
 

@@ -391,10 +391,11 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static BattleUnitModel AddNewUnitPlayerSideCustomData(StageLibraryFloorModel floor, UnitModel unit,
+        public static BattleUnitModel AddNewUnitPlayerSideCustomData(UnitModel unit,
             int pos, int emotionLevel = 0, bool addEmotionPassives = true, bool onWaveStartEffects = true)
         {
-            var unitData = new UnitDataModel((int)floor.Sephirah * 10, floor.Sephirah);
+            var currentFloor = Singleton<StageController>.Instance.CurrentFloor;
+            var unitData = new UnitDataModel((int)currentFloor * 10, currentFloor);
             var customBook = Singleton<BookInventoryModel>.Instance.GetBookListAll()
                 .FirstOrDefault(x => x.BookId.Equals(new LorId(unit.PackageId, unit.Id)));
             if (customBook != null)
@@ -414,7 +415,7 @@ namespace BigDLL4221.Utils
                 {
                     vector = unit.CustomPos
                 })
-                : floor.GetFormationPosition(allyUnit.index);
+                : Singleton<StageController>.Instance.GetCurrentStageFloorModel().GetFormationPosition(allyUnit.index);
             var unitBattleData = new UnitBattleDataModel(Singleton<StageController>.Instance.GetStageModel(), unitData);
             unitBattleData.Init();
             allyUnit.SetUnitData(unitBattleData);
@@ -466,16 +467,17 @@ namespace BigDLL4221.Utils
             return allyUnit;
         }
 
-        public static BattleUnitModel AddNewUnitWithDefaultData(StageLibraryFloorModel floor, UnitModel unit, int pos,
-            bool addEmotionPassives = true, int emotionLevel = 0, bool playerSide = true,
+        public static BattleUnitModel AddNewUnitWithDefaultData(UnitModel unit, int pos,
+            bool addEmotionPassives = true, int emotionLevel = 0, Faction unitSide = Faction.Player,
             bool onWaveStartEffects = true)
         {
+            var currentFloor = Singleton<StageController>.Instance.CurrentFloor;
             var unitData = new UnitDataModel(new LorId(unit.PackageId, unit.Id),
-                playerSide ? floor.Sephirah : SephirahType.None);
+                unitSide == Faction.Player ? currentFloor : SephirahType.None);
             unitData.SetCustomName(ModParameters.LocalizedItems.TryGetValue(unit.PackageId, out var localizedItem)
                 ? localizedItem.EnemyNames.TryGetValue(unit.UnitNameId, out var name) ? name : unit.Name
                 : unit.Name);
-            var allyUnit = BattleObjectManager.CreateDefaultUnit(playerSide ? Faction.Player : Faction.Enemy);
+            var allyUnit = BattleObjectManager.CreateDefaultUnit(unitSide);
             allyUnit.index = pos;
             allyUnit.grade = unitData.grade;
             allyUnit.formation = unit.CustomPos != null
@@ -483,7 +485,10 @@ namespace BigDLL4221.Utils
                 {
                     vector = unit.CustomPos
                 })
-                : floor.GetFormationPosition(allyUnit.index);
+                : unitSide == Faction.Player
+                    ? Singleton<StageController>.Instance.GetCurrentStageFloorModel()
+                        .GetFormationPosition(allyUnit.index)
+                    : Singleton<StageController>.Instance.GetCurrentWaveModel().GetFormationPosition(allyUnit.index);
             var unitBattleData = new UnitBattleDataModel(Singleton<StageController>.Instance.GetStageModel(), unitData);
             unitBattleData.Init();
             allyUnit.SetUnitData(unitBattleData);
@@ -512,7 +517,7 @@ namespace BigDLL4221.Utils
                     allyUnit.bufListDetail.AddBuf(buff);
             if (unit.ForcedEgoOnStart && !unit.SummonedOnPlay)
             {
-                if (playerSide)
+                if (unitSide == Faction.Player)
                 {
                     var passive = allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>();
                     if (passive != null)
@@ -535,7 +540,7 @@ namespace BigDLL4221.Utils
             allyUnit.RollSpeedDice();
             if (unit.AutoPlay) SetAutoCardForPlayer(allyUnit);
             if (!unit.ForcedEgoOnStart) return allyUnit;
-            if (playerSide)
+            if (unitSide == Faction.Player)
             {
                 var passive = allyUnit.GetActivePassive<PassiveAbility_PlayerMechBase_DLL4221>();
                 if (passive == null) return allyUnit;

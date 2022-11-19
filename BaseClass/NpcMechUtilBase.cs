@@ -10,7 +10,6 @@ namespace BigDLL4221.BaseClass
 {
     public class NpcMechUtilBase : MechUtilBase
     {
-        public new StageLibraryFloorModel Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         public new NpcMechUtilBaseModel Model;
 
         public NpcMechUtilBase(NpcMechUtilBaseModel model) : base(model)
@@ -282,11 +281,12 @@ namespace BigDLL4221.BaseClass
         public virtual void InitMechRoundStart(MechPhaseOptions mechOptions)
         {
             foreach (var unitModel in mechOptions.SummonUnit)
-                UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
+                UnitUtil.AddNewUnitWithDefaultData(unitModel,
                     BattleObjectManager.instance.GetList(Model.Owner.faction).Count, true,
-                    mechOptions.SummonedEmotionLevelEnemy ?? Model.Owner.emotionDetail.EmotionLevel, false);
+                    mechOptions.SummonedEmotionLevelEnemy ?? Model.Owner.emotionDetail.EmotionLevel,
+                    Model.Owner.faction);
             foreach (var unitModel in mechOptions.SummonPlayerUnit)
-                UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
+                UnitUtil.AddNewUnitWithDefaultData(unitModel,
                     BattleObjectManager.instance.GetList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Count,
                     emotionLevel: mechOptions.SummonedEmotionLevelAlly ?? Model.Owner.emotionDetail.EmotionLevel);
             foreach (var index in mechOptions.SummonOriginalUnitByIndex)

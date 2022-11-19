@@ -12,7 +12,6 @@ namespace BigDLL4221.BaseClass
 {
     public class MechUtilBase
     {
-        public StageLibraryFloorModel Floor = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
         public MechUtilBaseModel Model;
 
         public MechUtilBase(MechUtilBaseModel model)
@@ -89,11 +88,11 @@ namespace BigDLL4221.BaseClass
                     egoOptions.EgoAbColorColor);
             if (egoOptions.SummonUnitDefaultData.Any())
                 foreach (var unitModel in egoOptions.SummonUnitDefaultData)
-                    UnitUtil.AddNewUnitWithDefaultData(Floor, unitModel,
+                    UnitUtil.AddNewUnitWithDefaultData(unitModel,
                         BattleObjectManager.instance.GetList(Model.Owner.faction).Count);
             if (!egoOptions.SummonUnitCustomData.Any()) return true;
             foreach (var unitModel in egoOptions.SummonUnitCustomData)
-                UnitUtil.AddNewUnitPlayerSideCustomData(Floor, unitModel,
+                UnitUtil.AddNewUnitPlayerSideCustomData(unitModel,
                     BattleObjectManager.instance.GetList(Model.Owner.faction).Count);
             if (egoOptions.SummonUnitDefaultData.Any() || egoOptions.SummonUnitCustomData.Any())
                 UnitUtil.RefreshCombatUI();
