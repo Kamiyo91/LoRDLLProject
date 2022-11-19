@@ -183,11 +183,14 @@ namespace BigDLL4221.Models
 
     public class CustomFloorOptions
     {
-        public CustomFloorOptions(string floorCode = "", string iconId = "", MapModel customFloorMap = null)
+        public CustomFloorOptions(string packageId = "",string floorCode = "", string iconId = "",string floorName = "",string floorNameId = "", MapModel customFloorMap = null)
         {
+            PackageId = packageId;
             FloorCode = floorCode;
             IconId = iconId;
             CustomFloorMap = customFloorMap;
+            FloorName = floorName;
+            FloorNameId = floorNameId;
         }
 
         public string PackageId { get; set; }
