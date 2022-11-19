@@ -970,13 +970,24 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIFloorTitlePanel), "SetData")]
-        public static void UIFloorTitlePanel_SetData(SephirahType sep, ref Image ___img_floorTitle)
+        public static void UIFloorTitlePanel_SetData(SephirahType sep, ref Image ___img_floorTitle,
+            TextMeshProUGUI ___txt_titlename)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sep, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
             ___img_floorTitle.sprite = icon;
+            var name = ModParameters.LocalizedItems.TryGetValue(savedOptions.FloorOptions.PackageId,
+                out var localizedItem)
+                ? localizedItem.EffectTexts.TryGetValue(savedOptions.FloorOptions.FloorNameId,
+                    out var floorLocalization) ? floorLocalization.Name
+                : !string.IsNullOrEmpty(savedOptions.FloorOptions.FloorName) ? savedOptions.FloorOptions.FloorName
+                : ""
+                : !string.IsNullOrEmpty(savedOptions.FloorOptions.FloorName)
+                    ? savedOptions.FloorOptions.FloorName
+                    : "";
+            if (!string.IsNullOrEmpty(name)) ___txt_titlename.text = name;
         }
 
         [HarmonyPostfix]
@@ -1082,6 +1093,34 @@ namespace BigDLL4221.Harmony
                     ____abilityList.Add(ability);
                 }
             }
+        }
+
+        [HarmonyPatch(typeof(UISephirahFloor), "Init")]
+        [HarmonyPostfix]
+        private static void UISephirahFloor_Init_Post(UISephirahFloor __instance)
+        {
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(__instance.sephirah, out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (!ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
+            if (__instance.sephirah != SephirahType.Keter) __instance.imgLockIcon.sprite = icon;
+            else if (StaticModsInfo.DaatFloorFound)
+                __instance.transform.GetChild(0).GetChild(3).gameObject.GetComponent<Image>().sprite = icon;
+            else
+                __instance.transform.GetChild(1).GetChild(3).gameObject.GetComponent<Image>().sprite = icon;
+        }
+
+        [HarmonyPatch(typeof(LevelUpUI), "InitBase")]
+        [HarmonyPostfix]
+        private static void UIGetAbnormalityPanel_SetData_Post(Image ___FloorIconImage, Image ___ego_FloorIconImage,
+            Image ___NeedSelectAb_FloorIconImage)
+        {
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(Singleton<StageController>.Instance.CurrentFloor,
+                    out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (!ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
+            ___FloorIconImage.sprite = icon;
+            ___ego_FloorIconImage.sprite = icon;
+            ___NeedSelectAb_FloorIconImage.sprite = icon;
         }
     }
 }

@@ -403,6 +403,10 @@ namespace BigDLL4221.Utils
                 customBook.owner = null;
                 unitData.EquipBook(customBook);
             }
+            else
+            {
+                unitData = new UnitDataModel(new LorId(unit.PackageId, unit.Id), currentFloor);
+            }
 
             unitData.SetCustomName(ModParameters.LocalizedItems.TryGetValue(unit.PackageId, out var localizedItem)
                 ? localizedItem.EnemyNames.TryGetValue(unit.UnitNameId, out var name) ? name : unit.Name

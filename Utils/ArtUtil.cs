@@ -76,10 +76,12 @@ namespace BigDLL4221.Utils
 
         private static string CredenzaName(CredenzaOptions credenzaOptions, string packageId)
         {
-            return ModParameters.LocalizedItems.TryGetValue(credenzaOptions.CredenzaNameId, out var localizedItem)
-                ? localizedItem.EffectTexts.TryGetValue(packageId, out var credenza) ? credenza.Name
-                : !string.IsNullOrEmpty(credenzaOptions.CredenzaName) ? credenzaOptions.CredenzaName
-                : packageId
+            return ModParameters.LocalizedItems.TryGetValue(packageId, out var localizedItem)
+                ? localizedItem.EffectTexts.TryGetValue(credenzaOptions.CredenzaNameId, out var credenza)
+                    ? credenza.Name
+                    : !string.IsNullOrEmpty(credenzaOptions.CredenzaName)
+                        ? credenzaOptions.CredenzaName
+                        : packageId
                 : !string.IsNullOrEmpty(credenzaOptions.CredenzaName)
                     ? credenzaOptions.CredenzaName
                     : packageId;

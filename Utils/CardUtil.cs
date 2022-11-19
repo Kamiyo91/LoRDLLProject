@@ -212,49 +212,46 @@ namespace BigDLL4221.Utils
             return egoCardList;
         }
 
-        public static void LoadEmotionAndEgoCards(string packageId, List<Assembly> assemblies)
+        public static void LoadEmotionAndEgoCards(string packageId, string path, List<Assembly> assemblies)
         {
-            foreach (var item in ModParameters.Path.Where(x => x.Key.Equals(packageId)))
+            var error = false;
+            try
             {
-                var error = false;
-                try
+                var file = new DirectoryInfo(path).GetFiles().FirstOrDefault();
+                error = true;
+                if (file != null)
                 {
-                    var file = new DirectoryInfo(item.Value + "/EmotionCards").GetFiles().FirstOrDefault();
-                    error = true;
-                    if (file != null)
+                    var list = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList).GetField("_list", AccessTools.all)
+                        .GetValue(Singleton<EmotionCardXmlList>.Instance);
+                    using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
                     {
-                        var list = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
-                            .GetField("_list", AccessTools.all).GetValue(Singleton<EmotionCardXmlList>.Instance);
-                        using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
+                        using (var enumerator =
+                               ((EmotionCardXmlRoot)new XmlSerializer(typeof(EmotionCardXmlRoot)).Deserialize(
+                                   stringReader)).emotionCardXmlList.GetEnumerator())
                         {
-                            using (var enumerator =
-                                   ((EmotionCardXmlRoot)new XmlSerializer(typeof(EmotionCardXmlRoot)).Deserialize(
-                                       stringReader)).emotionCardXmlList.GetEnumerator())
+                            while (enumerator.MoveNext())
                             {
-                                while (enumerator.MoveNext())
+                                var a = enumerator.Current;
+                                if (a == null) continue;
+                                list.RemoveAll(x => x.id == a.id);
+                                if (ModParameters.EmotionCards.TryGetValue(a.id, out var oldCard))
                                 {
-                                    var a = enumerator.Current;
-                                    if (a == null) continue;
-                                    list.RemoveAll(x => x.id == a.id);
-                                    if (ModParameters.EmotionCards.TryGetValue(a.id, out var oldCard))
-                                    {
-                                        Debug.LogError(
-                                            $"Emotion Card with this Id already Exist, being overwritten my Mod Id {item.Key}.Card script before being overwritten {oldCard.CardXml.Script.FirstOrDefault()} - Card script overwritten with {a.Script.FirstOrDefault()}");
-                                        ModParameters.EmotionCards.Remove(a.id);
-                                    }
-
-                                    ModParameters.EmotionCards.Add(a.id, new EmotionCardOptions(a));
-                                    list.Add(a);
+                                    Debug.LogError(
+                                        $"Emotion Card with this Id already Exist, being overwritten my Mod Id {packageId}.Card script before being overwritten {oldCard.CardXml.Script.FirstOrDefault()} - Card script overwritten with {a.Script.FirstOrDefault()}");
+                                    ModParameters.EmotionCards.Remove(a.id);
                                 }
+
+                                ModParameters.EmotionCards.Add(a.id, new EmotionCardOptions(a));
+                                list.Add(a);
                             }
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    if (error)
-                        Debug.LogError("Error loading Emotion Card packageId : " + item.Key + " Error : " + ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                if (error)
+                    Debug.LogError("Error loading Emotion Card packageId : " + packageId + " Error : " + ex.Message);
             }
 
             var cardList = (List<DiceCardXmlInfo>)ItemXmlDataList.instance.GetType()
@@ -340,7 +337,9 @@ namespace BigDLL4221.Utils
                     where emotionEgoXmlInfo.Sephirah == sephirah
                     select new EmotionEgoXmlInfo
                     {
-                        _CardId = emotionEgoXmlInfo._CardId, id = emotionEgoXmlInfo.id, Sephirah = sephirah,
+                        _CardId = emotionEgoXmlInfo._CardId,
+                        id = emotionEgoXmlInfo.id,
+                        Sephirah = sephirah,
                         isLock = emotionEgoXmlInfo.isLock
                     }).ToList();
                 ModParameters.OriginalEgoFloorCards.Add(sephirah, listFloorEgoCards);

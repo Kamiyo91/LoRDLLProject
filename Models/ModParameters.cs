@@ -65,6 +65,8 @@ namespace BigDLL4221.Models
 
         public static Dictionary<SephirahType, SavedFloorOptions> EgoAndEmotionCardChanged =
             new Dictionary<SephirahType, SavedFloorOptions>();
+
+        public static bool DaatFloorFound = false;
     }
 
     public class SavedFloorOptions
@@ -188,9 +190,12 @@ namespace BigDLL4221.Models
             CustomFloorMap = customFloorMap;
         }
 
+        public string PackageId { get; set; }
         public string FloorCode { get; set; }
 
         public string IconId { get; set; }
+        public string FloorNameId { get; set; }
+        public string FloorName { get; set; }
 
         //Not Implemented MapModel
         public MapModel CustomFloorMap { get; set; }
