@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using BigDLL4221.Models;
+using BigDLL4221.Passives;
 using HarmonyLib;
 
 namespace BigDLL4221.Harmony
@@ -12,12 +13,7 @@ namespace BigDLL4221.Harmony
     {
         private static int _coinsToRemove;
 
-        private static Predicate<BattleUnitModel> Match => x => x.passiveDetail.PassiveList.Exists(y =>
-                                                                    ModParameters.PassiveOptions
-                                                                        .Any(z => z.Key == y.id.packageId &&
-                                                                            z.Value.Any(v =>
-                                                                                v.PassiveId == y.id.id &&
-                                                                                !v.GainCoins))) ||
+        private static Predicate<BattleUnitModel> Match => x => x.passiveDetail.PassiveList.Exists(y => y is PassiveAbility_SupportChar_DLL4221) ||
                                                                 ModParameters.StageOptions.Any(b => b.Key ==
                                                                     Singleton<StageController>.Instance.GetStageModel()
                                                                         .ClassInfo
