@@ -183,7 +183,9 @@ namespace BigDLL4221.Models
 
     public class CustomFloorOptions
     {
-        public CustomFloorOptions(string packageId = "",string floorCode = "", string iconId = "",string floorName = "",string floorNameId = "", MapModel customFloorMap = null)
+        public CustomFloorOptions(string packageId = "", string floorCode = "", string iconId = "",
+            string floorName = "", string floorNameId = "", MapModel customFloorMap = null,
+            bool lockOriginalEmotionSlots = false, bool lockOriginalEgoSlots = false)
         {
             PackageId = packageId;
             FloorCode = floorCode;
@@ -191,6 +193,8 @@ namespace BigDLL4221.Models
             CustomFloorMap = customFloorMap;
             FloorName = floorName;
             FloorNameId = floorNameId;
+            LockOriginalEmotionSlots = lockOriginalEmotionSlots;
+            LockOriginalEgoSlots = lockOriginalEgoSlots;
         }
 
         public string PackageId { get; set; }
@@ -199,6 +203,9 @@ namespace BigDLL4221.Models
         public string IconId { get; set; }
         public string FloorNameId { get; set; }
         public string FloorName { get; set; }
+        public bool LockOriginalEmotionSlots { get; set; }
+
+        public bool LockOriginalEgoSlots { get; set; }
 
         //Not Implemented MapModel
         public MapModel CustomFloorMap { get; set; }

@@ -195,7 +195,7 @@ namespace BigDLL4221.Harmony
                 {
                     StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
                         new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
-                    CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions.FloorCode);
+                    CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions);
                 }
 
             if (UnitUtil.CheckSkinUnitData(__instance)) return;

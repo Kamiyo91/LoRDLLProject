@@ -346,20 +346,23 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static void ChangeAbnoAndEgo(SephirahType sephirah, string pullCode)
+        public static void ChangeAbnoAndEgo(SephirahType sephirah, CustomFloorOptions floorOptions)
         {
-            var customEmotionCardList = ModParameters.EmotionCards.Where(x => x.Value.FloorCode.Contains(pullCode))
+            var customEmotionCardList = ModParameters.EmotionCards
+                .Where(x => x.Value.FloorCode.Contains(floorOptions.FloorCode))
                 .Select(x => x.Value.CardXml).ToList();
             if (customEmotionCardList.Any())
             {
                 var listEmotionXmlCards = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
                     .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
                 if (listEmotionXmlCards != null)
-                    foreach (var item in listEmotionXmlCards.Where(x => x.Sephirah == sephirah)
+                    foreach (var item in listEmotionXmlCards.Where(x => x.Sephirah == sephirah).ToList()
                                  .Select((card, i) => (i, card)))
                         if (item.i >= customEmotionCardList.Count)
                         {
-                            item.card.Locked = true;
+                            if (!floorOptions.LockOriginalEmotionSlots) continue;
+                            item.card.Name = $"RevertCardBigDLL4221{sephirah}";
+                            item.card.Sephirah = SephirahType.None;
                         }
                         else
                         {
@@ -377,8 +380,7 @@ namespace BigDLL4221.Utils
             }
 
             var customEmotionEgoCardList = ModParameters.EmotionEgoCards
-                .Where(x => x.Value.FloorCode.Contains(pullCode)).Select(x => x.Value.CardXml).ToList();
-            if (!customEmotionEgoCardList.Any()) return;
+                .Where(x => x.Value.FloorCode.Contains(floorOptions.FloorCode)).Select(x => x.Value.CardXml).ToList();
             var listEmotionEgoXmlCards = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
                 .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
             if (listEmotionEgoXmlCards == null) return;
@@ -386,6 +388,7 @@ namespace BigDLL4221.Utils
                          .Select((card, i) => (i, card)))
                 if (item.i >= customEmotionEgoCardList.Count)
                 {
+                    if (!floorOptions.LockOriginalEgoSlots) continue;
                     item.card.isLock = true;
                 }
                 else
@@ -404,7 +407,8 @@ namespace BigDLL4221.Utils
                 var emotionCardList = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
                     .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
                 if (emotionCardList != null)
-                    foreach (var emotionCardXmlInfo in emotionCardList.Where(x => x.Sephirah == sephirah))
+                    foreach (var emotionCardXmlInfo in emotionCardList.Where(x =>
+                                 x.Sephirah == sephirah || x.Name.Contains($"RevertCardBigDLL4221{sephirah}")))
                     {
                         emotionCardXmlInfo.Name = floorEmotionCards[emotionCardXmlInfo.id - 1].Name;
                         emotionCardXmlInfo._artwork = floorEmotionCards[emotionCardXmlInfo.id - 1]._artwork;
