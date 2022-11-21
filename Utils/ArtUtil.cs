@@ -134,7 +134,7 @@ namespace BigDLL4221.Utils
             if (!credenzaOptions.BookDataColor.TextColor.HasValue) return;
             textMeshProUGUI.color = credenzaOptions.BookDataColor.TextColor.Value;
             var component = textMeshProUGUI.gameObject.GetComponent<TextMeshProMaterialSetter>();
-            component.underlayColor = Color.white;
+            component.underlayColor = credenzaOptions.BookDataColor.TextColor.Value;
             component.enabled = false;
             component.enabled = true;
         }
@@ -173,7 +173,21 @@ namespace BigDLL4221.Utils
             if (!categoryOption.BookDataColor.TextColor.HasValue) return;
             textMeshProUGUI.color = categoryOption.BookDataColor.TextColor.Value;
             var component = textMeshProUGUI.gameObject.GetComponent<TextMeshProMaterialSetter>();
-            component.underlayColor = Color.white;
+            component.underlayColor = categoryOption.BookDataColor.TextColor.Value;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void ResetColorData(UIOriginEquipPageList instance, Image img_Icon)
+        {
+            var defaultColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            img_Icon.color = defaultColor;
+            var text = (TextMeshProUGUI)instance.GetType().GetField("txt_StoryName", AccessTools.all)
+                ?.GetValue(instance);
+            if (text == null) return;
+            text.color = defaultColor;
+            var component = text.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            component.underlayColor = defaultColor;
             component.enabled = false;
             component.enabled = true;
         }

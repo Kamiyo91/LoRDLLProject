@@ -453,6 +453,17 @@ namespace BigDLL4221.Harmony
             LocalizeUtil.AddGlobalLocalize();
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UISettingInvenEquipPageListSlot), "SetBooksData")]
+        [HarmonyPatch(typeof(UIInvenEquipPageListSlot), "SetBooksData")]
+        public static void General_SetBooksData_Pre(object __instance,
+            List<BookModel> books, UIStoryKeyData storyKey, Image ___img_EdgeFrame, Image ___img_LineFrame,
+            Image ___img_IconGlow, Image ___img_Icon)
+        {
+            var uiOrigin = __instance as UIOriginEquipPageList;
+            ArtUtil.ResetColorData(uiOrigin, ___img_Icon);
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UISettingInvenEquipPageListSlot), "SetBooksData")]
         [HarmonyPatch(typeof(UIInvenEquipPageListSlot), "SetBooksData")]
