@@ -58,6 +58,12 @@ namespace BigDLL4221.Utils
             return true;
         }
 
+        public static MapManager InitSephirahMap(MapModel model, SephirahType sephirah)
+        {
+            return CustomMapHandler.InitSephirahMap(model.Stage, model.Component, sephirah, model.InitBgm, model.Bgx,
+                model.Bgy, model.Fx, model.Fy);
+        }
+
         public static void ReturnFromEgoMap(string mapName, List<LorId> ids, bool isAssimilationMap = false)
         {
             if (CheckStageMap(ids) ||

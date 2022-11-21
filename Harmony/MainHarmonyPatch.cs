@@ -1122,5 +1122,67 @@ namespace BigDLL4221.Harmony
             ___ego_FloorIconImage.sprite = icon;
             ___NeedSelectAb_FloorIconImage.sprite = icon;
         }
+
+        [HarmonyPatch(typeof(BattleSceneRoot), "LoadFloor")]
+        [HarmonyPostfix]
+        public static void BattleSceneRoot_LoadFloor(BattleSceneRoot __instance, SephirahType sephirah)
+        {
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (savedOptions.FloorOptions.CustomFloorMap == null) return;
+            foreach (var map in __instance.mapList.Where(x => x.sephirahType == sephirah))
+            {
+                map.gameObject.SetActive(false);
+                Object.Destroy(map.gameObject);
+            }
+
+            __instance.mapList.RemoveAll(x => x.sephirahType == sephirah);
+            __instance.mapList.Add(MapUtil.InitSephirahMap(savedOptions.FloorOptions.CustomFloorMap, sephirah));
+        }
+
+        [HarmonyPatch(typeof(BattleSceneRoot), "ChangeToSephirahMap")]
+        [HarmonyPostfix]
+        public static void BattleSceneRoot_ChangeToSephirahMap(BattleSceneRoot __instance, SephirahType sephirah,
+            bool playEffect, MapChangeFilter ____mapChangeFilter)
+        {
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
+            if (!savedOptions.IsActive) return;
+            if (savedOptions.FloorOptions.CustomFloorMap == null) return;
+            var x2 = __instance.mapList.FirstOrDefault(x =>
+                x.name.Contains(savedOptions.FloorOptions.CustomFloorMap.Stage));
+            if (x2 == null)
+            {
+                foreach (var map in __instance.mapList.Where(x => x.sephirahType == sephirah))
+                {
+                    map.gameObject.SetActive(false);
+                    Object.Destroy(map.gameObject);
+                }
+
+                __instance.mapList.RemoveAll(x => x.sephirahType == sephirah);
+                x2 = MapUtil.InitSephirahMap(savedOptions.FloorOptions.CustomFloorMap, sephirah);
+                __instance.mapList.Add(x2);
+            }
+
+            if (x2 == __instance.currentMapObject)
+                return;
+            if (playEffect)
+                ____mapChangeFilter.StartMapChangingEffect(Direction.RIGHT);
+            if (__instance.currentMapObject.isCreature)
+                Object.Destroy(__instance.currentMapObject.gameObject);
+            else if (__instance.currentMapObject != null)
+                if (__instance.currentMapObject.isEgo)
+                    Object.Destroy(__instance.currentMapObject.gameObject);
+                else
+                    __instance.currentMapObject.EnableMap(false);
+            __instance.currentMapObject = x2;
+            if (!__instance.currentMapObject.IsMapInitialized)
+                __instance.currentMapObject.InitializeMap();
+            __instance.currentMapObject.EnableMap(true);
+            __instance.currentMapObject.PlayMapChangedSound();
+            SingletonBehavior<BattleCamManager>.Instance.SetVignetteColorBgCam(
+                __instance.currentMapObject.sephirahColor);
+            foreach (var battleUnitModel in BattleObjectManager.instance.GetList())
+                battleUnitModel.view.ChangeScale(__instance.currentMapObject.mapSize);
+        }
     }
 }

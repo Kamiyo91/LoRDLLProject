@@ -13,15 +13,16 @@ namespace BigDLL4221.Harmony
     {
         private static int _coinsToRemove;
 
-        private static Predicate<BattleUnitModel> Match => x => x.passiveDetail.PassiveList.Exists(y => y is PassiveAbility_SupportChar_DLL4221) ||
-                                                                ModParameters.StageOptions.Any(b => b.Key ==
-                                                                    Singleton<StageController>.Instance.GetStageModel()
-                                                                        .ClassInfo
-                                                                        .id.packageId && b.Value.Any(c => c.StageId ==
-                                                                        Singleton<StageController>.Instance
-                                                                            .GetStageModel()
-                                                                            .ClassInfo
-                                                                            .id.id && c.BannedEmotionLevel));
+        private static Predicate<BattleUnitModel> Match => x =>
+            x.passiveDetail.PassiveList.Exists(y => y is PassiveAbility_SupportChar_DLL4221) ||
+            ModParameters.StageOptions.Any(b => b.Key ==
+                Singleton<StageController>.Instance.GetStageModel()
+                    .ClassInfo
+                    .id.packageId && b.Value.Any(c => c.StageId ==
+                    Singleton<StageController>.Instance
+                        .GetStageModel()
+                        .ClassInfo
+                        .id.id && c.BannedEmotionLevel));
 
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Patch(IEnumerable<CodeInstruction> codeInstructions, ILGenerator iL)

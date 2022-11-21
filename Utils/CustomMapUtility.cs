@@ -449,6 +449,17 @@ namespace BigDLL4221.Utils
             return new CustomMapHandler().Init(stageName, managerType, offsets, isEgo, initBGMs);
         }
 
+        [Obsolete(obsoleteString2)]
+        public static MapManager InitSephirahMap(string stageName, Type managerType, SephirahType sephirah,
+            bool initBGMs = true,
+            float bgx = 0.5f, float bgy = 0.5f,
+            float floorx = 0.5f, float floory = 407.5f / 1080f,
+            float underx = 0.5f, float undery = 300f / 1080f)
+        {
+            var offsets = new Offsets(bgx, bgy, floorx, floory, underx, undery);
+            return new CustomMapHandler().InitSephirahMap(stageName, managerType, sephirah, offsets, initBGMs);
+        }
+
         /// <inheritdoc cref="InitCustomMap(string)" />
         public static MapManager InitCustomMap<T>(string stageName,
             bool isEgo = false, bool initBGMs = true,
@@ -707,6 +718,109 @@ namespace BigDLL4221.Utils
                 mapOffsetsCache[stageName] = offsets;
                 mapAutoBgmCache[stageName] = initBGMs;
             }
+
+            return manager;
+        }
+
+        protected MapManager InitSephirahMap(string stageName, Type managerType, SephirahType sephirah, Offsets offsets,
+            bool initBGMs)
+        {
+            // Debug.LogWarning("CustomMapUtility: StageController.InitializeMap throwing a NullReferenceException on stage start is expected, you can freely ignore it");
+            var x2 = SingletonBehavior<BattleSceneRoot>.Instance.mapList.Find(x => x.name.Contains(stageName));
+            if (x2 != null && managerType.Equals(x2))
+            {
+                Debug.LogWarning("CustomMapUtility: Map already loaded");
+                return x2;
+            }
+
+            var mapObject = Util.LoadPrefab("InvitationMaps/InvitationMap_Philip1",
+                SingletonBehavior<BattleSceneRoot>.Instance.transform);
+
+            #region InheritanceDebug
+
+            var managerTypeInherit = managerType;
+            var managerTypeName = managerTypeInherit.Name;
+            while (managerTypeInherit != typeof(MapManager))
+            {
+                managerTypeInherit = managerTypeInherit.BaseType;
+                managerTypeName = $"{managerTypeInherit.Name}:{managerTypeName}";
+            }
+
+            Debug.Log($"CustomMapUtility: Initializing {stageName} with {managerTypeName}");
+
+            #endregion
+
+            mapObject.name = "InvitationMap_" + stageName;
+            var manager = InitManager(managerType, mapObject);
+            manager.sephirahType = sephirah;
+            var currentStagePath = ModResources.GetStagePath(stageName);
+            newAssets = new ListDictionary(StringComparer.Ordinal)
+            {
+                { "newBG", ImageLoad("Background", currentStagePath) },
+                { "newFloor", ImageLoad("Floor", currentStagePath) },
+                { "newUnder", ImageLoad("FloorUnder", currentStagePath) },
+                { "scratch1", ImageLoad("Scratch1", currentStagePath) },
+                { "scratch2", ImageLoad("Scratch2", currentStagePath) },
+                { "scratch3", ImageLoad("Scratch3", currentStagePath) }
+            };
+            var log = "CustomMapUtility: New Assets: {";
+            foreach (DictionaryEntry img in newAssets)
+            {
+                log += Environment.NewLine + "	";
+                if (img.Value != null)
+                    log += img.Key + ":True";
+                else
+                    log += img.Key + ":False";
+            }
+
+            log += Environment.NewLine + "}";
+            Debug.Log(log);
+            SetTextures(manager, offsets);
+            SetScratches(stageName, manager);
+            // Don't ever call SingletonBehavior<BattleSoundManager>.Instance.OnStageStart()
+            if (initBGMs)
+                try
+                {
+                    if (manager is IBGM managerTemp)
+                    {
+                        var bgms = managerTemp.GetCustomBGMs();
+                        if (bgms != null && bgms.Length != 0)
+                        {
+                            manager.mapBgm = CustomBgmParse(bgms);
+                        }
+                        else
+                        {
+                            Debug.Log("CustomMapUtility: CustomBGMs is null or empty, enabling AutoBGM");
+                            managerTemp.AutoBGM = true;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("CustomMapUtility: MapManager is not inherited from Custom(Creature)MapManager");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("CustomMapUtility: Failed to get BGMs");
+                    Debug.LogException(ex);
+                }
+            else
+                Debug.Log("CustomMapUtility: BGM initialization is disabled");
+
+            //if (!isEgo)
+            //{
+            //    SingletonBehavior<BattleSceneRoot>.Instance.InitInvitationMap(manager);
+            //    Debug.Log("CustomMapUtility: Map Initialized.");
+            //}
+            //else
+            //{
+            manager.GetType().GetField("_bMapInitialized", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(manager, false);
+            //SingletonBehavior<BattleSceneRoot>.Instance.AddEgoMap(manager);
+            Debug.Log("CustomMapUtility: EGO Map Added.");
+            mapOffsetsCache[stageName] = offsets;
+            mapAutoBgmCache[stageName] = initBGMs;
+            //}
 
             return manager;
         }
