@@ -220,24 +220,25 @@ namespace BigDLL4221.Utils
                     var actualKey = new UIStoryKeyData(category.Chapter,
                         categoryOption.Key + $"{category.AdditionalValue}");
                     var bookFound = false;
-                    foreach (var book in category.CategoryBooksIdBooksId.Select(bookId =>
-                                     currentBookModelList.FirstOrDefault(x =>
-                                         x.BookId.packageId == categoryOption.Key && x.BookId.id == bookId))
-                                 .Where(book => book != null))
+                    foreach (var books in category.CategoryBooksId.Select(bookId =>
+                                 currentBookModelList.Where(x =>
+                                     x.BookId.packageId == categoryOption.Key && x.BookId.id == bookId)))
                     {
                         bookFound = true;
                         if (!totalkeysdata.Contains(actualKey)) totalkeysdata.Insert(index, actualKey);
-                        if (!currentStoryBooksDic.ContainsKey(actualKey))
-                        {
-                            var list = new List<BookModel> { book };
-                            currentStoryBooksDic.Add(actualKey, list);
-                        }
-                        else
-                        {
-                            currentStoryBooksDic[actualKey].Add(book);
-                        }
+                        foreach (var book in books)
+                            if (!currentStoryBooksDic.ContainsKey(actualKey))
+                            {
+                                var list = new List<BookModel> { book };
+                                currentStoryBooksDic.Add(actualKey, list);
+                            }
+                            else
+                            {
+                                currentStoryBooksDic[actualKey].Add(book);
+                            }
                     }
-                    if(bookFound)index++;
+
+                    if (bookFound) index++;
                 }
             }
         }

@@ -494,7 +494,7 @@ namespace BigDLL4221.Models
             string customIconSpriteId = "", string baseIconSpriteId = "", string categoryNameId = "",
             string categoryName = "", int chapter = 7, CategoryColorOptions bookDataColor = null)
         {
-            CategoryBooksIdBooksId = categoryBooksId ?? new List<int>();
+            CategoryBooksId = categoryBooksId ?? new List<int>();
             CustomIconSpriteId = customIconSpriteId;
             BaseIconSpriteId = baseIconSpriteId;
             CategoryNameId = categoryNameId;
@@ -508,7 +508,7 @@ namespace BigDLL4221.Models
         public string PackageId { get; set; }
         public string AdditionalValue { get; set; }
         public int Chapter { get; set; }
-        public List<int> CategoryBooksIdBooksId { get; set; }
+        public List<int> CategoryBooksId { get; set; }
         public string CustomIconSpriteId { get; set; }
         public string BaseIconSpriteId { get; set; }
         public string CategoryNameId { get; set; }
