@@ -206,8 +206,6 @@ namespace BigDLL4221.Models
         public bool LockOriginalEmotionSlots { get; set; }
 
         public bool LockOriginalEgoSlots { get; set; }
-
-        //Not Implemented MapModel
         public MapModel CustomFloorMap { get; set; }
     }
 
