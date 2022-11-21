@@ -219,11 +219,13 @@ namespace BigDLL4221.Utils
                 {
                     var actualKey = new UIStoryKeyData(category.Chapter,
                         categoryOption.Key + $"{category.AdditionalValue}");
+                    var bookFound = false;
                     foreach (var book in category.CategoryBooksIdBooksId.Select(bookId =>
                                      currentBookModelList.FirstOrDefault(x =>
                                          x.BookId.packageId == categoryOption.Key && x.BookId.id == bookId))
                                  .Where(book => book != null))
                     {
+                        bookFound = true;
                         if (!totalkeysdata.Contains(actualKey)) totalkeysdata.Insert(index, actualKey);
                         if (!currentStoryBooksDic.ContainsKey(actualKey))
                         {
@@ -235,8 +237,7 @@ namespace BigDLL4221.Utils
                             currentStoryBooksDic[actualKey].Add(book);
                         }
                     }
-
-                    index++;
+                    if(bookFound)index++;
                 }
             }
         }
