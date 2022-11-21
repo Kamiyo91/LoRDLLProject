@@ -65,25 +65,25 @@ namespace BigDLL4221.Utils
             }
         }
 
-        private static Sprite GetIcon(CredenzaOptions credenzaOptions, string baseIcon)
+        private static Sprite GetIcon(string customIconId, string baseIconId, string baseIcon)
         {
-            return ModParameters.ArtWorks.TryGetValue(credenzaOptions.CustomIconSpriteId, out var customIcon)
+            return ModParameters.ArtWorks.TryGetValue(customIconId, out var customIcon)
                 ? customIcon
-                : UISpriteDataManager.instance.GetStoryIcon(string.IsNullOrEmpty(credenzaOptions.BaseIconSpriteId)
+                : UISpriteDataManager.instance.GetStoryIcon(string.IsNullOrEmpty(baseIconId)
                     ? baseIcon
-                    : credenzaOptions.BaseIconSpriteId).icon;
+                    : baseIconId).icon;
         }
 
-        private static string CredenzaName(CredenzaOptions credenzaOptions, string packageId)
+        private static string CredenzaName(string nameId, string name, string packageId)
         {
             return ModParameters.LocalizedItems.TryGetValue(packageId, out var localizedItem)
-                ? localizedItem.EffectTexts.TryGetValue(credenzaOptions.CredenzaNameId, out var credenza)
+                ? localizedItem.EffectTexts.TryGetValue(nameId, out var credenza)
                     ? credenza.Name
-                    : !string.IsNullOrEmpty(credenzaOptions.CredenzaName)
-                        ? credenzaOptions.CredenzaName
+                    : !string.IsNullOrEmpty(name)
+                        ? name
                         : packageId
-                : !string.IsNullOrEmpty(credenzaOptions.CredenzaName)
-                    ? credenzaOptions.CredenzaName
+                : !string.IsNullOrEmpty(name)
+                    ? name
                     : packageId;
         }
 
@@ -97,15 +97,18 @@ namespace BigDLL4221.Utils
             var credenzaOptionsTryGet =
                 ModParameters.CredenzaOptions.TryGetValue(book.id.packageId, out var credenzaOptions);
             if (!credenzaOptionsTryGet) credenzaOptions = new CredenzaOptions();
-            selectedEpisodeText.text = CredenzaName(credenzaOptions, book.id.packageId);
-            var icon = GetIcon(credenzaOptions, slot.books[0].BookIcon);
+            selectedEpisodeText.text = CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
+                book.id.packageId);
+            var icon = GetIcon(credenzaOptions.CustomIconSpriteId, credenzaOptions.BaseIconSpriteId,
+                slot.books[0].BookIcon);
             selectedEpisodeIcon.sprite = icon;
             selectedEpisodeIconGlow.sprite = icon;
             instance.UpdateBookSlots();
         }
 
-        public static void SetBooksData(UIOriginEquipPageList instance,
-            List<BookModel> books, UIStoryKeyData storyKey)
+        public static void SetBooksDataOriginal(UIOriginEquipPageList instance,
+            List<BookModel> books, UIStoryKeyData storyKey, Image img_EdgeFrame, Image img_LineFrame,
+            Image img_IconGlow, Image img_Icon)
         {
             if (!ModParameters.PackageIds.Contains(storyKey.workshopId)) return;
             var image = (Image)instance.GetType().GetField("img_IconGlow", AccessTools.all).GetValue(instance);
@@ -118,10 +121,138 @@ namespace BigDLL4221.Utils
             if (!credenzaOptionsTryGet) credenzaOptions = new CredenzaOptions();
             image.enabled = true;
             image2.enabled = true;
-            var icon = GetIcon(credenzaOptions, "Chapter" + storyKey.chapter);
+            var icon = GetIcon(credenzaOptions.CustomIconSpriteId, credenzaOptions.BaseIconSpriteId,
+                "Chapter" + storyKey.chapter);
             image2.sprite = icon;
             image.sprite = icon;
-            textMeshProUGUI.text = CredenzaName(credenzaOptions, storyKey.workshopId);
+            textMeshProUGUI.text = CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
+                storyKey.workshopId);
+            if (credenzaOptions.BookDataColor == null) return;
+            if (credenzaOptions.BookDataColor.FrameColor.HasValue)
+                SetBooksDataFrameColor(credenzaOptions.BookDataColor.FrameColor.Value, img_EdgeFrame, img_LineFrame,
+                    img_IconGlow, img_Icon);
+            if (!credenzaOptions.BookDataColor.TextColor.HasValue) return;
+            textMeshProUGUI.color = credenzaOptions.BookDataColor.TextColor.Value;
+            var component = textMeshProUGUI.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            component.underlayColor = Color.white;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void SetBooksData(UIOriginEquipPageList instance,
+            List<BookModel> books, UIStoryKeyData storyKey, Image img_EdgeFrame, Image img_LineFrame,
+            Image img_IconGlow, Image img_Icon)
+        {
+            var categoryOptions = ModParameters.CategoryOptions.SelectMany(x =>
+                x.Value.Where(y => storyKey.workshopId == y.PackageId + y.AdditionalValue));
+            var categoryOption =
+                categoryOptions.FirstOrDefault(x => storyKey.workshopId == x.PackageId + x.AdditionalValue);
+            if (categoryOption == null)
+            {
+                SetBooksDataOriginal(instance, books, storyKey, img_EdgeFrame, img_LineFrame, img_IconGlow, img_Icon);
+                return;
+            }
+
+            var image = (Image)instance.GetType().GetField("img_IconGlow", AccessTools.all).GetValue(instance);
+            var image2 = (Image)instance.GetType().GetField("img_Icon", AccessTools.all).GetValue(instance);
+            var textMeshProUGUI = (TextMeshProUGUI)instance.GetType().GetField("txt_StoryName", AccessTools.all)
+                .GetValue(instance);
+            if (books.Count < 0) return;
+            image.enabled = true;
+            image2.enabled = true;
+            var icon = GetIcon(categoryOption.CustomIconSpriteId, categoryOption.BaseIconSpriteId,
+                "Chapter" + storyKey.chapter);
+            image2.sprite = icon;
+            image.sprite = icon;
+            textMeshProUGUI.text = CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
+                categoryOption.PackageId);
+            if (categoryOption.BookDataColor == null) return;
+            if (categoryOption.BookDataColor.FrameColor.HasValue)
+                SetBooksDataFrameColor(categoryOption.BookDataColor.FrameColor.Value, img_EdgeFrame, img_LineFrame,
+                    img_IconGlow, img_Icon);
+            if (!categoryOption.BookDataColor.TextColor.HasValue) return;
+            textMeshProUGUI.color = categoryOption.BookDataColor.TextColor.Value;
+            var component = textMeshProUGUI.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            component.underlayColor = Color.white;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void SetBooksDataFrameColor(Color c, Image img_EdgeFrame, Image img_LineFrame, Image img_IconGlow,
+            Image img_Icon)
+        {
+            img_EdgeFrame.color = c;
+            img_LineFrame.color = c;
+            img_IconGlow.color = c;
+            img_Icon.color = c;
+        }
+
+        public static void SetMainData(List<BookModel> currentBookModelList, List<UIStoryKeyData> totalkeysdata,
+            Dictionary<UIStoryKeyData, List<BookModel>> currentStoryBooksDic)
+        {
+            var categoryOptions =
+                ModParameters.CategoryOptions.Where(x => currentBookModelList.Exists(y => y.BookId.packageId == x.Key));
+            foreach (var categoryOption in categoryOptions)
+            {
+                var index = totalkeysdata.FindIndex(x => x.IsWorkshop && x.workshopId == categoryOption.Key);
+                totalkeysdata.RemoveAt(index);
+                var categoryKey =
+                    currentStoryBooksDic.FirstOrDefault(x =>
+                        x.Key.IsWorkshop && x.Key.workshopId == categoryOption.Key);
+                if (categoryKey.Key != null) currentStoryBooksDic.Remove(categoryKey.Key);
+
+                foreach (var category in categoryOption.Value)
+                {
+                    var actualKey = new UIStoryKeyData(category.Chapter,
+                        categoryOption.Key + $"{category.AdditionalValue}");
+                    foreach (var book in category.CategoryBooksIdBooksId.Select(bookId =>
+                                     currentBookModelList.FirstOrDefault(x =>
+                                         x.BookId.packageId == categoryOption.Key && x.BookId.id == bookId))
+                                 .Where(book => book != null))
+                    {
+                        if (!totalkeysdata.Contains(actualKey)) totalkeysdata.Insert(index, actualKey);
+                        if (!currentStoryBooksDic.ContainsKey(actualKey))
+                        {
+                            var list = new List<BookModel> { book };
+                            currentStoryBooksDic.Add(actualKey, list);
+                        }
+                        else
+                        {
+                            currentStoryBooksDic[actualKey].Add(book);
+                        }
+                    }
+
+                    index++;
+                }
+            }
+        }
+
+        public static void SetMainDataAfterUIEquip(UIEquipPageScrollList instance, ref bool isClickedUpArrow,
+            ref bool isClickedDownArrow, RectTransform rect_slotListRoot,
+            List<UIInvenEquipPageListSlot> equipPagesPanelSlotList)
+        {
+            instance.CalculateSlotsHeight();
+            instance.UpdateSlotList();
+            instance.GetType().GetMethod("SetScrollBar", AccessTools.all)?.Invoke(instance, Array.Empty<object>());
+            isClickedUpArrow = false;
+            isClickedDownArrow = false;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect_slotListRoot);
+            var saveFirstChild = equipPagesPanelSlotList[0].EquipPageSlotList[0];
+            instance.SetSaveFirstChild(saveFirstChild);
+        }
+
+        public static void SetMainDataAfterUISetting(UISettingEquipPageScrollList instance, ref bool isClickedUpArrow,
+            ref bool isClickedDownArrow, RectTransform rect_slotListRoot,
+            List<UISettingInvenEquipPageListSlot> equipPagesPanelSlotList)
+        {
+            instance.CalculateSlotsHeight();
+            instance.UpdateSlotList();
+            instance.GetType().GetMethod("SetScrollBar", AccessTools.all)?.Invoke(instance, Array.Empty<object>());
+            isClickedUpArrow = false;
+            isClickedDownArrow = false;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect_slotListRoot);
+            var saveFirstChild = equipPagesPanelSlotList[0].EquipPageSlotList[0];
+            instance.SetSaveFirstChild(saveFirstChild);
         }
 
         public static void SetEpisodeSlots(UIBookStoryChapterSlot instance, UIBookStoryPanel panel,
@@ -152,14 +283,15 @@ namespace BigDLL4221.Utils
                                 ((TextMeshProUGUI)uibookStoryEpisodeSlot.GetType()
                                         .GetField("episodeText", AccessTools.all)
                                         .GetValue(uibookStoryEpisodeSlot)).text =
-                                    CredenzaName(credenzaOptions, packageId);
+                                    CredenzaName(credenzaOptions.CredenzaName, credenzaOptions.CredenzaName, packageId);
                                 var image = (Image)uibookStoryEpisodeSlot.GetType()
                                     .GetField("episodeIconGlow", AccessTools.all)
                                     .GetValue(uibookStoryEpisodeSlot);
                                 var image2 = (Image)uibookStoryEpisodeSlot.GetType()
                                     .GetField("episodeIcon", AccessTools.all)
                                     .GetValue(uibookStoryEpisodeSlot);
-                                var icon = GetIcon(credenzaOptions, panelBooks[0].BookIcon);
+                                var icon = GetIcon(credenzaOptions.CustomIconSpriteId, credenzaOptions.BaseIconSpriteId,
+                                    panelBooks[0].BookIcon);
                                 image2.sprite = icon;
                                 image.sprite = icon;
                             }

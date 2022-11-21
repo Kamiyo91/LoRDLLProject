@@ -28,6 +28,9 @@ namespace BigDLL4221.Models
 
         public static Dictionary<string, CredenzaOptions> CredenzaOptions = new Dictionary<string, CredenzaOptions>();
 
+        public static Dictionary<string, List<CategoryOptions>> CategoryOptions =
+            new Dictionary<string, List<CategoryOptions>>();
+
         public static Dictionary<string, List<StageOptions>>
             StageOptions = new Dictionary<string, List<StageOptions>>();
 
@@ -453,7 +456,7 @@ namespace BigDLL4221.Models
     {
         public CredenzaOptions(CredenzaEnum credenzaOption = CredenzaEnum.NoCredenza, List<int> credenzaBooksId = null,
             string customIconSpriteId = "", string baseIconSpriteId = "", string credenzaNameId = "",
-            string credenzaName = "")
+            string credenzaName = "", CredenzaColorOptions bookDataColor = null)
         {
             CredenzaOption = credenzaOption;
             CredenzaBooksId = credenzaBooksId ?? new List<int>();
@@ -461,6 +464,7 @@ namespace BigDLL4221.Models
             BaseIconSpriteId = baseIconSpriteId;
             CredenzaNameId = credenzaNameId;
             CredenzaName = credenzaName;
+            BookDataColor = bookDataColor;
         }
 
         public CredenzaEnum CredenzaOption { get; set; }
@@ -469,6 +473,59 @@ namespace BigDLL4221.Models
         public string BaseIconSpriteId { get; set; }
         public string CredenzaNameId { get; set; }
         public string CredenzaName { get; set; }
+        public CredenzaColorOptions BookDataColor { get; set; }
+    }
+
+    public class CredenzaColorOptions
+    {
+        public CredenzaColorOptions(Color? frameColor = null, Color? textColor = null)
+        {
+            FrameColor = frameColor;
+            TextColor = textColor;
+        }
+
+        public Color? FrameColor { get; set; }
+        public Color? TextColor { get; set; }
+    }
+
+    public class CategoryOptions
+    {
+        public CategoryOptions(string packageId = "", string additionalValue = "", List<int> categoryBooksId = null,
+            string customIconSpriteId = "", string baseIconSpriteId = "", string categoryNameId = "",
+            string categoryName = "", int chapter = 7, CategoryColorOptions bookDataColor = null)
+        {
+            CategoryBooksIdBooksId = categoryBooksId ?? new List<int>();
+            CustomIconSpriteId = customIconSpriteId;
+            BaseIconSpriteId = baseIconSpriteId;
+            CategoryNameId = categoryNameId;
+            CategoryName = categoryName;
+            Chapter = chapter;
+            AdditionalValue = additionalValue;
+            PackageId = packageId;
+            BookDataColor = bookDataColor;
+        }
+
+        public string PackageId { get; set; }
+        public string AdditionalValue { get; set; }
+        public int Chapter { get; set; }
+        public List<int> CategoryBooksIdBooksId { get; set; }
+        public string CustomIconSpriteId { get; set; }
+        public string BaseIconSpriteId { get; set; }
+        public string CategoryNameId { get; set; }
+        public string CategoryName { get; set; }
+        public CategoryColorOptions BookDataColor { get; set; }
+    }
+
+    public class CategoryColorOptions
+    {
+        public CategoryColorOptions(Color? frameColor = null, Color? textColor = null)
+        {
+            FrameColor = frameColor;
+            TextColor = textColor;
+        }
+
+        public Color? FrameColor { get; set; }
+        public Color? TextColor { get; set; }
     }
 
     public class SpriteOptions
