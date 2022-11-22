@@ -1025,6 +1025,8 @@ namespace BigDLL4221.Harmony
                     ? savedOptions.FloorOptions.FloorName
                     : "";
             if (!string.IsNullOrEmpty(name)) ___txt_titlename.text = name;
+            ___txt_titlename.rectTransform.sizeDelta = new Vector2(___txt_titlename.preferredWidth,
+                ___txt_titlename.rectTransform.sizeDelta.y);
         }
 
         [HarmonyPostfix]
@@ -1065,8 +1067,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(EmotionEgoXmlInfo), "CardId", MethodType.Getter)]
         [HarmonyPostfix]
-        private static void EmotionEgoXmlInfo_get_CardId(EmotionEgoXmlInfo __instance, ref LorId __result,
-            int ____CardId)
+        private static void EmotionEgoXmlInfo_get_CardId(EmotionEgoXmlInfo __instance, ref LorId __result)
         {
             if (ModParameters.EmotionEgoCards.TryGetValue(__instance.id, out var egoCardOptions))
                 __result = new LorId(egoCardOptions.PackageId, __instance.id);
@@ -1075,7 +1076,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(EmotionEgoCardUI), "Init")]
         [HarmonyPostfix]
         private static void EmotionEgoCardUI_Init(EmotionEgoCardUI __instance, EmotionEgoXmlInfo card,
-            ref EmotionEgoXmlInfo ____card, TextMeshProUGUI ____cardName)
+            TextMeshProUGUI ____cardName)
         {
             if (!ModParameters.EmotionEgoCards.TryGetValue(card.id, out var egoCardOptions)) return;
             __instance.gameObject.SetActive(false);

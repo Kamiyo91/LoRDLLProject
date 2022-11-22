@@ -66,6 +66,30 @@ namespace BigDLL4221.Extensions
             return passive != null;
         }
 
+        public static void SetPassiveCombatLog(this BattleUnitModel owner, PassiveAbilityBase passive)
+        {
+            var battleCardResultLog = owner.battleCardResultLog;
+            battleCardResultLog?.SetPassiveAbility(passive);
+        }
+
+        //Not Working
+        //public static void SetBuffCombatLog(this BattleUnitModel owner, BattleUnitBuf buf)
+        //{
+        //    var battleCardResultLog = owner.battleCardResultLog;
+        //    battleCardResultLog?.SetNewBufs(buf);
+        //}
+
+        public static void SetEmotionCombatLog(this BattleUnitModel owner, BattleEmotionCardModel emotionCard)
+        {
+            owner.battleCardResultLog.SetEmotionAbility(true, emotionCard, emotionCard.XmlInfo.id);
+        }
+
+        public static void SetDieAbility(this BattleUnitModel owner, DiceCardAbilityBase ability)
+        {
+            var battleCardResultLog = owner.battleCardResultLog;
+            battleCardResultLog?.SetDiceBehaviourAbility(true, ability.behavior, ability.card.card);
+        }
+
         public static bool ForceEgoPlayer(this BattleUnitModel owner, int egoPhase)
         {
             if (!(owner.passiveDetail.PassiveList.Find(x => x is PassiveAbility_PlayerMechBase_DLL4221 && !x.destroyed)

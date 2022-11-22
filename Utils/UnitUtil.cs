@@ -191,16 +191,22 @@ namespace BigDLL4221.Utils
             battleCardResultLog?.SetPassiveAbility(passive);
         }
 
-        public static void SetBuffCombatLog(BattleUnitBuf buf, BattleUnitModel owner)
+        //Not Working
+        //public static void SetBuffCombatLog(BattleUnitBuf buf, BattleUnitModel owner)
+        //{
+        //    var battleCardResultLog = owner.battleCardResultLog;
+        //    battleCardResultLog?.SetNewBufs(buf);
+        //}
+
+        public static void SetEmotionCombatLog(BattleEmotionCardModel emotionCard, BattleUnitModel owner)
         {
-            var battleCardResultLog = owner.battleCardResultLog;
-            battleCardResultLog?.SetNewBufs(buf);
+            owner.battleCardResultLog.SetEmotionAbility(true, emotionCard, emotionCard.XmlInfo.id);
         }
 
-        public static void SetDieAbility(DiceCardAbilityBase ability, BattleUnitModel owner, bool activateByResult)
+        public static void SetDieAbility(DiceCardAbilityBase ability, BattleUnitModel owner)
         {
             var battleCardResultLog = owner.battleCardResultLog;
-            battleCardResultLog?.SetDiceBehaviourAbility(activateByResult, ability.behavior, ability.card.card);
+            battleCardResultLog?.SetDiceBehaviourAbility(true, ability.behavior, ability.card.card);
         }
 
         public static void BattleAbDialog(BattleDialogUI instance, List<AbnormalityCardDialog> dialogs,
