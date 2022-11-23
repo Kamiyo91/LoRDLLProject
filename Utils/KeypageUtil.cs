@@ -16,16 +16,26 @@ namespace BigDLL4221.Utils
                 var dictionary = (Dictionary<LorId, BookXmlInfo>)instance.GetType()
                     .GetField("_dictionary", AccessTools.all)
                     ?.GetValue(instance);
+                var workshopDictionary = (Dictionary<string, List<BookXmlInfo>>)instance.GetType()
+                    .GetField("_workshopBookDict", AccessTools.all)
+                    ?.GetValue(instance);
                 var list = (List<BookXmlInfo>)instance.GetType()
                     .GetField("_list", AccessTools.all)
                     ?.GetValue(instance);
                 if (dictionary == null) return;
                 if (!ModParameters.KeypageOptions.TryGetValue(packageId, out var keypageOptions)) return;
-                foreach (var item in dictionary.Where(x => x.Key.packageId == packageId).ToList())
+                var changedKeypageList = (from item in dictionary.Where(x => x.Key.packageId == packageId).ToList()
+                    let keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == item.Key.id)
+                    where keypageOption != null
+                    select SetCustomKeypageOptions(item.Key, keypageOption, ref dictionary)).ToList();
+                foreach (var changedKeypage in changedKeypageList)
                 {
-                    var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == item.Key.id);
-                    if (keypageOption == null) continue;
-                    SetCustomKeypageOptions(item.Key, item.Value, keypageOption, ref dictionary, ref list);
+                    var index = workshopDictionary[packageId].FindIndex(x => x.id == changedKeypage.id);
+                    if (index == -1) continue;
+                    workshopDictionary[packageId][index] = changedKeypage;
+                    if (dictionary.ContainsKey(changedKeypage.id)) dictionary[changedKeypage.id] = changedKeypage;
+                    if (list.Contains(changedKeypage)) list.Remove(changedKeypage);
+                    list.Add(changedKeypage);
                 }
             }
             catch (Exception ex)
@@ -35,12 +45,10 @@ namespace BigDLL4221.Utils
             }
         }
 
-        private static void SetCustomKeypageOptions(LorId id, BookXmlInfo bookXml, KeypageOptions options,
-            ref Dictionary<LorId, BookXmlInfo> bookDictionary, ref List<BookXmlInfo> bookXmlList)
+        private static BookXmlInfo SetCustomKeypageOptions(LorId id, KeypageOptions options,
+            ref Dictionary<LorId, BookXmlInfo> bookDictionary)
         {
-            var keypageXml = KeypageOptionChange(bookDictionary[id], options);
-            bookDictionary[id] = keypageXml;
-            bookXmlList.Add(keypageXml);
+            return KeypageOptionChange(bookDictionary[id], options);
         }
 
         private static BookXmlInfo KeypageOptionChange(BookXmlInfo bookXml, KeypageOptions options)

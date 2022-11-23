@@ -299,7 +299,8 @@ namespace BigDLL4221.Utils
                                 ((TextMeshProUGUI)uibookStoryEpisodeSlot.GetType()
                                         .GetField("episodeText", AccessTools.all)
                                         .GetValue(uibookStoryEpisodeSlot)).text =
-                                    CredenzaName(credenzaOptions.CredenzaName, credenzaOptions.CredenzaName, packageId);
+                                    CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
+                                        packageId);
                                 var image = (Image)uibookStoryEpisodeSlot.GetType()
                                     .GetField("episodeIconGlow", AccessTools.all)
                                     .GetValue(uibookStoryEpisodeSlot);
