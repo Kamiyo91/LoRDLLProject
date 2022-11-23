@@ -479,12 +479,12 @@ namespace BigDLL4221.Harmony
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UISettingEquipPageScrollList), "SetData")]
         [HarmonyPatch(typeof(UIEquipPageScrollList), "SetData")]
-        public static void General_SetData(object __instance, List<BookModel> ____originBookModelList,
+        public static void General_SetData(object __instance, List<BookModel> ___currentBookModelList,
             List<UIStoryKeyData> ___totalkeysdata, Dictionary<UIStoryKeyData,
                 List<BookModel>> ___currentStoryBooksDic, RectTransform ___rect_slotListRoot,
             object ____equipPagesPanelSlotList, bool ___isClickedUpArrow, bool ___isClickedDownArrow)
         {
-            ArtUtil.SetMainData(____originBookModelList, ___totalkeysdata, ___currentStoryBooksDic);
+            ArtUtil.SetMainData(___currentBookModelList, ___totalkeysdata, ___currentStoryBooksDic);
             switch (__instance)
             {
                 case UISettingEquipPageScrollList uiSetting:

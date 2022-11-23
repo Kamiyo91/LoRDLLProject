@@ -214,31 +214,31 @@ namespace BigDLL4221.Utils
                     currentStoryBooksDic.FirstOrDefault(x =>
                         x.Key.IsWorkshop && x.Key.workshopId == categoryOption.Key);
                 if (categoryKey.Key != null) currentStoryBooksDic.Remove(categoryKey.Key);
-
                 foreach (var category in categoryOption.Value)
                 {
                     var actualKey = new UIStoryKeyData(category.Chapter,
                         categoryOption.Key + $"{category.AdditionalValue}");
+                    if (totalkeysdata.Contains(actualKey)) totalkeysdata.Remove(actualKey);
                     var bookFound = false;
-                    foreach (var books in category.CategoryBooksId.Select(bookId =>
+                    foreach (var book in category.CategoryBooksId.SelectMany(bookId =>
                                  currentBookModelList.Where(x =>
                                      x.BookId.packageId == categoryOption.Key && x.BookId.id == bookId)))
                     {
                         bookFound = true;
-                        if (!totalkeysdata.Contains(actualKey)) totalkeysdata.Insert(index, actualKey);
-                        foreach (var book in books)
-                            if (!currentStoryBooksDic.ContainsKey(actualKey))
-                            {
-                                var list = new List<BookModel> { book };
-                                currentStoryBooksDic.Add(actualKey, list);
-                            }
-                            else
-                            {
-                                currentStoryBooksDic[actualKey].Add(book);
-                            }
+                        if (!currentStoryBooksDic.ContainsKey(actualKey))
+                        {
+                            var list = new List<BookModel> { book };
+                            currentStoryBooksDic.Add(actualKey, list);
+                        }
+                        else
+                        {
+                            currentStoryBooksDic[actualKey].Add(book);
+                        }
                     }
 
-                    if (bookFound) index++;
+                    if (!bookFound) continue;
+                    totalkeysdata.Insert(index, actualKey);
+                    index++;
                 }
             }
         }
