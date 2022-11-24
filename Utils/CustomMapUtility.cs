@@ -623,6 +623,7 @@ namespace BigDLL4221.Utils
                 SingletonBehavior<BattleSceneRoot>.Instance.GetType()
                     .GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
                     .GetValue(SingletonBehavior<BattleSceneRoot>.Instance) as List<MapManager>;
+            addedMapList?.RemoveAll(x => x == null || string.IsNullOrEmpty(x.name));
             var x2 = addedMapList?.Find(x => x.name.Contains(stageName));
             if (x2 != null && managerType.Equals(x2))
             {
