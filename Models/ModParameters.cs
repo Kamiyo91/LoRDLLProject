@@ -50,12 +50,6 @@ namespace BigDLL4221.Models
         public static Dictionary<int, EmotionCardOptions> EmotionCards = new Dictionary<int, EmotionCardOptions>();
         public static Dictionary<int, EmotionEgoOptions> EmotionEgoCards = new Dictionary<int, EmotionEgoOptions>();
 
-        public static Dictionary<SephirahType, List<EmotionCardXmlInfo>> OriginalEmotionCards =
-            new Dictionary<SephirahType, List<EmotionCardXmlInfo>>();
-
-        public static Dictionary<SephirahType, List<EmotionEgoXmlInfo>> OriginalEgoFloorCards =
-            new Dictionary<SephirahType, List<EmotionEgoXmlInfo>>();
-
         //Unity
         public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
     }
@@ -209,6 +203,8 @@ namespace BigDLL4221.Models
         public bool LockOriginalEmotionSlots { get; set; }
 
         public bool LockOriginalEgoSlots { get; set; }
+        public List<EmotionCardXmlInfo> OriginalEmotionCards { get; set; }
+        public List<EmotionEgoXmlInfo> OriginalEgoCards { get; set; }
         public MapModel CustomFloorMap { get; set; }
     }
 

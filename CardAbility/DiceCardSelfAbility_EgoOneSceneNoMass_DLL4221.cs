@@ -19,6 +19,7 @@ namespace BigDLL4221.CardAbility
 
             ChangeToEgoMap();
         }
+
         public override void OnEndBattle()
         {
             if (string.IsNullOrEmpty(SkinName)) return;

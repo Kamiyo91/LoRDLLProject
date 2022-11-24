@@ -297,53 +297,46 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static void GetOringinAbnoAndEgo()
+        public static void SaveCardsBeforeChange(SephirahType sephirah)
         {
-            var sephirahTypeList = new List<SephirahType>
-            {
-                SephirahType.Keter, SephirahType.Hokma, SephirahType.Binah,
-                SephirahType.Chesed, SephirahType.Gebura, SephirahType.Tiphereth,
-                SephirahType.Netzach, SephirahType.Hod, SephirahType.Yesod, SephirahType.Malkuth
-            };
-            foreach (var sephirah in sephirahTypeList)
-            {
-                var listEmotionXmlCards = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
-                    .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
-                if (listEmotionXmlCards != null)
-                {
-                    var listEmotionCards = (from emotionCardXmlInfo in listEmotionXmlCards
-                        where emotionCardXmlInfo.id >= 1 && emotionCardXmlInfo.id <= 15 &&
-                              emotionCardXmlInfo.Sephirah == sephirah
-                        select new EmotionCardXmlInfo
-                        {
-                            Name = emotionCardXmlInfo.Name,
-                            _artwork = emotionCardXmlInfo._artwork,
-                            State = emotionCardXmlInfo.State,
-                            Sephirah = sephirah,
-                            EmotionLevel = emotionCardXmlInfo.EmotionLevel,
-                            TargetType = emotionCardXmlInfo.TargetType,
-                            Script = emotionCardXmlInfo.Script,
-                            Level = emotionCardXmlInfo.Level,
-                            EmotionRate = emotionCardXmlInfo.EmotionRate,
-                            Locked = emotionCardXmlInfo.Locked
-                        }).ToList();
-                    ModParameters.OriginalEmotionCards.Add(sephirah, listEmotionCards);
-                }
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
+            var listEmotionXmlCards = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
+                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
 
-                var listEmotionEgoXmlCards = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
-                    .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
-                if (listEmotionEgoXmlCards == null) return;
-                var listFloorEgoCards = (from emotionEgoXmlInfo in listEmotionEgoXmlCards
-                    where emotionEgoXmlInfo.Sephirah == sephirah
-                    select new EmotionEgoXmlInfo
+            if (listEmotionXmlCards != null)
+            {
+                var listEmotionCards = (from emotionCardXmlInfo in listEmotionXmlCards
+                    where emotionCardXmlInfo.id >= 1 && emotionCardXmlInfo.id <= 15 &&
+                          emotionCardXmlInfo.Sephirah == sephirah
+                    select new EmotionCardXmlInfo
                     {
-                        _CardId = emotionEgoXmlInfo._CardId,
-                        id = emotionEgoXmlInfo.id,
+                        Name = emotionCardXmlInfo.Name,
+                        _artwork = emotionCardXmlInfo._artwork,
+                        State = emotionCardXmlInfo.State,
                         Sephirah = sephirah,
-                        isLock = emotionEgoXmlInfo.isLock
+                        EmotionLevel = emotionCardXmlInfo.EmotionLevel,
+                        TargetType = emotionCardXmlInfo.TargetType,
+                        Script = emotionCardXmlInfo.Script,
+                        Level = emotionCardXmlInfo.Level,
+                        EmotionRate = emotionCardXmlInfo.EmotionRate,
+                        Locked = emotionCardXmlInfo.Locked
                     }).ToList();
-                ModParameters.OriginalEgoFloorCards.Add(sephirah, listFloorEgoCards);
+                savedOptions.FloorOptions.OriginalEmotionCards = listEmotionCards;
             }
+
+            var listEmotionEgoXmlCards = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
+                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
+            if (listEmotionEgoXmlCards == null) return;
+            var listFloorEgoCards = (from emotionEgoXmlInfo in listEmotionEgoXmlCards
+                where emotionEgoXmlInfo.Sephirah == sephirah
+                select new EmotionEgoXmlInfo
+                {
+                    _CardId = emotionEgoXmlInfo._CardId,
+                    id = emotionEgoXmlInfo.id,
+                    Sephirah = sephirah,
+                    isLock = emotionEgoXmlInfo.isLock
+                }).ToList();
+            savedOptions.FloorOptions.OriginalEgoCards = listFloorEgoCards;
         }
 
         public static void ChangeAbnoAndEgo(SephirahType sephirah, CustomFloorOptions floorOptions)
@@ -401,30 +394,27 @@ namespace BigDLL4221.Utils
 
         public static void RevertAbnoAndEgo(SephirahType sephirah)
         {
-            if (ModParameters.OriginalEmotionCards.TryGetValue(sephirah, out var emotionCards))
-            {
-                var floorEmotionCards = emotionCards.Where(x => x.Sephirah == sephirah).ToList();
-                var emotionCardList = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
-                    .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
-                if (emotionCardList != null)
-                    foreach (var emotionCardXmlInfo in emotionCardList.Where(x =>
-                                 x.Sephirah == sephirah || x.Name.Contains($"RevertCardBigDLL4221{sephirah}")))
-                    {
-                        emotionCardXmlInfo.Name = floorEmotionCards[emotionCardXmlInfo.id - 1].Name;
-                        emotionCardXmlInfo._artwork = floorEmotionCards[emotionCardXmlInfo.id - 1]._artwork;
-                        emotionCardXmlInfo.State = floorEmotionCards[emotionCardXmlInfo.id - 1].State;
-                        emotionCardXmlInfo.Sephirah = sephirah;
-                        emotionCardXmlInfo.EmotionLevel = floorEmotionCards[emotionCardXmlInfo.id - 1].EmotionLevel;
-                        emotionCardXmlInfo.TargetType = floorEmotionCards[emotionCardXmlInfo.id - 1].TargetType;
-                        emotionCardXmlInfo.Script = floorEmotionCards[emotionCardXmlInfo.id - 1].Script;
-                        emotionCardXmlInfo.Level = floorEmotionCards[emotionCardXmlInfo.id - 1].Level;
-                        emotionCardXmlInfo.EmotionRate = floorEmotionCards[emotionCardXmlInfo.id - 1].EmotionRate;
-                        emotionCardXmlInfo.Locked = floorEmotionCards[emotionCardXmlInfo.id - 1].Locked;
-                    }
-            }
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
+            var floorEmotionCards = savedOptions.FloorOptions.OriginalEmotionCards;
+            var emotionCardList = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
+                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
+            if (emotionCardList != null)
+                foreach (var emotionCardXmlInfo in emotionCardList.Where(x =>
+                             x.Sephirah == sephirah || x.Name.Contains($"RevertCardBigDLL4221{sephirah}")))
+                {
+                    emotionCardXmlInfo.Name = floorEmotionCards[emotionCardXmlInfo.id - 1].Name;
+                    emotionCardXmlInfo._artwork = floorEmotionCards[emotionCardXmlInfo.id - 1]._artwork;
+                    emotionCardXmlInfo.State = floorEmotionCards[emotionCardXmlInfo.id - 1].State;
+                    emotionCardXmlInfo.Sephirah = sephirah;
+                    emotionCardXmlInfo.EmotionLevel = floorEmotionCards[emotionCardXmlInfo.id - 1].EmotionLevel;
+                    emotionCardXmlInfo.TargetType = floorEmotionCards[emotionCardXmlInfo.id - 1].TargetType;
+                    emotionCardXmlInfo.Script = floorEmotionCards[emotionCardXmlInfo.id - 1].Script;
+                    emotionCardXmlInfo.Level = floorEmotionCards[emotionCardXmlInfo.id - 1].Level;
+                    emotionCardXmlInfo.EmotionRate = floorEmotionCards[emotionCardXmlInfo.id - 1].EmotionRate;
+                    emotionCardXmlInfo.Locked = floorEmotionCards[emotionCardXmlInfo.id - 1].Locked;
+                }
 
-            if (!ModParameters.OriginalEgoFloorCards.TryGetValue(sephirah, out var egoCards)) return;
-            var floorEgoCards = egoCards.Where(x => x.Sephirah == sephirah);
+            var floorEgoCards = savedOptions.FloorOptions.OriginalEgoCards;
             var emotionEgoCardList = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
                 .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
             if (emotionEgoCardList == null) return;

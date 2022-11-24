@@ -157,8 +157,8 @@ namespace BigDLL4221.Harmony
             if (__instance.isSephirah && StaticModsInfo.EgoAndEmotionCardChanged.ContainsKey(__instance.OwnerSephirah))
                 if (StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah].IsActive)
                 {
-                    StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] = new SavedFloorOptions();
                     CardUtil.RevertAbnoAndEgo(__instance.OwnerSephirah);
+                    StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] = new SavedFloorOptions();
                 }
 
             if (!ModParameters.PackageIds.Contains(__instance.bookItem.ClassInfo.id.packageId)) return;
@@ -195,6 +195,7 @@ namespace BigDLL4221.Harmony
                 {
                     StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
                         new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
+                    CardUtil.SaveCardsBeforeChange(__instance.OwnerSephirah);
                     CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions);
                 }
 
