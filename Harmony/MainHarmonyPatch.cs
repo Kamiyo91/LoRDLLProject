@@ -1231,6 +1231,15 @@ namespace BigDLL4221.Harmony
             StaticModsInfo.OnPlayEmotionCardUsedBy = null;
         }
 
+        [HarmonyPatch(typeof(LevelUpUI), "OnSelectPassive")]
+        [HarmonyPrefix]
+        public static void LevelUpUI_OnSelectPassive(EmotionPassiveCardUI picked)
+        {
+            if (picked.Card.TargetType == EmotionTargetType.All ||
+                picked.Card.TargetType == EmotionTargetType.AllIncludingEnemy)
+                StaticModsInfo.OnPlayEmotionCardUsedBy = null;
+        }
+
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]
         [HarmonyPrefix]
         public static void StageClassInfo_OnClickTargetUnit(StageClassInfo __instance, ref StoryState __result)
