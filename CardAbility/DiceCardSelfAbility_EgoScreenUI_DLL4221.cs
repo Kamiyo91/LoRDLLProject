@@ -9,11 +9,11 @@ namespace BigDLL4221.CardAbility
         public override void OnUseInstance(BattleUnitModel unit, BattleDiceCardModel self, BattleUnitModel targetUnit)
         {
             StaticModsInfo.EgoCardPullCode = PoolName;
-            Activate(unit);
+            Activate();
             self.exhaust = true;
         }
 
-        private static void Activate(BattleUnitModel unit)
+        private static void Activate()
         {
             var currentStageFloorModel = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
             Singleton<StageController>.Instance.GetCurrentStageFloorModel().team.egoSelectionPoint++;

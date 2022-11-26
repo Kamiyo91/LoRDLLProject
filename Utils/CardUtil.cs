@@ -481,6 +481,16 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static void SetEmotionCardOnlyForBookIds(List<int> cardIds, List<LorId> bookIds)
+        {
+            foreach (var cardId in cardIds)
+            {
+                if (!ModParameters.EmotionCards.TryGetValue(cardId, out var card)) continue;
+                card.UsableByBookIds.AddRange(bookIds);
+                ModParameters.EmotionCards[cardId] = card;
+            }
+        }
+
         public static void FillDictionary()
         {
             var sephirahTypeList = new List<SephirahType>

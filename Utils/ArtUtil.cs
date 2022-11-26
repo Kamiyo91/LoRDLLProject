@@ -218,12 +218,21 @@ namespace BigDLL4221.Utils
                 {
                     var actualKey = new UIStoryKeyData(category.Chapter,
                         categoryOption.Key + $"{category.AdditionalValue}");
-                    if (totalkeysdata.Contains(actualKey)) totalkeysdata.Remove(actualKey);
+                    if (totalkeysdata.Contains(actualKey) && !category.BaseGameCategory.HasValue)
+                        totalkeysdata.Remove(actualKey);
                     var bookFound = false;
+                    if (category.BaseGameCategory.HasValue)
+                        actualKey = totalkeysdata.Find(x => x.StoryLine == category.BaseGameCategory.Value);
                     foreach (var book in category.CategoryBooksId.SelectMany(bookId =>
                                  currentBookModelList.Where(x =>
                                      x.BookId.packageId == categoryOption.Key && x.BookId.id == bookId)))
                     {
+                        if (actualKey == null)
+                        {
+                            actualKey = new UIStoryKeyData(book.ClassInfo.Chapter, category.BaseGameCategory.Value);
+                            totalkeysdata.Add(actualKey);
+                        }
+
                         bookFound = true;
                         if (!currentStoryBooksDic.ContainsKey(actualKey))
                         {
@@ -236,7 +245,7 @@ namespace BigDLL4221.Utils
                         }
                     }
 
-                    if (!bookFound) continue;
+                    if (!bookFound || category.BaseGameCategory.HasValue) continue;
                     totalkeysdata.Insert(index, actualKey);
                     index++;
                 }

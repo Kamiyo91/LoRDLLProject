@@ -4,6 +4,7 @@ using BigDLL4221.Enum;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
 using LOR_XML;
+using UI;
 using UnityEngine;
 
 namespace BigDLL4221.Models
@@ -63,6 +64,7 @@ namespace BigDLL4221.Models
         public static Dictionary<SephirahType, SavedFloorOptions> EgoAndEmotionCardChanged =
             new Dictionary<SephirahType, SavedFloorOptions>();
 
+        public static LorId OnPlayEmotionCardUsedBy = null;
         public static bool DaatFloorFound = false;
     }
 
@@ -97,14 +99,17 @@ namespace BigDLL4221.Models
 
     public class EmotionCardOptions
     {
-        public EmotionCardOptions(EmotionCardXmlInfo cardXml, List<string> code = null, List<string> floorCode = null)
+        public EmotionCardOptions(EmotionCardXmlInfo cardXml, List<string> code = null, List<string> floorCode = null,
+            List<LorId> usableByBookIds = null)
         {
             CardXml = cardXml;
             Code = code ?? new List<string>();
             FloorCode = floorCode ?? new List<string>();
+            UsableByBookIds = usableByBookIds ?? new List<LorId>();
         }
 
         public EmotionCardXmlInfo CardXml { get; set; }
+        public List<LorId> UsableByBookIds { get; set; }
         public List<string> Code { get; set; }
         public List<string> FloorCode { get; set; }
     }
@@ -332,13 +337,15 @@ namespace BigDLL4221.Models
     public class StageOptions
     {
         public StageOptions(int stageId, bool bannedEmotionLevel = false, RewardOptions stageRewardOptions = null,
-            PreBattleOptions preBattleOptions = null, StageColorOptions stageColorOptions = null)
+            PreBattleOptions preBattleOptions = null, StageColorOptions stageColorOptions = null,
+            StageRequirements stageRequirements = null)
         {
             StageId = stageId;
             BannedEmotionLevel = bannedEmotionLevel;
             StageRewardOptions = stageRewardOptions;
             PreBattleOptions = preBattleOptions;
             StageColorOptions = stageColorOptions;
+            StageRequirements = stageRequirements;
         }
 
         public int StageId { get; set; }
@@ -346,6 +353,19 @@ namespace BigDLL4221.Models
         public RewardOptions StageRewardOptions { get; set; }
         public PreBattleOptions PreBattleOptions { get; set; }
         public StageColorOptions StageColorOptions { get; set; }
+        public StageRequirements StageRequirements { get; set; }
+    }
+
+    public class StageRequirements
+    {
+        public StageRequirements(int? requiredLibraryLevel = null, List<LorId> requiredStageIds = null)
+        {
+            RequiredLibraryLevel = requiredLibraryLevel;
+            RequiredStageIds = requiredStageIds ?? new List<LorId>();
+        }
+
+        public int? RequiredLibraryLevel { get; set; }
+        public List<LorId> RequiredStageIds { get; set; }
     }
 
     public class StageColorOptions
@@ -488,7 +508,8 @@ namespace BigDLL4221.Models
     {
         public CategoryOptions(string packageId = "", string additionalValue = "", List<int> categoryBooksId = null,
             string customIconSpriteId = "", string baseIconSpriteId = "", string categoryNameId = "",
-            string categoryName = "", int chapter = 7, CategoryColorOptions bookDataColor = null)
+            string categoryName = "", int chapter = 7, CategoryColorOptions bookDataColor = null,
+            UIStoryLine? baseGameCategory = null)
         {
             CategoryBooksId = categoryBooksId ?? new List<int>();
             CustomIconSpriteId = customIconSpriteId;
@@ -499,6 +520,7 @@ namespace BigDLL4221.Models
             AdditionalValue = additionalValue;
             PackageId = packageId;
             BookDataColor = bookDataColor;
+            BaseGameCategory = baseGameCategory;
         }
 
         public string PackageId { get; set; }
@@ -510,6 +532,7 @@ namespace BigDLL4221.Models
         public string CategoryNameId { get; set; }
         public string CategoryName { get; set; }
         public CategoryColorOptions BookDataColor { get; set; }
+        public UIStoryLine? BaseGameCategory { get; set; }
     }
 
     public class CategoryColorOptions

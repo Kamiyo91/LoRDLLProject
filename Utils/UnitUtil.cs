@@ -703,5 +703,13 @@ namespace BigDLL4221.Utils
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == target.Book.BookId.id);
             return keypageItem == null || keypageItem.TargetableBySpecialCards;
         }
+
+        public static bool IsLocked(StageRequirements stageExtra)
+        {
+            if (stageExtra.RequiredLibraryLevel.HasValue &&
+                LibraryModel.Instance.GetLibraryLevel() < stageExtra.RequiredLibraryLevel.Value)
+                return true;
+            return stageExtra.RequiredStageIds.Any(num => LibraryModel.Instance.ClearInfo.GetClearCount(num) <= 0);
+        }
     }
 }

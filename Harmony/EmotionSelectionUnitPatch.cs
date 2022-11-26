@@ -19,10 +19,8 @@ namespace BigDLL4221.Harmony
             NeedUnitSelection = AccessTools.Field(typeof(LevelUpUI), "_needUnitSelection");
 
         private static readonly Predicate<BattleUnitModel> MatchAddon = x =>
-            ModParameters.PassiveOptions.Any(y =>
-                x.passiveDetail.PassiveList.Any(z =>
-                    z.id.packageId == y.Key &&
-                    y.Value.Any(v => v.PassiveId == z.id.id && v.BannedEmotionCardSelection))) ||
+            ModParameters.PassiveOptions.Any(y => x.passiveDetail.PassiveList.Any(z =>
+                z.id.packageId == y.Key && y.Value.Any(v => v.PassiveId == z.id.id && v.BannedEmotionCardSelection))) ||
             ModParameters.KeypageOptions.Any(y =>
                 x.Book.BookId.packageId == y.Key &&
                 y.Value.Any(z => z.KeypageId == x.Book.BookId.id && z.BannedEmotionCards));
@@ -31,8 +29,22 @@ namespace BigDLL4221.Harmony
         public class BlockSelectionBubble
         {
             [HarmonyPostfix]
-            public static void LevelUpUI_Predicate_Patch(BattleUnitModel x, ref bool __result)
+            public static void LevelUpUI_Predicate_Patch(LevelUpUI __instance, BattleUnitModel x, ref bool __result)
             {
+                if (StaticModsInfo.OnPlayEmotionCardUsedBy != null)
+                {
+                    __result |= x.Book.BookId != StaticModsInfo.OnPlayEmotionCardUsedBy;
+                    return;
+                }
+
+                if (__instance.selectedEmotionCard != null &&
+                    ModParameters.EmotionCards.TryGetValue(__instance.selectedEmotionCard.Card.id, out var card))
+                    if (card.UsableByBookIds.Any())
+                    {
+                        __result |= !card.UsableByBookIds.Contains(x.Book.BookId) && MatchAddon(x);
+                        return;
+                    }
+
                 __result |= MatchAddon(x);
             }
 

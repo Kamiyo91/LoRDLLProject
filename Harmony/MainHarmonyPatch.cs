@@ -976,7 +976,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StageLibraryFloorModel), "StartPickEmotionCard")]
-        private static bool StageLibraryFloorModel_StartPickEmotionCard(StageLibraryFloorModel __instance)
+        public static bool StageLibraryFloorModel_StartPickEmotionCard(StageLibraryFloorModel __instance)
         {
             if (!string.IsNullOrEmpty(StaticModsInfo.EmotionCardPullCode))
             {
@@ -1068,7 +1068,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(EmotionEgoXmlInfo), "CardId", MethodType.Getter)]
         [HarmonyPostfix]
-        private static void EmotionEgoXmlInfo_get_CardId(EmotionEgoXmlInfo __instance, ref LorId __result)
+        public static void EmotionEgoXmlInfo_get_CardId(EmotionEgoXmlInfo __instance, ref LorId __result)
         {
             if (ModParameters.EmotionEgoCards.TryGetValue(__instance.id, out var egoCardOptions))
                 __result = new LorId(egoCardOptions.PackageId, __instance.id);
@@ -1076,7 +1076,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(EmotionEgoCardUI), "Init")]
         [HarmonyPostfix]
-        private static void EmotionEgoCardUI_Init(EmotionEgoCardUI __instance, EmotionEgoXmlInfo card,
+        public static void EmotionEgoCardUI_Init(EmotionEgoCardUI __instance, EmotionEgoXmlInfo card,
             TextMeshProUGUI ____cardName)
         {
             if (!ModParameters.EmotionEgoCards.TryGetValue(card.id, out var egoCardOptions)) return;
@@ -1088,7 +1088,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(EmotionEgoXmlList), "GetData", typeof(LorId), typeof(SephirahType))]
         [HarmonyPostfix]
-        private static void EmotionEgoXmlList_GetData(LorId id, ref EmotionEgoXmlInfo __result,
+        public static void EmotionEgoXmlList_GetData(LorId id, ref EmotionEgoXmlInfo __result,
             List<EmotionEgoXmlInfo> ____list)
         {
             var cardListExist = ModParameters.EmotionEgoCards.Any(x => x.Value.PackageId.Equals(id.packageId));
@@ -1097,7 +1097,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(UIEgoCardPreviewSlot), "Init")]
         [HarmonyPostfix]
-        private static void UIEgoCardPreviewSlot_Init(DiceCardItemModel cardModel, TextMeshProUGUI ___cardName,
+        public static void UIEgoCardPreviewSlot_Init(DiceCardItemModel cardModel, TextMeshProUGUI ___cardName,
             TextMeshProUGUI ___cardCost, Image ___artwork)
         {
             if (cardModel?.ClassInfo == null) return;
@@ -1114,7 +1114,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(BattleEmotionCardModel), MethodType.Constructor, typeof(EmotionCardXmlInfo),
             typeof(BattleUnitModel))]
         [HarmonyPostfix]
-        private static void BattleEmotionCardModel_ctor_Post(BattleEmotionCardModel __instance,
+        public static void BattleEmotionCardModel_ctor_Post(BattleEmotionCardModel __instance,
             EmotionCardXmlInfo xmlInfo, ref List<EmotionCardAbilityBase> ____abilityList)
         {
             using (var enumerator = xmlInfo.Script.GetEnumerator())
@@ -1136,7 +1136,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(UISephirahFloor), "Init")]
         [HarmonyPostfix]
-        private static void UISephirahFloor_Init_Post(UISephirahFloor __instance)
+        public static void UISephirahFloor_Init_Post(UISephirahFloor __instance)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(__instance.sephirah, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
@@ -1150,7 +1150,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(LevelUpUI), "InitBase")]
         [HarmonyPostfix]
-        private static void UIGetAbnormalityPanel_SetData_Post(Image ___FloorIconImage, Image ___ego_FloorIconImage,
+        public static void UIGetAbnormalityPanel_SetData_Post(Image ___FloorIconImage, Image ___ego_FloorIconImage,
             Image ___NeedSelectAb_FloorIconImage)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(Singleton<StageController>.Instance.CurrentFloor,
@@ -1222,6 +1222,23 @@ namespace BigDLL4221.Harmony
                 __instance.currentMapObject.sephirahColor);
             foreach (var battleUnitModel in BattleObjectManager.instance.GetList())
                 battleUnitModel.view.ChangeScale(__instance.currentMapObject.mapSize);
+        }
+
+        [HarmonyPatch(typeof(LevelUpUI), "OnClickTargetUnit")]
+        [HarmonyPrefix]
+        public static void LevelUpUI_OnClickTargetUnit()
+        {
+            StaticModsInfo.OnPlayEmotionCardUsedBy = null;
+        }
+
+        [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]
+        [HarmonyPrefix]
+        public static void StageClassInfo_OnClickTargetUnit(StageClassInfo __instance, ref StoryState __result)
+        {
+            if (!ModParameters.StageOptions.TryGetValue(__instance.id.packageId, out var stageOptions)) return;
+            var stage = stageOptions.FirstOrDefault(x => x.StageId == __instance.id.id);
+            if (stage == null) return;
+            if (UnitUtil.IsLocked(stage.StageRequirements)) __result = StoryState.Close;
         }
     }
 }

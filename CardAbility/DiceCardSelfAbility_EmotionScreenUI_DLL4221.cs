@@ -5,15 +5,17 @@ namespace BigDLL4221.CardAbility
     public class DiceCardSelfAbility_EmotionScreenUI_DLL4221 : DiceCardSelfAbilityBase
     {
         public virtual string PoolName { get; set; }
+        public virtual bool OnlyForUser { get; set; } = false;
 
         public override void OnUseInstance(BattleUnitModel unit, BattleDiceCardModel self, BattleUnitModel targetUnit)
         {
             StaticModsInfo.EmotionCardPullCode = PoolName;
-            Activate(unit);
+            if (OnlyForUser) StaticModsInfo.OnPlayEmotionCardUsedBy = unit.Book.BookId;
+            Activate();
             self.exhaust = true;
         }
 
-        private static void Activate(BattleUnitModel unit)
+        private static void Activate()
         {
             var currentStageFloorModel = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
