@@ -1252,7 +1252,7 @@ namespace BigDLL4221.Harmony
         {
             if (!ModParameters.StageOptions.TryGetValue(__instance.id.packageId, out var stageOptions)) return;
             var stage = stageOptions.FirstOrDefault(x => x.StageId == __instance.id.id);
-            if (stage == null) return;
+            if (stage?.StageRequirements == null) return;
             if (UnitUtil.IsLocked(stage.StageRequirements)) __result = StoryState.Close;
         }
     }
