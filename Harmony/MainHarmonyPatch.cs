@@ -982,7 +982,9 @@ namespace BigDLL4221.Harmony
             {
                 var emotionList = CardUtil.CustomCreateSelectableList(__instance.team.emotionLevel);
                 StaticModsInfo.EmotionCardPullCode = string.Empty;
-                if (emotionList.Count <= 0) return true;
+                if (emotionList.Count <= 0) return false;
+                if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
+                    SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
                 SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(0, emotionList);
                 return false;
             }
@@ -990,7 +992,9 @@ namespace BigDLL4221.Harmony
             if (string.IsNullOrEmpty(StaticModsInfo.EgoCardPullCode)) return true;
             var egoList = CardUtil.CustomCreateSelectableEgoList();
             StaticModsInfo.EgoCardPullCode = string.Empty;
-            if (egoList.Count <= 0) return true;
+            if (egoList.Count <= 0) return false;
+            if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
+                SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.InitEgo(0, egoList);
             return false;
         }
@@ -1224,20 +1228,22 @@ namespace BigDLL4221.Harmony
                 battleUnitModel.view.ChangeScale(__instance.currentMapObject.mapSize);
         }
 
-        [HarmonyPatch(typeof(LevelUpUI), "OnClickTargetUnit")]
+        [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickPassiveCard")]
         [HarmonyPrefix]
-        public static void LevelUpUI_OnClickTargetUnit()
+        public static void StageLibraryFloorModel_OnPickPassiveCard_Pre()
         {
             StaticModsInfo.OnPlayEmotionCardUsedBy = null;
         }
 
-        [HarmonyPatch(typeof(LevelUpUI), "OnSelectPassive")]
-        [HarmonyPrefix]
-        public static void LevelUpUI_OnSelectPassive(EmotionPassiveCardUI picked)
+        [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickPassiveCard")]
+        [HarmonyPostfix]
+        public static void StageLibraryFloorModel_OnPickPassiveCard_Post(StageLibraryFloorModel __instance)
         {
-            if (picked.Card.TargetType == EmotionTargetType.All ||
-                picked.Card.TargetType == EmotionTargetType.AllIncludingEnemy)
-                StaticModsInfo.OnPlayEmotionCardUsedBy = null;
+            if (StaticModsInfo.OnPlayCardEmotion)
+            {
+                StaticModsInfo.OnPlayCardEmotion = false;
+                __instance.team.currentSelectEmotionLevel--;
+            }
         }
 
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]

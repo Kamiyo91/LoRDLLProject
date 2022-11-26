@@ -65,6 +65,7 @@ namespace BigDLL4221.Models
             new Dictionary<SephirahType, SavedFloorOptions>();
 
         public static LorId OnPlayEmotionCardUsedBy = null;
+        public static bool OnPlayCardEmotion = false;
         public static bool DaatFloorFound = false;
     }
 

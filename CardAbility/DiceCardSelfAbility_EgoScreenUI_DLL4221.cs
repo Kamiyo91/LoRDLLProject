@@ -17,7 +17,7 @@ namespace BigDLL4221.CardAbility
         {
             var currentStageFloorModel = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
             Singleton<StageController>.Instance.GetCurrentStageFloorModel().team.egoSelectionPoint++;
-            SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
+            //SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
             currentStageFloorModel.StartPickEmotionCard();
         }
 
