@@ -1154,7 +1154,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(LevelUpUI), "InitBase")]
         [HarmonyPostfix]
-        public static void UIGetAbnormalityPanel_SetData_Post(Image ___FloorIconImage, Image ___ego_FloorIconImage,
+        public static void LevelUpUI_InitBase_Post(Image ___FloorIconImage, Image ___ego_FloorIconImage,
             Image ___NeedSelectAb_FloorIconImage)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(Singleton<StageController>.Instance.CurrentFloor,

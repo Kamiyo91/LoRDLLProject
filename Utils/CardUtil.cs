@@ -306,8 +306,7 @@ namespace BigDLL4221.Utils
             if (listEmotionXmlCards != null)
             {
                 var listEmotionCards = (from emotionCardXmlInfo in listEmotionXmlCards
-                    where emotionCardXmlInfo.id >= 1 && emotionCardXmlInfo.id <= 15 &&
-                          emotionCardXmlInfo.Sephirah == sephirah
+                    where emotionCardXmlInfo.Sephirah == sephirah
                     select new EmotionCardXmlInfo
                     {
                         Name = emotionCardXmlInfo.Name,
@@ -402,6 +401,7 @@ namespace BigDLL4221.Utils
                 foreach (var emotionCardXmlInfo in emotionCardList.Where(x =>
                              x.Sephirah == sephirah || x.Name.Contains($"RevertCardBigDLL4221{sephirah}")))
                 {
+                    if (emotionCardXmlInfo.id - 1 >= floorEmotionCards.Count) break;
                     emotionCardXmlInfo.Name = floorEmotionCards[emotionCardXmlInfo.id - 1].Name;
                     emotionCardXmlInfo._artwork = floorEmotionCards[emotionCardXmlInfo.id - 1]._artwork;
                     emotionCardXmlInfo.State = floorEmotionCards[emotionCardXmlInfo.id - 1].State;
@@ -419,11 +419,12 @@ namespace BigDLL4221.Utils
                 .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
             if (emotionEgoCardList == null) return;
             var emotionEgoFloorCardList = emotionEgoCardList.Where(x => x.Sephirah == sephirah);
-            foreach (var (x, y) in emotionEgoFloorCardList.Zip(floorEgoCards, Tuple.Create))
+            foreach (var (x, i) in emotionEgoFloorCardList.Select((x, i) => (x, i)))
             {
-                x.id = y.id;
-                x._CardId = y._CardId;
-                x.isLock = y.isLock;
+                if (i >= floorEgoCards.Count) break;
+                x.id = floorEgoCards[i].id;
+                x._CardId = floorEgoCards[i]._CardId;
+                x.isLock = floorEgoCards[i].isLock;
             }
         }
 
