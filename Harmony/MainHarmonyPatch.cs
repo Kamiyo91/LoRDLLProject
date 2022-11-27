@@ -1239,11 +1239,9 @@ namespace BigDLL4221.Harmony
         [HarmonyPostfix]
         public static void StageLibraryFloorModel_OnPickPassiveCard_Post(StageLibraryFloorModel __instance)
         {
-            if (StaticModsInfo.OnPlayCardEmotion)
-            {
-                StaticModsInfo.OnPlayCardEmotion = false;
-                __instance.team.currentSelectEmotionLevel--;
-            }
+            if (!StaticModsInfo.OnPlayCardEmotion) return;
+            StaticModsInfo.OnPlayCardEmotion = false;
+            __instance.team.currentSelectEmotionLevel--;
         }
 
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]
