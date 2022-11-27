@@ -489,28 +489,14 @@ namespace BigDLL4221.Harmony
                 ___img_Icon);
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UISettingEquipPageScrollList), "SetData")]
-        [HarmonyPatch(typeof(UIEquipPageScrollList), "SetData")]
-        public static void General_SetData(object __instance, List<BookModel> ___currentBookModelList,
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UISettingEquipPageScrollList), "CalculateSlotsHeight")]
+        [HarmonyPatch(typeof(UIEquipPageScrollList), "CalculateSlotsHeight")]
+        public static void General_CalculateSlotsHeight(List<BookModel> ___currentBookModelList,
             List<UIStoryKeyData> ___totalkeysdata, Dictionary<UIStoryKeyData,
-                List<BookModel>> ___currentStoryBooksDic, RectTransform ___rect_slotListRoot,
-            object ____equipPagesPanelSlotList, bool ___isClickedUpArrow, bool ___isClickedDownArrow)
+                List<BookModel>> ___currentStoryBooksDic)
         {
             ArtUtil.SetMainData(___currentBookModelList, ___totalkeysdata, ___currentStoryBooksDic);
-            switch (__instance)
-            {
-                case UISettingEquipPageScrollList uiSetting:
-                    var listUISetting = ____equipPagesPanelSlotList as List<UISettingInvenEquipPageListSlot>;
-                    ArtUtil.SetMainDataAfterUISetting(uiSetting, ref ___isClickedUpArrow, ref ___isClickedDownArrow,
-                        ___rect_slotListRoot, listUISetting);
-                    break;
-                case UIEquipPageScrollList uiEquip:
-                    var listUIEquip = ____equipPagesPanelSlotList as List<UIInvenEquipPageListSlot>;
-                    ArtUtil.SetMainDataAfterUIEquip(uiEquip, ref ___isClickedUpArrow, ref ___isClickedDownArrow,
-                        ___rect_slotListRoot, listUIEquip);
-                    break;
-            }
         }
 
         [HarmonyPrefix]

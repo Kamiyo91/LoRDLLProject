@@ -269,34 +269,6 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static void SetMainDataAfterUIEquip(UIEquipPageScrollList instance, ref bool isClickedUpArrow,
-            ref bool isClickedDownArrow, RectTransform rect_slotListRoot,
-            List<UIInvenEquipPageListSlot> equipPagesPanelSlotList)
-        {
-            instance.CalculateSlotsHeight();
-            instance.UpdateSlotList();
-            instance.GetType().GetMethod("SetScrollBar", AccessTools.all)?.Invoke(instance, Array.Empty<object>());
-            isClickedUpArrow = false;
-            isClickedDownArrow = false;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rect_slotListRoot);
-            var saveFirstChild = equipPagesPanelSlotList[0].EquipPageSlotList[0];
-            instance.SetSaveFirstChild(saveFirstChild);
-        }
-
-        public static void SetMainDataAfterUISetting(UISettingEquipPageScrollList instance, ref bool isClickedUpArrow,
-            ref bool isClickedDownArrow, RectTransform rect_slotListRoot,
-            List<UISettingInvenEquipPageListSlot> equipPagesPanelSlotList)
-        {
-            instance.CalculateSlotsHeight();
-            instance.UpdateSlotList();
-            instance.GetType().GetMethod("SetScrollBar", AccessTools.all)?.Invoke(instance, Array.Empty<object>());
-            isClickedUpArrow = false;
-            isClickedDownArrow = false;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rect_slotListRoot);
-            var saveFirstChild = equipPagesPanelSlotList[0].EquipPageSlotList[0];
-            instance.SetSaveFirstChild(saveFirstChild);
-        }
-
         public static void SetEpisodeSlots(UIBookStoryChapterSlot instance, UIBookStoryPanel panel,
             List<UIBookStoryEpisodeSlot> episodeSlots)
         {
