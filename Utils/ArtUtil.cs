@@ -92,8 +92,25 @@ namespace BigDLL4221.Utils
             Image selectedEpisodeIconGlow)
         {
             if (slot == null) return;
+            if (slot.books.Exists(x => x.id.IsBasic())) return;
             var book = slot.books.FirstOrDefault(x => ModParameters.PackageIds.Contains(x.id.packageId));
             if (book == null) return;
+            if (ModParameters.CategoryOptions.TryGetValue(book.id.packageId, out var categoryOptions))
+            {
+                var categoryOption = categoryOptions.FirstOrDefault(x => x.CredenzaBooksId.Contains(book.id.id));
+                if (categoryOption != null)
+                {
+                    selectedEpisodeText.text = CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
+                        book.id.packageId);
+                    var iconCategory = GetIcon(categoryOption.CustomIconSpriteId, categoryOption.BaseIconSpriteId,
+                        slot.books[0].BookIcon);
+                    selectedEpisodeIcon.sprite = iconCategory;
+                    selectedEpisodeIconGlow.sprite = iconCategory;
+                    instance.UpdateBookSlots();
+                    return;
+                }
+            }
+
             var credenzaOptionsTryGet =
                 ModParameters.CredenzaOptions.TryGetValue(book.id.packageId, out var credenzaOptions);
             if (!credenzaOptionsTryGet) credenzaOptions = new CredenzaOptions();
@@ -283,13 +300,72 @@ namespace BigDLL4221.Utils
         public static void SetEpisodeSlots(UIBookStoryChapterSlot instance, UIBookStoryPanel panel,
             List<UIBookStoryEpisodeSlot> episodeSlots)
         {
-            if (instance.chapter != 7) return;
             foreach (var packageId in ModParameters.PackageIds)
             {
                 var uibookStoryEpisodeSlot = episodeSlots.Find(x =>
                     x.books.Find(y => y.id.packageId == packageId) != null);
                 if (uibookStoryEpisodeSlot == null) continue;
-                if (ModParameters.CredenzaOptions.TryGetValue(packageId, out var credenzaOption))
+                if (ModParameters.CategoryOptions.TryGetValue(packageId, out var categoriesOptions))
+                {
+                    foreach (var categoryOption in categoriesOptions.Where(categoryOption =>
+                                 categoryOption.Chapter == instance.chapter && categoryOption.BaseGameCategory == null))
+                    {
+                        uibookStoryEpisodeSlot = episodeSlots[episodeSlots.Count - 1];
+                        switch (categoryOption.CredenzaType)
+                        {
+                            case CredenzaEnum.ModifiedCredenza:
+                            {
+                                var books = uibookStoryEpisodeSlot.books;
+                                var panelBooks = panel.panel.GetChapterBooksData(instance.chapter).FindAll(x =>
+                                    x.id.packageId == packageId && categoryOption.CredenzaBooksId.Contains(x.id.id));
+                                var changed = false;
+                                if (panelBooks.Any())
+                                {
+                                    changed = true;
+                                    uibookStoryEpisodeSlot.Init(panelBooks, instance);
+                                    ((TextMeshProUGUI)uibookStoryEpisodeSlot.GetType()
+                                            .GetField("episodeText", AccessTools.all)
+                                            .GetValue(uibookStoryEpisodeSlot)).text =
+                                        CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
+                                            packageId);
+                                    var image = (Image)uibookStoryEpisodeSlot.GetType()
+                                        .GetField("episodeIconGlow", AccessTools.all)
+                                        .GetValue(uibookStoryEpisodeSlot);
+                                    var image2 = (Image)uibookStoryEpisodeSlot.GetType()
+                                        .GetField("episodeIcon", AccessTools.all)
+                                        .GetValue(uibookStoryEpisodeSlot);
+                                    var icon = GetIcon(categoryOption.CustomIconSpriteId,
+                                        categoryOption.BaseIconSpriteId,
+                                        panelBooks[0].BookIcon);
+                                    image2.sprite = icon;
+                                    image.sprite = icon;
+                                }
+
+                                var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
+                                if (changed)
+                                {
+                                    instance.InstatiateAdditionalSlot();
+                                    uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
+                                }
+
+                                books.RemoveAll(x => x.id.packageId == packageId);
+                                uibookStoryEpisodeSlot2.Init(instance.chapter, books, instance);
+                                break;
+                            }
+                            case CredenzaEnum.NoCredenza:
+                            {
+                                var books = uibookStoryEpisodeSlot.books;
+                                var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
+                                books.RemoveAll(x => x.id.packageId == packageId);
+                                uibookStoryEpisodeSlot2.Init(instance.chapter, books, instance);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (ModParameters.CredenzaOptions.TryGetValue(packageId, out var credenzaOption))
+                {
+                    if (credenzaOption.Chapter != instance.chapter) continue;
                     switch (credenzaOption.CredenzaOption)
                     {
                         case CredenzaEnum.ModifiedCredenza:
@@ -301,14 +377,11 @@ namespace BigDLL4221.Utils
                             if (panelBooks.Any())
                             {
                                 changed = true;
-                                var credenzaOptionsTryGet =
-                                    ModParameters.CredenzaOptions.TryGetValue(packageId, out var credenzaOptions);
-                                if (!credenzaOptionsTryGet) credenzaOptions = new CredenzaOptions();
                                 uibookStoryEpisodeSlot.Init(panelBooks, instance);
                                 ((TextMeshProUGUI)uibookStoryEpisodeSlot.GetType()
                                         .GetField("episodeText", AccessTools.all)
                                         .GetValue(uibookStoryEpisodeSlot)).text =
-                                    CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
+                                    CredenzaName(credenzaOption.CredenzaNameId, credenzaOption.CredenzaName,
                                         packageId);
                                 var image = (Image)uibookStoryEpisodeSlot.GetType()
                                     .GetField("episodeIconGlow", AccessTools.all)
@@ -316,7 +389,7 @@ namespace BigDLL4221.Utils
                                 var image2 = (Image)uibookStoryEpisodeSlot.GetType()
                                     .GetField("episodeIcon", AccessTools.all)
                                     .GetValue(uibookStoryEpisodeSlot);
-                                var icon = GetIcon(credenzaOptions.CustomIconSpriteId, credenzaOptions.BaseIconSpriteId,
+                                var icon = GetIcon(credenzaOption.CustomIconSpriteId, credenzaOption.BaseIconSpriteId,
                                     panelBooks[0].BookIcon);
                                 image2.sprite = icon;
                                 image.sprite = icon;
@@ -342,6 +415,7 @@ namespace BigDLL4221.Utils
                             break;
                         }
                     }
+                }
             }
         }
 

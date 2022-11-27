@@ -29,6 +29,18 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIStoryArchivesPanel), "GetEpisodeBooksData")]
+        public static void UIStoryArchivesPanel_GetEpisodeBooksData(UIStoryLine ep, ref List<BookXmlInfo> __result)
+        {
+            var categoryOptions = ModParameters.CategoryOptions.Where(x =>
+                x.Value.Any(y => y.BaseGameCategory != null && y.BaseGameCategory == ep));
+            __result.AddRange(from mainItem in categoryOptions
+                from bookId in mainItem.Value.Where(x => x.BaseGameCategory != null && x.BaseGameCategory == ep)
+                    .SelectMany(x => x.CredenzaBooksId)
+                select Singleton<BookXmlList>.Instance.GetData(new LorId(mainItem.Key, bookId)));
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(BookModel), "GetThumbSprite")]
         [HarmonyPatch(typeof(BookXmlInfo), "GetThumbSprite")]
         public static void General_GetThumbSprite(object __instance, ref Sprite __result)

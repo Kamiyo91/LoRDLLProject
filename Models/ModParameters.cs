@@ -473,7 +473,7 @@ namespace BigDLL4221.Models
     {
         public CredenzaOptions(CredenzaEnum credenzaOption = CredenzaEnum.NoCredenza, List<int> credenzaBooksId = null,
             string customIconSpriteId = "", string baseIconSpriteId = "", string credenzaNameId = "",
-            string credenzaName = "", CredenzaColorOptions bookDataColor = null)
+            string credenzaName = "", CredenzaColorOptions bookDataColor = null, int chapter = 7)
         {
             CredenzaOption = credenzaOption;
             CredenzaBooksId = credenzaBooksId ?? new List<int>();
@@ -482,8 +482,10 @@ namespace BigDLL4221.Models
             CredenzaNameId = credenzaNameId;
             CredenzaName = credenzaName;
             BookDataColor = bookDataColor;
+            Chapter = chapter;
         }
 
+        public int Chapter { get; set; }
         public CredenzaEnum CredenzaOption { get; set; }
         public List<int> CredenzaBooksId { get; set; }
         public string CustomIconSpriteId { get; set; }
@@ -510,7 +512,8 @@ namespace BigDLL4221.Models
         public CategoryOptions(string packageId = "", string additionalValue = "", List<int> categoryBooksId = null,
             string customIconSpriteId = "", string baseIconSpriteId = "", string categoryNameId = "",
             string categoryName = "", int chapter = 7, CategoryColorOptions bookDataColor = null,
-            UIStoryLine? baseGameCategory = null)
+            UIStoryLine? baseGameCategory = null, List<int> credenzaBooksId = null,
+            CredenzaEnum credenzaType = CredenzaEnum.ModifiedCredenza)
         {
             CategoryBooksId = categoryBooksId ?? new List<int>();
             CustomIconSpriteId = customIconSpriteId;
@@ -522,12 +525,16 @@ namespace BigDLL4221.Models
             PackageId = packageId;
             BookDataColor = bookDataColor;
             BaseGameCategory = baseGameCategory;
+            CredenzaType = credenzaType;
+            CredenzaBooksId = credenzaBooksId ?? new List<int>();
         }
 
+        public CredenzaEnum CredenzaType { get; set; }
         public string PackageId { get; set; }
         public string AdditionalValue { get; set; }
         public int Chapter { get; set; }
         public List<int> CategoryBooksId { get; set; }
+        public List<int> CredenzaBooksId { get; set; }
         public string CustomIconSpriteId { get; set; }
         public string BaseIconSpriteId { get; set; }
         public string CategoryNameId { get; set; }
