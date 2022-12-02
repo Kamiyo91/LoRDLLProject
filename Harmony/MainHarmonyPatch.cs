@@ -1070,7 +1070,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(EmotionEgoXmlInfo), "CardId", MethodType.Getter)]
         [HarmonyPostfix]
-        public static void EmotionEgoXmlInfo_get_CardId(EmotionEgoXmlInfo __instance, ref LorId __result)
+        public static void EmotionEgoXmlInfo_get_CardId(object __instance, ref LorId __result)
         {
             if (!(__instance is EmotionEgoCardXmlExtension card)) return;
             __result = new LorId(card.PackageId, card.id);
