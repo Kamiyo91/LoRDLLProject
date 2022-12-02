@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BigDLL4221.Enum;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using HarmonyLib;
@@ -37,13 +38,18 @@ namespace BigDLL4221.Harmony
                     return;
                 }
 
-                if (__instance.selectedEmotionCard != null &&
-                    ModParameters.EmotionCards.TryGetValue(__instance.selectedEmotionCard.Card.id, out var card))
-                    if (card.UsableByBookIds.Any())
+                var emotionCards = ModParameters.EmotionCards.SelectMany(y => y.Value);
+                if (__instance.selectedEmotionCard != null)
+                    if (__instance.selectedEmotionCard.Card is EmotionCardXmlExtension card)
                     {
-                        __result |= !card.UsableByBookIds.Contains(x.Book.BookId) && MatchAddon(x);
-                        return;
+                        var cardOptions = emotionCards.FirstOrDefault(y => y.CardXml.LorId == card.LorId);
+                        if (cardOptions != null && cardOptions.UsableByBookIds.Any())
+                        {
+                            __result |= !cardOptions.UsableByBookIds.Contains(x.Book.BookId) && MatchAddon(x);
+                            return;
+                        }
                     }
+
 
                 __result |= MatchAddon(x);
             }

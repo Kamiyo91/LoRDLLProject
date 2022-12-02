@@ -4,6 +4,7 @@ using System.Linq;
 using Battle.DiceAttackEffect;
 using BigDLL4221.Buffs;
 using BigDLL4221.Enum;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using HarmonyLib;
@@ -208,7 +209,8 @@ namespace BigDLL4221.Harmony
                     StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
                         new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
                     CardUtil.SaveCardsBeforeChange(__instance.OwnerSephirah);
-                    CardUtil.ChangeAbnoAndEgo(__instance.OwnerSephirah, bookOptions.CustomFloorOptions);
+                    CardUtil.ChangeAbnoAndEgo(__state.BookId.packageId, __instance.OwnerSephirah,
+                        bookOptions.CustomFloorOptions);
                 }
 
             if (UnitUtil.CheckSkinUnitData(__instance)) return;
@@ -963,13 +965,12 @@ namespace BigDLL4221.Harmony
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
         [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
-        public static void EmotionPassiveCardUI_SetSprites(EmotionCardXmlInfo ____card, ref Image ____artwork)
+        public static void EmotionPassiveCardUI_SetSprites(object ____card, ref Image ____artwork)
         {
-            var artworkId = ModParameters.EmotionCards.Where(x => x.Value.CardXml.Artwork.Equals(____card.Artwork))
-                .Select(x => x.Value.CardXml.Artwork).FirstOrDefault();
-            if (string.IsNullOrEmpty(artworkId)) return;
-            if (!ModParameters.CardArtWorks.TryGetValue(____card.Artwork, out var sprite)) return;
-            ____artwork.sprite = sprite;
+            if (!(____card is EmotionCardXmlExtension cardExtension)) return;
+            ____artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
         }
 
         [HarmonyPrefix]
@@ -999,13 +1000,12 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIAbnormalityCardPreviewSlot), "Init")]
-        public static void UIAbnormalityCardPreviewSlot_Init(EmotionCardXmlInfo card, ref Image ___artwork)
+        public static void UIAbnormalityCardPreviewSlot_Init(object card, ref Image ___artwork)
         {
-            var artworkId = ModParameters.EmotionCards.Where(x => x.Value.CardXml.Artwork.Equals(card.Artwork))
-                .Select(x => x.Value.CardXml.Artwork).FirstOrDefault();
-            if (string.IsNullOrEmpty(artworkId)) return;
-            if (!ModParameters.CardArtWorks.TryGetValue(card.Artwork, out var sprite)) return;
-            ___artwork.sprite = sprite;
+            if (!(card is EmotionCardXmlExtension cardExtension)) return;
+            ___artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
         }
 
         [HarmonyPostfix]
@@ -1072,29 +1072,8 @@ namespace BigDLL4221.Harmony
         [HarmonyPostfix]
         public static void EmotionEgoXmlInfo_get_CardId(EmotionEgoXmlInfo __instance, ref LorId __result)
         {
-            if (ModParameters.EmotionEgoCards.TryGetValue(__instance.id, out var egoCardOptions))
-                __result = new LorId(egoCardOptions.PackageId, __instance.id);
-        }
-
-        [HarmonyPatch(typeof(EmotionEgoCardUI), "Init")]
-        [HarmonyPostfix]
-        public static void EmotionEgoCardUI_Init(EmotionEgoCardUI __instance, EmotionEgoXmlInfo card,
-            TextMeshProUGUI ____cardName)
-        {
-            if (!ModParameters.EmotionEgoCards.TryGetValue(card.id, out var egoCardOptions)) return;
-            __instance.gameObject.SetActive(false);
-            var cardItem = ItemXmlDataList.instance.GetCardItem(new LorId(egoCardOptions.PackageId, card.id));
-            ____cardName.text = cardItem.Name;
-            __instance.gameObject.SetActive(true);
-        }
-
-        [HarmonyPatch(typeof(EmotionEgoXmlList), "GetData", typeof(LorId), typeof(SephirahType))]
-        [HarmonyPostfix]
-        public static void EmotionEgoXmlList_GetData(LorId id, ref EmotionEgoXmlInfo __result,
-            List<EmotionEgoXmlInfo> ____list)
-        {
-            var cardListExist = ModParameters.EmotionEgoCards.Any(x => x.Value.PackageId.Equals(id.packageId));
-            if (cardListExist) __result = ____list.Find(x => x.CardId.id == id.id);
+            if (!(__instance is EmotionEgoCardXmlExtension card)) return;
+            __result = new LorId(card.PackageId, card.id);
         }
 
         [HarmonyPatch(typeof(UIEgoCardPreviewSlot), "Init")]
@@ -1103,9 +1082,10 @@ namespace BigDLL4221.Harmony
             TextMeshProUGUI ___cardCost, Image ___artwork)
         {
             if (cardModel?.ClassInfo == null) return;
-            if (!ModParameters.EmotionEgoCards.Any(x =>
-                    x.Value.PackageId == cardModel.GetID().packageId &&
-                    x.Value.CardXml.id == cardModel.GetID().id)) return;
+            var emotionEgoCards = ModParameters.EmotionEgoCards.SelectMany(x => x.Value);
+            if (!emotionEgoCards.Any(x =>
+                    x.PackageId == cardModel.GetID().packageId &&
+                    x.CardXml.id == cardModel.GetID().id)) return;
             ___cardName.text = cardModel.ClassInfo.Name;
             ___cardCost.text = cardModel.GetSpec().Cost.ToString();
             ___artwork.sprite =

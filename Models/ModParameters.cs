@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BigDLL4221.Enum;
+using BigDLL4221.Extensions;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
 using LOR_XML;
@@ -48,8 +49,11 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<PassiveXmlInfo>> CreatePassives =
             new Dictionary<string, List<PassiveXmlInfo>>();
 
-        public static Dictionary<int, EmotionCardOptions> EmotionCards = new Dictionary<int, EmotionCardOptions>();
-        public static Dictionary<int, EmotionEgoOptions> EmotionEgoCards = new Dictionary<int, EmotionEgoOptions>();
+        public static Dictionary<string, List<EmotionCardOptions>> EmotionCards =
+            new Dictionary<string, List<EmotionCardOptions>>();
+
+        public static Dictionary<string, List<EmotionEgoOptions>> EmotionEgoCards =
+            new Dictionary<string, List<EmotionEgoOptions>>();
 
         //Unity
         public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
@@ -83,7 +87,8 @@ namespace BigDLL4221.Models
 
     public class EmotionEgoOptions
     {
-        public EmotionEgoOptions(EmotionEgoXmlInfo cardXml, List<string> code = null, List<string> floorCode = null,
+        public EmotionEgoOptions(EmotionEgoCardXmlExtension cardXml, List<string> code = null,
+            List<string> floorCode = null,
             string packageId = null)
         {
             CardXml = cardXml;
@@ -92,7 +97,7 @@ namespace BigDLL4221.Models
             PackageId = packageId;
         }
 
-        public EmotionEgoXmlInfo CardXml { get; set; }
+        public EmotionEgoCardXmlExtension CardXml { get; set; }
         public List<string> Code { get; set; }
         public List<string> FloorCode { get; set; }
         public string PackageId { get; set; }
@@ -100,7 +105,8 @@ namespace BigDLL4221.Models
 
     public class EmotionCardOptions
     {
-        public EmotionCardOptions(EmotionCardXmlInfo cardXml, List<string> code = null, List<string> floorCode = null,
+        public EmotionCardOptions(EmotionCardXmlExtension cardXml, List<string> code = null,
+            List<string> floorCode = null,
             List<LorId> usableByBookIds = null)
         {
             CardXml = cardXml;
@@ -109,7 +115,7 @@ namespace BigDLL4221.Models
             UsableByBookIds = usableByBookIds ?? new List<LorId>();
         }
 
-        public EmotionCardXmlInfo CardXml { get; set; }
+        public EmotionCardXmlExtension CardXml { get; set; }
         public List<LorId> UsableByBookIds { get; set; }
         public List<string> Code { get; set; }
         public List<string> FloorCode { get; set; }
