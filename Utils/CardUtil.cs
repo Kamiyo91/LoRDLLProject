@@ -215,19 +215,21 @@ namespace BigDLL4221.Utils
 
         public static EmotionCardXmlExtension CardXmlConverter(string packageId, EmotionCardXmlInfo cardXml)
         {
-            var newXml = new EmotionCardXmlExtension();
-            newXml.LorId = new LorId(packageId, cardXml.id);
-            newXml.Sephirah = cardXml.Sephirah;
-            newXml.TargetType = cardXml.TargetType;
-            newXml.Script = cardXml.Script;
-            newXml.EmotionLevel = cardXml.EmotionLevel;
-            newXml.EmotionRate = cardXml.EmotionRate;
-            newXml.Level = cardXml.Level;
-            newXml.Locked = cardXml.Locked;
-            newXml.Name = cardXml.Name;
-            newXml._artwork = cardXml._artwork;
-            newXml.State = cardXml.State;
-            newXml.id = cardXml.id;
+            var newXml = new EmotionCardXmlExtension
+            {
+                LorId = new LorId(packageId, cardXml.id),
+                Sephirah = cardXml.Sephirah,
+                TargetType = cardXml.TargetType,
+                Script = cardXml.Script,
+                EmotionLevel = cardXml.EmotionLevel,
+                EmotionRate = cardXml.EmotionRate,
+                Level = cardXml.Level,
+                Locked = cardXml.Locked,
+                Name = cardXml.Name,
+                _artwork = cardXml._artwork,
+                State = cardXml.State,
+                id = cardXml.id
+            };
             return newXml;
         }
 
