@@ -31,10 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>BigDLL4221 v1.0.0.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>BigDLL4221SignedKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -114,6 +114,7 @@
     <Compile Include="Models\SummonedUnitStatModel.cs" />
     <Compile Include="Passives\PassiveAbility_CustomDialogSet_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_DrawSpecialCards_DLL4221.cs" />
+    <Compile Include="Passives\PassiveAbility_NoEmotionAndEgoFloor_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_SupportChar_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_UnitSummonedLinkedToMainChar_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_UnitSummonedWithCustomData_DLL4221.cs" />
@@ -155,7 +156,8 @@
     <Compile Include="Utils\UnitUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="BigDLL4221 v1.0.0.snk" />
+    <None Include="BigDLL4221SignedKey.snk" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
