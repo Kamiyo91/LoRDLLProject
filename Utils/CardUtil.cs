@@ -109,10 +109,16 @@ namespace BigDLL4221.Utils
                 if (typeof(BattleCardAbilityDescXmlList).GetField("_dictionaryKeywordCache", AccessTools.all)
                         ?.GetValue(BattleCardAbilityDescXmlList.Instance) is Dictionary<string, List<string>>
                     dictionary)
+                {
                     assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(DiceCardSelfAbilityBase))
                                                    && x.Name.StartsWith("DiceCardSelfAbility_"))
                         .Do(x => dictionary[x.Name.Replace("DiceCardSelfAbility_", "")] =
                             new List<string>(((DiceCardSelfAbilityBase)Activator.CreateInstance(x)).Keywords));
+                    assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(DiceCardAbilityBase))
+                                                   && x.Name.StartsWith("DiceCardAbility_"))
+                        .Do(x => dictionary[x.Name.Replace("DiceCardAbility_", "")] =
+                            new List<string>(((DiceCardAbilityBase)Activator.CreateInstance(x)).Keywords));
+                }
         }
 
         public static List<EmotionCardXmlInfo> CustomCreateSelectableList(int emotionLevel)
@@ -525,6 +531,13 @@ namespace BigDLL4221.Utils
             };
             foreach (var sephirah in sephirahTypeList)
                 StaticModsInfo.EgoAndEmotionCardChanged.Add(sephirah, new SavedFloorOptions());
+        }
+
+        public static EmotionCardXmlInfo GetEmotionCard(string packageId, int cardId)
+        {
+            return !ModParameters.EmotionCards.TryGetValue(packageId, out var cards)
+                ? null
+                : cards.Where(x => x.CardXml.LorId.id == cardId).Select(x => x.CardXml).FirstOrDefault();
         }
     }
 }

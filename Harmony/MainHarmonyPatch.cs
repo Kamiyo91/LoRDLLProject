@@ -193,39 +193,71 @@ namespace BigDLL4221.Harmony
             if (!ModParameters.KeypageOptions.TryGetValue(__state.ClassInfo.id.packageId, out var keypageOptions))
                 return;
             var bookOptions = keypageOptions.FirstOrDefault(x => x.KeypageId == __state.ClassInfo.id.id);
-            if (bookOptions?.BookCustomOptions == null) return;
-            if (bookOptions.BookCustomOptions.EgoSkin.Contains(__state.GetCharacterName()) ||
-                __state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
-                if (bookOptions.BookCustomOptions.OriginalSkinIsBaseGame)
-                    __state.SetCharacterName(bookOptions.BookCustomOptions.OriginalSkin);
-                else
-                    __state.ClassInfo.CharacterSkin = new List<string>
+            if (bookOptions == null) return;
+            if (bookOptions.BookCustomOptions != null)
+            {
+                if (bookOptions.BookCustomOptions.EgoSkin.Contains(__state.GetCharacterName()) ||
+                    __state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
+                    if (bookOptions.BookCustomOptions.OriginalSkinIsBaseGame)
+                        __state.SetCharacterName(bookOptions.BookCustomOptions.OriginalSkin);
+                    else
+                        __state.ClassInfo.CharacterSkin = new List<string>
+                        {
+                            bookOptions.BookCustomOptions.OriginalSkin
+                        };
+                if (__instance.isSephirah && bookOptions.CustomFloorOptions != null)
+                    if (StaticModsInfo.EgoAndEmotionCardChanged.ContainsKey(__instance.OwnerSephirah))
                     {
-                        bookOptions.BookCustomOptions.OriginalSkin
-                    };
-            if (__instance.isSephirah && bookOptions.CustomFloorOptions != null)
-                if (StaticModsInfo.EgoAndEmotionCardChanged.ContainsKey(__instance.OwnerSephirah))
-                {
-                    StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
-                        new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
-                    CardUtil.SaveCardsBeforeChange(__instance.OwnerSephirah);
-                    CardUtil.ChangeAbnoAndEgo(__state.BookId.packageId, __instance.OwnerSephirah,
-                        bookOptions.CustomFloorOptions);
-                }
+                        StaticModsInfo.EgoAndEmotionCardChanged[__instance.OwnerSephirah] =
+                            new SavedFloorOptions(true, bookOptions.CustomFloorOptions);
+                        CardUtil.SaveCardsBeforeChange(__instance.OwnerSephirah);
+                        CardUtil.ChangeAbnoAndEgo(__state.BookId.packageId, __instance.OwnerSephirah,
+                            bookOptions.CustomFloorOptions);
+                    }
 
-            if (UnitUtil.CheckSkinUnitData(__instance)) return;
-            __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
-            var locTryGet = ModParameters.LocalizedItems.TryGetValue(__state.BookId.packageId, out var localizedItem);
-            __instance.SetTempName(!locTryGet ||
-                                   !localizedItem.EnemyNames.TryGetValue(bookOptions.BookCustomOptions.NameTextId,
-                                       out var name)
-                ? bookOptions.BookCustomOptions.Name
-                : name);
+                __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
+                if (!UnitUtil.CheckSkinUnitData(__instance))
+                {
+                    var locTryGet =
+                        ModParameters.LocalizedItems.TryGetValue(__state.BookId.packageId, out var localizedItem);
+                    __instance.SetTempName(!locTryGet ||
+                                           !localizedItem.EnemyNames.TryGetValue(
+                                               bookOptions.BookCustomOptions.NameTextId,
+                                               out var name)
+                        ? bookOptions.BookCustomOptions.Name
+                        : name);
+                }
+            }
+
             if (((bookOptions.EveryoneCanEquip && (__instance.OwnerSephirah == SephirahType.Keter ||
                                                    __instance.OwnerSephirah == SephirahType.Binah)) ||
                  (bookOptions.SephirahType == SephirahType.Keter && __instance.OwnerSephirah == SephirahType.Keter) ||
                  (bookOptions.SephirahType == SephirahType.Binah && __instance.OwnerSephirah == SephirahType.Binah)) &&
                 __instance.isSephirah)
+                __instance.EquipBook(__state, false, true);
+        }
+
+        [HarmonyPatch(typeof(UnitDataModel), "ResetForBlackSilence")]
+        [HarmonyPrefix]
+        private static void UnitDataModel_ResetForBlackSilence_Pre(UnitDataModel __instance, ref BookModel __state)
+        {
+            __state = __instance.bookItem;
+        }
+
+        [HarmonyPatch(typeof(UnitDataModel), "ResetForBlackSilence")]
+        [HarmonyPostfix]
+        private static void UnitDataModel_ResetForBlackSilence_Post(UnitDataModel __instance, BookModel __state)
+        {
+            if (__state == null) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(__state.ClassInfo.id.packageId, out var keypageOptions))
+                return;
+            var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == __state.ClassInfo.id.id);
+            if (keypageOption == null) return;
+            if (__instance.isSephirah && __instance.OwnerSephirah == SephirahType.Keter &&
+                !LibraryModel.Instance.IsBlackSilenceLockedInLibrary() && (keypageOption.EveryoneCanEquip ||
+                                                                           (keypageOption.SephirahType ==
+                                                                            SephirahType.Keter &&
+                                                                            keypageOption.OnlySephirahCanEquip)))
                 __instance.EquipBook(__state, false, true);
         }
 
@@ -417,6 +449,26 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UnitDataModel), "LoadFromSaveData")]
         public static void UnitDataModel_LoadFromSaveData(UnitDataModel __instance)
         {
+            if (!string.IsNullOrEmpty(__instance.workshopSkin))
+            {
+                var skins = ModParameters.CustomBookSkinsOptions.SelectMany(x => x.Value);
+                var skin = skins.FirstOrDefault(x => x.SkinName == __instance.workshopSkin);
+                if (skin != null && (skin.CharacterNameId.HasValue || !string.IsNullOrEmpty(skin.CharacterName)))
+                {
+                    var localizedItems = ModParameters.LocalizedItems.Select(x => x.Value);
+                    var name = string.Empty;
+                    LocalizedItem localizedItem = null;
+                    if (skin.CharacterNameId.HasValue)
+                        localizedItem =
+                            localizedItems.FirstOrDefault(x => x.EnemyNames.ContainsKey(skin.CharacterNameId.Value));
+                    __instance.SetTempName(localizedItem != null &&
+                                           !localizedItem.EnemyNames.TryGetValue(skin.CharacterNameId.Value, out name)
+                        ? skin.CharacterName
+                        : name);
+                    return;
+                }
+            }
+
             if ((string.IsNullOrEmpty(__instance.workshopSkin) && __instance.bookItem == __instance.CustomBookItem) ||
                 !ModParameters.PackageIds.Contains(__instance.bookItem.ClassInfo.id.packageId)) return;
             if (!ModParameters.KeypageOptions.TryGetValue(__instance.bookItem.ClassInfo.id.packageId,
@@ -430,22 +482,23 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UICustomizePopup), "OnClickSave")]
         public static void UICustomizePopup_OnClickSave(UICustomizePopup __instance)
         {
-            if (!ModParameters.PackageIds.Contains(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId) ||
-                !ModParameters.KeypageOptions.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
-                    out var keypageOptions)) return;
-            var tempName =
-                (string)__instance.SelectedUnit.GetType().GetField("_tempName", AccessTools.all)
-                    ?.GetValue(__instance.SelectedUnit);
+            var tempName = (string)__instance.SelectedUnit.GetType().GetField("_tempName", AccessTools.all)
+                ?.GetValue(__instance.SelectedUnit);
             __instance.SelectedUnit.ResetTempName();
+            var keypageOptionsTry =
+                ModParameters.KeypageOptions.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
+                    out var keypageOptions);
             if (__instance.SelectedUnit.bookItem == __instance.SelectedUnit.CustomBookItem &&
-                string.IsNullOrEmpty(__instance.SelectedUnit.workshopSkin))
+                string.IsNullOrEmpty(__instance.SelectedUnit.workshopSkin) && keypageOptionsTry)
             {
                 __instance.previewData.Name = __instance.SelectedUnit.name;
                 var keypageItem =
-                    keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.SelectedUnit.bookItem.ClassInfo.id.id);
+                    keypageOptions.FirstOrDefault(x =>
+                        x.KeypageId == __instance.SelectedUnit.bookItem.ClassInfo.id.id);
                 if (keypageItem?.BookCustomOptions == null) return;
                 var locTryGet =
-                    ModParameters.LocalizedItems.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
+                    ModParameters.LocalizedItems.TryGetValue(
+                        __instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
                         out var localizedItem);
                 __instance.SelectedUnit.SetTempName(!locTryGet ||
                                                     !localizedItem.EnemyNames.TryGetValue(
@@ -455,8 +508,29 @@ namespace BigDLL4221.Harmony
             }
             else
             {
-                if (string.IsNullOrEmpty(tempName) || __instance.previewData.Name == tempName)
-                    __instance.previewData.Name = __instance.SelectedUnit.name;
+                var skins = ModParameters.CustomBookSkinsOptions.SelectMany(x => x.Value);
+                var skin = skins.FirstOrDefault(x => x.SkinName == __instance.SelectedUnit.workshopSkin);
+                if (skin == null)
+                {
+                    if (string.IsNullOrEmpty(tempName))
+                        __instance.SelectedUnit.SetCustomName(__instance.previewData.Name);
+                    else if (__instance.previewData.Name == tempName)
+                        __instance.previewData.Name = __instance.SelectedUnit.name;
+                    return;
+                }
+
+                __instance.previewData.Name = __instance.SelectedUnit.name;
+                var localizedItems = ModParameters.LocalizedItems.Select(x => x.Value);
+                var name = string.Empty;
+                LocalizedItem localizedItem = null;
+                if (!skin.CharacterNameId.HasValue && string.IsNullOrEmpty(skin.CharacterName)) return;
+                if (skin.CharacterNameId.HasValue)
+                    localizedItem =
+                        localizedItems.FirstOrDefault(x => x.EnemyNames.ContainsKey(skin.CharacterNameId.Value));
+                __instance.SelectedUnit.SetTempName(
+                    localizedItem != null && !localizedItem.EnemyNames.TryGetValue(skin.CharacterNameId.Value, out name)
+                        ? skin.CharacterName
+                        : name);
             }
         }
 
@@ -466,6 +540,8 @@ namespace BigDLL4221.Harmony
         {
             ModParameters.Language = currentLanguage;
             LocalizeUtil.AddGlobalLocalize();
+            ArtUtil.LocalizationCustomBook();
+            CardUtil.InitKeywordsList(ModParameters.Assemblies);
         }
 
         [HarmonyPrefix]
@@ -1223,7 +1299,7 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         public static void StageClassInfo_OnClickTargetUnit(StageClassInfo __instance, ref StoryState __result)
         {
             if (!ModParameters.StageOptions.TryGetValue(__instance.id.packageId, out var stageOptions)) return;

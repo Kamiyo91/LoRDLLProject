@@ -11,6 +11,7 @@ using TMPro;
 using UI;
 using UnityEngine;
 using UnityEngine.UI;
+using Workshop;
 using Object = UnityEngine.Object;
 
 namespace BigDLL4221.Utils
@@ -585,6 +586,65 @@ namespace BigDLL4221.Utils
             }
 
             SingletonBehavior<SoundEffectManager>.Instance.PlayClip("Buf/Effect_Index_Unlock");
+        }
+
+        public static void MakeCustomBook(string packageId)
+        {
+            if (!ModParameters.CustomBookSkinsOptions.TryGetValue(packageId, out var customSkins)) return;
+            var dictionary = (Dictionary<string, WorkshopSkinData>)typeof(CustomizingResourceLoader)
+                .GetField("_skinData", AccessTools.all).GetValue(Singleton<CustomizingResourceLoader>.Instance);
+            foreach (var workshopSkinData in Singleton<CustomizingBookSkinLoader>.Instance
+                         .GetWorkshopBookSkinData(packageId).Where(workshopSkinData =>
+                             !workshopSkinData.dataName.Contains("x_proj")))
+            {
+                var customSkinOption = customSkins.FirstOrDefault(x => workshopSkinData.dataName.Contains(x.SkinName));
+                if (customSkinOption == null) continue;
+                var keypageName = string.Empty;
+                var localization = ModParameters.LocalizedItems.TryGetValue(packageId, out var localizatedItem);
+                if (localization)
+                    if (customSkinOption.KeypageNameId.HasValue)
+                    {
+                        var keypageLoc =
+                            localizatedItem.Keypages.FirstOrDefault(x =>
+                                x.bookID == customSkinOption.KeypageNameId.Value);
+                        if (keypageLoc != null) keypageName = keypageLoc.bookName;
+                    }
+                    else if (!string.IsNullOrEmpty(customSkinOption.KeypageName))
+                    {
+                        keypageName = customSkinOption.KeypageName;
+                    }
+
+                dictionary.Add(workshopSkinData.dataName, new WorkshopSkinData
+                {
+                    dic = workshopSkinData.dic,
+                    contentFolderIdx = workshopSkinData.dataName,
+                    dataName = string.IsNullOrEmpty(keypageName) ? workshopSkinData.dataName : keypageName,
+                    id = dictionary.Count
+                });
+            }
+        }
+
+        public static void LocalizationCustomBook()
+        {
+            var dictionary = (Dictionary<string, WorkshopSkinData>)typeof(CustomizingResourceLoader)
+                .GetField("_skinData", AccessTools.all).GetValue(Singleton<CustomizingResourceLoader>.Instance);
+            foreach (var packageId in ModParameters.PackageIds)
+            {
+                if (!ModParameters.CustomBookSkinsOptions.TryGetValue(packageId, out var customSkins)) continue;
+                foreach (var workshopSkinData in dictionary.Where(x => customSkins.Exists(y => y.SkinName == x.Key))
+                             .ToList())
+                {
+                    var customSkinOption = customSkins.FirstOrDefault(x => workshopSkinData.Key.Contains(x.SkinName));
+                    if (customSkinOption?.KeypageNameId == null) continue;
+                    var localization = ModParameters.LocalizedItems.TryGetValue(packageId, out var localizatedItem);
+                    if (!localization) continue;
+                    var keypageLoc =
+                        localizatedItem.Keypages.FirstOrDefault(x => x.bookID == customSkinOption.KeypageNameId.Value);
+                    if (keypageLoc == null) continue;
+                    workshopSkinData.Value.dataName = keypageLoc.bookName;
+                    dictionary[workshopSkinData.Key] = workshopSkinData.Value;
+                }
+            }
         }
     }
 }

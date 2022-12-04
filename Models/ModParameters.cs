@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
 using BigDLL4221.Utils;
@@ -55,8 +56,32 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<EmotionEgoOptions>> EmotionEgoCards =
             new Dictionary<string, List<EmotionEgoOptions>>();
 
+        public static Dictionary<string, List<CustomBookSkinsOption>> CustomBookSkinsOptions =
+            new Dictionary<string, List<CustomBookSkinsOption>>();
+
+        public static List<Assembly> Assemblies = new List<Assembly>();
+
         //Unity
         public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
+    }
+
+    public class CustomBookSkinsOption
+    {
+        public CustomBookSkinsOption(string skinName, int? keypageNameId = null, string keypageName = "",
+            string characterName = "", int? characterNameId = null)
+        {
+            SkinName = skinName;
+            KeypageName = keypageName;
+            KeypageNameId = keypageNameId;
+            CharacterName = characterName;
+            CharacterNameId = characterNameId;
+        }
+
+        public string SkinName { get; set; }
+        public int? KeypageNameId { get; set; }
+        public string KeypageName { get; set; }
+        public string CharacterName { get; set; }
+        public int? CharacterNameId { get; set; }
     }
 
     public class StaticModsInfo
@@ -589,6 +614,8 @@ namespace BigDLL4221.Models
         public Dictionary<int, EffectText> PassiveTexts { get; set; } = new Dictionary<int, EffectText>();
         public List<BattleDialogCharacter> BattleDialogCharacterList { get; set; } = new List<BattleDialogCharacter>();
         public List<BookDesc> Keypages { get; set; } = new List<BookDesc>();
+        public List<AbnormalityCard> AbnormalityCards { get; set; } = new List<AbnormalityCard>();
+        public Dictionary<string, string> Etc { get; set; } = new Dictionary<string, string>();
     }
 
     public class DropBookOptions

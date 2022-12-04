@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BigDLL4221.Models;
 using BigDLL4221.Passives;
 
 namespace BigDLL4221.Extensions
@@ -78,6 +79,41 @@ namespace BigDLL4221.Extensions
         //    var battleCardResultLog = owner.battleCardResultLog;
         //    battleCardResultLog?.SetNewBufs(buf);
         //}
+
+        public static bool GetActivatedCustomEmotionCard(this BattleUnitModel owner, string packageId, int id,
+            out EmotionCardXmlExtension xmlInfo)
+        {
+            var cards = owner.emotionDetail.GetSelectedCardList().Where(x => x.XmlInfo is EmotionCardXmlExtension)
+                .Select(x => x.XmlInfo as EmotionCardXmlExtension);
+            xmlInfo = cards.FirstOrDefault(x => x != null && x.LorId == new LorId(packageId, id));
+            return xmlInfo != null;
+        }
+
+        public static bool GetEmotionCard(string packageId, int id, out EmotionCardXmlExtension xmlInfo)
+        {
+            if (!ModParameters.EmotionCards.TryGetValue(packageId, out var cards))
+            {
+                xmlInfo = null;
+                return false;
+            }
+
+            xmlInfo = cards.Where(x => x.CardXml.LorId == new LorId(packageId, id)).Select(x => x.CardXml)
+                .FirstOrDefault();
+            return xmlInfo != null;
+        }
+
+        public static bool GetFloorEgoCard(string packageId, int id, out EmotionEgoCardXmlExtension xmlInfo)
+        {
+            if (!ModParameters.EmotionEgoCards.TryGetValue(packageId, out var cards))
+            {
+                xmlInfo = null;
+                return false;
+            }
+
+            xmlInfo = cards.Where(x => x.CardXml.CardId == new LorId(packageId, id)).Select(x => x.CardXml)
+                .FirstOrDefault();
+            return xmlInfo != null;
+        }
 
         public static void SetEmotionCombatLog(this BattleUnitModel owner, BattleEmotionCardModel emotionCard)
         {

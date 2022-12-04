@@ -38,9 +38,11 @@ namespace BigDLL4221.Harmony
                     return;
                 }
 
-                var emotionCards = ModParameters.EmotionCards.SelectMany(y => y.Value);
-                if (__instance.selectedEmotionCard != null)
-                    if (__instance.selectedEmotionCard.Card is EmotionCardXmlExtension card)
+                if (ModParameters.EmotionEgoCards.Any())
+                {
+                    var emotionCards = ModParameters.EmotionCards.SelectMany(y => y.Value);
+                    if (__instance.selectedEmotionCard != null &&
+                        __instance.selectedEmotionCard.Card is EmotionCardXmlExtension card)
                     {
                         var cardOptions = emotionCards.FirstOrDefault(y => y.CardXml.LorId == card.LorId);
                         if (cardOptions != null && cardOptions.UsableByBookIds.Any())
@@ -49,7 +51,7 @@ namespace BigDLL4221.Harmony
                             return;
                         }
                     }
-
+                }
 
                 __result |= MatchAddon(x);
             }

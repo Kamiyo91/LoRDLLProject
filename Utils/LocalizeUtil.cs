@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using HarmonyLib;
 using LOR_XML;
@@ -70,7 +71,10 @@ namespace BigDLL4221.Utils
                             foreach (var abnormalityCard in ((AbnormalityCardsRoot)new XmlSerializer(
                                          typeof(AbnormalityCardsRoot)).Deserialize(stringReader2)).sephirahList
                                      .SelectMany(sephirah => sephirah.list))
+                            {
                                 dictionary2[abnormalityCard.id] = abnormalityCard;
+                                localizedItem.AbnormalityCards.Add(abnormalityCard);
+                            }
                         }
                 }
                 catch (Exception ex2)
@@ -400,6 +404,33 @@ namespace BigDLL4221.Utils
                 {
                     if (error)
                         Debug.LogError("Error loading Battle Card Abilities Texts packageId : " + item.Key +
+                                       " Language : " + ModParameters.Language + " Error : " + ex.Message);
+                }
+
+                try
+                {
+                    error = false;
+                    var etcDictionary = TextDataModel.textDic;
+                    file = new DirectoryInfo(item.Value + "/Localize/" + ModParameters.Language +
+                                             "/Etc").GetFiles().FirstOrDefault();
+                    error = true;
+                    if (file != null)
+                        using (var stringReader8 = new StringReader(File.ReadAllText(file.FullName)))
+                        {
+                            foreach (var etcText in
+                                     ((EtcRoot)new XmlSerializer(typeof(EtcRoot))
+                                         .Deserialize(stringReader8)).Text)
+                            {
+                                etcDictionary.Remove(etcText.ID);
+                                etcDictionary.Add(etcText.ID, etcText.Desc);
+                                localizedItem.Etc.Add(etcText.ID, etcText.Desc);
+                            }
+                        }
+                }
+                catch (Exception ex)
+                {
+                    if (error)
+                        Debug.LogError("Error loading Etc Texts packageId : " + item.Key +
                                        " Language : " + ModParameters.Language + " Error : " + ex.Message);
                 }
 
