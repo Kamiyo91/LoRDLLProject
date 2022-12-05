@@ -6,6 +6,16 @@ namespace BigDLL4221.Passives
     {
         public override void OnWaveStart()
         {
+            ForceLoneFixerChange();
+        }
+
+        public override void OnRoundStartAfter()
+        {
+            ForceLoneFixerChange();
+        }
+
+        public void ForceLoneFixerChange()
+        {
             PassiveUtil.ChangeLoneFixerPassive(owner.faction, new PassiveAbility_LoneFixer_DLL4221());
         }
     }
