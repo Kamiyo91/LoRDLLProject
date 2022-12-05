@@ -2,10 +2,11 @@
 
 namespace BigDLL4221.Passives
 {
-    public class PassiveAbility_LoneFixer_DLL4221 : PassiveAbility_SupportChar_DLL4221
+    public class PassiveAbility_LoneFixer_DLL4221 : PassiveAbilityBase
     {
         public override void OnCreated()
         {
+            rare = Rarity.Rare;
             name = Singleton<PassiveDescXmlList>.Instance.GetName(230008);
             desc = Singleton<PassiveDescXmlList>.Instance.GetDesc(230008);
         }
