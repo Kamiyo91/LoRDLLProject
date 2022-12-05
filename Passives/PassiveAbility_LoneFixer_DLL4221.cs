@@ -13,7 +13,7 @@ namespace BigDLL4221.Passives
 
         public override void OnRoundEnd()
         {
-            if (UnitUtil.SupportCharCheck(owner) == 1)
+            if (UnitUtil.SupportCharCheck(owner) < 2)
                 owner.bufListDetail.AddKeywordBufByEtc(KeywordBuf.Strength, 3);
         }
     }
