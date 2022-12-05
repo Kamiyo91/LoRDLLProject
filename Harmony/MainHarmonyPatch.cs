@@ -451,20 +451,20 @@ namespace BigDLL4221.Harmony
         {
             if (!string.IsNullOrEmpty(__instance.workshopSkin))
             {
-                var skins = ModParameters.CustomBookSkinsOptions.SelectMany(x => x.Value);
-                var skin = skins.FirstOrDefault(x => x.SkinName == __instance.workshopSkin);
-                if (skin != null && (skin.CharacterNameId.HasValue || !string.IsNullOrEmpty(skin.CharacterName)))
+                var skins = ModParameters.CustomBookSkinsOptions.SelectMany(x =>
+                    x.Value.Select(y => Tuple.Create(x.Key, y)));
+                var skin = skins.FirstOrDefault(x => x.Item2.SkinName == __instance.workshopSkin);
+                if (skin != null && (skin.Item2.CharacterNameId.HasValue ||
+                                     !string.IsNullOrEmpty(skin.Item2.CharacterName)))
                 {
-                    var localizedItems = ModParameters.LocalizedItems.Select(x => x.Value);
+                    if (!ModParameters.LocalizedItems.TryGetValue(skin.Item1, out var localizatedItem)) return;
                     var name = string.Empty;
-                    LocalizedItem localizedItem = null;
-                    if (skin.CharacterNameId.HasValue)
-                        localizedItem =
-                            localizedItems.FirstOrDefault(x => x.EnemyNames.ContainsKey(skin.CharacterNameId.Value));
-                    __instance.SetTempName(localizedItem != null &&
-                                           !localizedItem.EnemyNames.TryGetValue(skin.CharacterNameId.Value, out name)
-                        ? skin.CharacterName
-                        : name);
+                    if (skin.Item2.CharacterNameId.HasValue)
+                        __instance.SetTempName(localizatedItem != null &&
+                                               !localizatedItem.EnemyNames.TryGetValue(skin.Item2.CharacterNameId ?? -1,
+                                                   out name)
+                            ? skin.Item2.CharacterName
+                            : name);
                     return;
                 }
             }
@@ -508,8 +508,9 @@ namespace BigDLL4221.Harmony
             }
             else
             {
-                var skins = ModParameters.CustomBookSkinsOptions.SelectMany(x => x.Value);
-                var skin = skins.FirstOrDefault(x => x.SkinName == __instance.SelectedUnit.workshopSkin);
+                var skins = ModParameters.CustomBookSkinsOptions.SelectMany(x =>
+                    x.Value.Select(y => Tuple.Create(x.Key, y)));
+                var skin = skins.FirstOrDefault(x => x.Item2.SkinName == __instance.SelectedUnit.workshopSkin);
                 if (skin == null)
                 {
                     if (string.IsNullOrEmpty(tempName))
@@ -520,16 +521,13 @@ namespace BigDLL4221.Harmony
                 }
 
                 __instance.previewData.Name = __instance.SelectedUnit.name;
-                var localizedItems = ModParameters.LocalizedItems.Select(x => x.Value);
+                if (!ModParameters.LocalizedItems.TryGetValue(skin.Item1, out var localizatedItem)) return;
                 var name = string.Empty;
-                LocalizedItem localizedItem = null;
-                if (!skin.CharacterNameId.HasValue && string.IsNullOrEmpty(skin.CharacterName)) return;
-                if (skin.CharacterNameId.HasValue)
-                    localizedItem =
-                        localizedItems.FirstOrDefault(x => x.EnemyNames.ContainsKey(skin.CharacterNameId.Value));
+                if (!skin.Item2.CharacterNameId.HasValue && string.IsNullOrEmpty(skin.Item2.CharacterName)) return;
                 __instance.SelectedUnit.SetTempName(
-                    localizedItem != null && !localizedItem.EnemyNames.TryGetValue(skin.CharacterNameId.Value, out name)
-                        ? skin.CharacterName
+                    localizatedItem != null &&
+                    !localizatedItem.EnemyNames.TryGetValue(skin.Item2.CharacterNameId ?? -1, out name)
+                        ? skin.Item2.CharacterName
                         : name);
             }
         }
