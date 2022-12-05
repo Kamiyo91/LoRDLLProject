@@ -6,7 +6,7 @@ namespace BigDLL4221.Passives
     {
         public override void OnCreated()
         {
-            rare = Rarity.Rare;
+            rare = Rarity.Uncommon;
             name = Singleton<PassiveDescXmlList>.Instance.GetName(230008);
             desc = Singleton<PassiveDescXmlList>.Instance.GetDesc(230008);
         }

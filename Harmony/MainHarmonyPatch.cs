@@ -660,21 +660,30 @@ namespace BigDLL4221.Harmony
             List<BattleDiceCardUI> ____activatedCardList, ref float ____xInterval)
         {
             if (__instance.CurrentHandState != BattleUnitCardsInHandUI.HandState.EgoCard) return;
-            var unit = __instance.SelectedModel ?? __instance.HOveredModel;
-            if (!unit.passiveDetail.PassiveList.Exists(y => ModParameters.PassiveOptions.Any(z =>
-                    (z.Key == y.id.packageId && z.Value.Any(v => v.PassiveId == y.id.id && v.BannedEgoFloorCards)) ||
-                    z.Value.Any(v =>
-                        v.PassiveId == y.id.id && v.IsBaseGamePassive && v.BannedEgoFloorCards))) &&
-                !ModParameters.KeypageOptions.Any(x =>
-                    (x.Key == unit.Book.BookId.packageId &&
-                     x.Value.Any(y => y.KeypageId == unit.Book.BookId.id && y.BannedEgoFloorCards))
-                    || x.Value.Any(y =>
-                        y.IsBaseGameKeypage && y.KeypageId == unit.Book.BookId.id && y.BannedEgoFloorCards))) return;
-            var list = ArtUtil.ReloadEgoHandUI(__instance, __instance.GetCardUIList(), unit, ____activatedCardList,
-                ref ____xInterval).ToList();
-            __instance.SetSelectedCardUI(null);
-            for (var i = list.Count; i < __instance.GetCardUIList().Count; i++)
-                __instance.GetCardUIList()[i].gameObject.SetActive(false);
+            try
+            {
+                var unit = __instance.SelectedModel ?? __instance.HOveredModel;
+                if (!unit.passiveDetail.PassiveList.Exists(y => ModParameters.PassiveOptions.Any(z =>
+                        (z.Key == y.id.packageId &&
+                         z.Value.Any(v => v.PassiveId == y.id.id && v.BannedEgoFloorCards)) ||
+                        z.Value.Any(v =>
+                            v.PassiveId == y.id.id && v.IsBaseGamePassive && v.BannedEgoFloorCards))) &&
+                    !ModParameters.KeypageOptions.Any(x =>
+                        (x.Key == unit.Book.BookId.packageId &&
+                         x.Value.Any(y => y.KeypageId == unit.Book.BookId.id && y.BannedEgoFloorCards))
+                        || x.Value.Any(y =>
+                            y.IsBaseGameKeypage && y.KeypageId == unit.Book.BookId.id && y.BannedEgoFloorCards)))
+                    return;
+                var list = ArtUtil.ReloadEgoHandUI(__instance, __instance.GetCardUIList(), unit, ____activatedCardList,
+                    ref ____xInterval).ToList();
+                __instance.SetSelectedCardUI(null);
+                for (var i = list.Count; i < __instance.GetCardUIList().Count; i++)
+                    __instance.GetCardUIList()[i].gameObject.SetActive(false);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         [HarmonyPostfix]

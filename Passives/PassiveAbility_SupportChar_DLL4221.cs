@@ -9,6 +9,11 @@ namespace BigDLL4221.Passives
             ForceLoneFixerChange();
         }
 
+        public override void OnRoundStartAfter()
+        {
+            ForceLoneFixerChange();
+        }
+
         public void ForceLoneFixerChange()
         {
             PassiveUtil.ChangeLoneFixerPassive(owner.faction, new PassiveAbility_LoneFixer_DLL4221());
