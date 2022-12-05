@@ -14,6 +14,7 @@ namespace BigDLL4221.Utils
                         passiveLone)) continue;
                 unit.passiveDetail.DestroyPassive(passiveLone);
                 unit.passiveDetail.AddPassive(passive);
+                //unit.passiveDetail.OnCreated();
             }
         }
 
