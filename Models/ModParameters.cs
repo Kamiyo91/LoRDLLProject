@@ -171,7 +171,8 @@ namespace BigDLL4221.Models
             BookCustomOptions bookCustomOptions = null, bool bannedEgoFloorCards = false,
             bool isBaseGameKeypage = false, KeypageColorOptions keypageColorOptions = null,
             bool bannedEmotionCards = false, bool targetableBySpecialCards = true,
-            CustomFloorOptions customFloorOptions = null)
+            CustomFloorOptions customFloorOptions = null, List<int> forceAggroSpeedDie = null,
+            bool forceAggroLastDie = false, bool redirectOnlyWithSlowerSpeed = false)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -192,10 +193,16 @@ namespace BigDLL4221.Models
             BannedEmotionCards = bannedEmotionCards;
             TargetableBySpecialCards = targetableBySpecialCards;
             CustomFloorOptions = customFloorOptions;
+            ForceAggroSpeedDie = forceAggroSpeedDie ?? new List<int>();
+            ForceAggroLastDie = forceAggroLastDie;
+            RedirectOnlyWithSlowerSpeed = redirectOnlyWithSlowerSpeed;
         }
 
         public int KeypageId { get; set; }
         public bool Editable { get; set; }
+        public List<int> ForceAggroSpeedDie { get; set; }
+        public bool ForceAggroLastDie { get; set; }
+        public bool RedirectOnlyWithSlowerSpeed { get; set; }
         public string EditErrorMessageId { get; set; }
         public SephirahType SephirahType { get; set; }
         public bool EveryoneCanEquip { get; set; }
@@ -350,13 +357,20 @@ namespace BigDLL4221.Models
     public class CardColorOptions
     {
         public CardColorOptions(Color? cardColor = null, string customIcon = "",
-            Color? customIconColor = null, HSVColor iconColor = null, bool useHSVFilter = true)
+            Color? customIconColor = null, HSVColor iconColor = null, bool useHSVFilter = true, string leftFrame = "",
+            string rightFrame = "", string frontFrame = "", bool applyFrontColor = false,
+            bool applySideFrontColors = false)
         {
             CardColor = cardColor;
             CustomIcon = customIcon;
             CustomIconColor = customIconColor;
             IconColor = iconColor;
             UseHSVFilter = useHSVFilter;
+            LeftFrame = leftFrame;
+            RightFrame = rightFrame;
+            ApplyFrontColor = applyFrontColor;
+            FrontFrame = frontFrame;
+            ApplySideFrontColors = applySideFrontColors;
         }
 
         public Color? CardColor { get; set; }
@@ -364,6 +378,11 @@ namespace BigDLL4221.Models
         public Color? CustomIconColor { get; set; }
         public HSVColor IconColor { get; set; }
         public bool UseHSVFilter { get; set; }
+        public string LeftFrame { get; set; }
+        public string RightFrame { get; set; }
+        public string FrontFrame { get; set; }
+        public bool ApplyFrontColor { get; set; }
+        public bool ApplySideFrontColors { get; set; }
     }
 
     public class StageOptions
@@ -442,7 +461,8 @@ namespace BigDLL4221.Models
 
     public class PassiveOptions
     {
-        public PassiveOptions(int passiveId, bool transferable = true, int innerTypeId = 0, bool forceAggro = false,
+        public PassiveOptions(int passiveId, bool transferable = true, int innerTypeId = 0,
+            ForceAggroOptions forceAggroOptions = null,
             bool isMultiDeck = false, List<LorId> cannotBeUsedWithPassives = null,
             List<LorId> canBeUsedWithPassivesAll = null, List<LorId> canBeUsedWithPassivesOne = null,
             List<LorId> chainReleasePassives = null, bool gainCoins = true,
@@ -453,7 +473,7 @@ namespace BigDLL4221.Models
             PassiveId = passiveId;
             Transferable = transferable;
             InnerTypeId = innerTypeId;
-            ForceAggro = forceAggro;
+            ForceAggroOptions = forceAggroOptions;
             IsMultiDeck = isMultiDeck;
             CannotBeUsedWithPassives = cannotBeUsedWithPassives ?? new List<LorId>();
             CanBeUsedWithPassivesAll = canBeUsedWithPassivesAll ?? new List<LorId>();
@@ -472,7 +492,7 @@ namespace BigDLL4221.Models
         public int PassiveId { get; set; }
         public bool Transferable { get; set; }
         public int InnerTypeId { get; set; }
-        public bool ForceAggro { get; set; }
+        public ForceAggroOptions ForceAggroOptions { get; set; }
         public bool IsMultiDeck { get; set; }
         public List<LorId> CannotBeUsedWithPassives { get; set; }
         public List<LorId> CanBeUsedWithPassivesAll { get; set; }
@@ -486,6 +506,26 @@ namespace BigDLL4221.Models
         public bool IsBaseGamePassive { get; set; }
         public string PassiveScriptId { get; set; }
         public PassiveColorOptions PassiveColorOptions { get; set; }
+    }
+
+    public class ForceAggroOptions
+    {
+        public ForceAggroOptions(bool forceAggro = false, List<LorId> forceAggroByTargetedPassive = null,
+            List<BattleUnitBuf> forceAggroByTargetedBuffs = null, List<LorId> forceAggroByTargetPassive = null,
+            List<BattleUnitBuf> forceAggroByTargetBuffs = null)
+        {
+            ForceAggro = forceAggro;
+            ForceAggroByTargetedPassive = forceAggroByTargetedPassive ?? new List<LorId>();
+            ForceAggroByTargetedBuffs = forceAggroByTargetedBuffs ?? new List<BattleUnitBuf>();
+            ForceAggroByTargetPassive = forceAggroByTargetPassive ?? new List<LorId>();
+            ForceAggroByTargetBuffs = forceAggroByTargetBuffs ?? new List<BattleUnitBuf>();
+        }
+
+        public bool ForceAggro { get; set; }
+        public List<LorId> ForceAggroByTargetPassive { get; set; }
+        public List<BattleUnitBuf> ForceAggroByTargetBuffs { get; set; }
+        public List<LorId> ForceAggroByTargetedPassive { get; set; }
+        public List<BattleUnitBuf> ForceAggroByTargetedBuffs { get; set; }
     }
 
     public class PassiveColorOptions

@@ -78,10 +78,17 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UIOriginCardSlot), "SetData")]
         [HarmonyPostfix]
         public static void UICard_SetData_Post(DiceCardItemModel cardmodel, Image[] ___img_Frames,
-            Image[] ___img_linearDodge, NumbersData ___costNumbers, Image ___img_RangeIcon, ref Color ___colorFrame,
+            Image[] ___img_linearDodge, NumbersData ___costNumbers, Image ___img_RangeIcon, Image ___img_Artwork,
+            ref Color ___colorFrame,
             ref Color ___colorLineardodge)
         {
             if (cardmodel == null) return;
+            var frame = ___img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
+            if (frame != null)
+                frame.overrideSprite = null;
+            var component = ___img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
+            if (component != null)
+                component.overrideSprite = null;
             if (!ModParameters.CardOptions.TryGetValue(cardmodel.GetID().packageId, out var cardOptions)) return;
             var cardItem = cardOptions.FirstOrDefault(x => x.CardId == cardmodel.GetID().id);
             if (cardItem?.CardColorOptions == null) return;
@@ -97,9 +104,61 @@ namespace BigDLL4221.Harmony
                 ___img_RangeIcon.color = cardItem.CardColorOptions.CardColor.Value;
             }
 
+            if (frame != null)
+                if (!string.IsNullOrEmpty(cardItem.CardColorOptions.LeftFrame) &&
+                    ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.LeftFrame, out var leftFrameImg))
+                {
+                    frame.overrideSprite = leftFrameImg;
+                    frame.overrideSprite.name = $"{cardItem.CardColorOptions.LeftFrame}_LFrame";
+                    if (cardItem.CardColorOptions.ApplySideFrontColors && cardItem.CardColorOptions.CardColor.HasValue)
+                        frame.color = cardItem.CardColorOptions.CardColor.Value;
+                    else frame.color = Color.white;
+                }
+                else
+                {
+                    frame.overrideSprite = null;
+                }
+
+            if (component != null)
+                if (!string.IsNullOrEmpty(cardItem.CardColorOptions.FrontFrame) &&
+                    ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.FrontFrame, out var frontFrameImg))
+                {
+                    component.overrideSprite = frontFrameImg;
+                    component.overrideSprite.name = $"{cardItem.CardColorOptions.FrontFrame}_FFrame";
+                    if (cardItem.CardColorOptions.ApplyFrontColor && cardItem.CardColorOptions.CardColor.HasValue)
+                        component.color = cardItem.CardColorOptions.CardColor.Value;
+                }
+                else
+                {
+                    component.overrideSprite = null;
+                }
+
             if (string.IsNullOrEmpty(cardItem.CardColorOptions.CustomIcon) ||
                 !ModParameters.ArtWorks.TryGetValue(cardItem.CardColorOptions.CustomIcon, out var icon)) return;
             ___img_RangeIcon.overrideSprite = icon;
+        }
+
+        [HarmonyPatch(typeof(UIDetailCardSlot), "SetData")]
+        [HarmonyPostfix]
+        public static void UIDetailCardSlot_SetData(DiceCardItemModel cardmodel, GameObject ___ob_selfAbility)
+        {
+            if (cardmodel == null) return;
+            var gameObject = ___ob_selfAbility.transform.parent.parent.parent.gameObject;
+            var rightFrame = gameObject.GetComponentsInChildren<Image>()
+                .FirstOrDefault(x => x.name.Contains("[Image]BgFrame"));
+            if (rightFrame == null) return;
+            rightFrame.overrideSprite = null;
+            if (!ModParameters.CardOptions.TryGetValue(cardmodel.GetID().packageId, out var cardOptions)) return;
+            var cardItem = cardOptions.FirstOrDefault(x => x.CardId == cardmodel.GetID().id);
+            if (cardItem?.CardColorOptions == null ||
+                string.IsNullOrEmpty(cardItem.CardColorOptions.RightFrame)) return;
+            if (!ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.RightFrame, out var rightFrameImg))
+                return;
+            rightFrame.overrideSprite = rightFrameImg;
+            rightFrame.overrideSprite.name = $"{cardItem.CardColorOptions.RightFrame}_RFrame";
+            if (cardItem.CardColorOptions.ApplySideFrontColors && cardItem.CardColorOptions.CardColor.HasValue)
+                rightFrame.color = cardItem.CardColorOptions.CardColor.Value;
+            else rightFrame.color = Color.white;
         }
 
         // May Be Useful
@@ -196,10 +255,18 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(BattleDiceCardUI), "SetCard")]
         [HarmonyPostfix]
         public static void UIBattleCard_SetCard_Post(BattleDiceCardModel cardModel, Image[] ___img_Frames,
-            Image[] ___img_linearDodges, NumbersData ___costNumbers, Image ___img_icon,
+            Image[] ___img_linearDodges, NumbersData ___costNumbers, Image ___img_icon, Image ___img_artwork,
             ref Color ___colorFrame, ref Color ___colorLineardodge, ref Color ___colorLineardodge_deactive)
         {
             if (cardModel == null) return;
+            var frame = ___img_Frames.ElementAtOrDefault(0);
+            if (frame != null)
+                frame.overrideSprite = null;
+            var rightFrame = ___img_Frames.ElementAtOrDefault(4);
+            if (rightFrame != null)
+                rightFrame.overrideSprite = null;
+            var component = ___img_artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
+            if (component != null) component.overrideSprite = null;
             if (!ModParameters.CardOptions.TryGetValue(cardModel.GetID().packageId, out var cardOptions)) return;
             var cardItem = cardOptions.FirstOrDefault(x => x.CardId == cardModel.GetID().id);
             if (cardItem?.CardColorOptions == null) return;
@@ -215,6 +282,40 @@ namespace BigDLL4221.Harmony
                 ___colorLineardodge_deactive = cardItem.CardColorOptions.CardColor.Value;
                 ___img_icon.color = cardItem.CardColorOptions.CardColor.Value;
             }
+
+            if (frame != null && !string.IsNullOrEmpty(cardItem.CardColorOptions.LeftFrame) &&
+                ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.LeftFrame, out var leftFrameImg))
+            {
+                frame.overrideSprite = leftFrameImg;
+                frame.overrideSprite.name = $"{cardItem.CardColorOptions.LeftFrame}_LFrame";
+                if (cardItem.CardColorOptions.ApplySideFrontColors && cardItem.CardColorOptions.CardColor.HasValue)
+                    frame.color = cardItem.CardColorOptions.CardColor.Value;
+                else frame.color = Color.white;
+            }
+
+            if (rightFrame != null && !string.IsNullOrEmpty(cardItem.CardColorOptions.RightFrame) &&
+                ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.RightFrame, out var rightFrameImg))
+            {
+                rightFrame.overrideSprite = rightFrameImg;
+                rightFrame.overrideSprite.name = $"{cardItem.CardColorOptions.RightFrame}_LFrame";
+                if (cardItem.CardColorOptions.ApplySideFrontColors && cardItem.CardColorOptions.CardColor.HasValue)
+                    rightFrame.color = cardItem.CardColorOptions.CardColor.Value;
+                else rightFrame.color = Color.white;
+            }
+
+            if (component != null)
+                if (!string.IsNullOrEmpty(cardItem.CardColorOptions.FrontFrame) &&
+                    ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.FrontFrame, out var frontFrameImg))
+                {
+                    component.overrideSprite = frontFrameImg;
+                    component.overrideSprite.name = $"{cardItem.CardColorOptions.FrontFrame}_FFrame";
+                    if (cardItem.CardColorOptions.ApplyFrontColor && cardItem.CardColorOptions.CardColor.HasValue)
+                        component.color = cardItem.CardColorOptions.CardColor.Value;
+                }
+                else
+                {
+                    component.overrideSprite = null;
+                }
 
             if (!string.IsNullOrEmpty(cardItem.CardColorOptions.CustomIcon) &&
                 ModParameters.ArtWorks.TryGetValue(cardItem.CardColorOptions.CustomIcon, out var icon))

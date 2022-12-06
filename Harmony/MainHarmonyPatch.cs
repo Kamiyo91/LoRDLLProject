@@ -358,15 +358,93 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(BattleUnitEmotionDetail), "CanForcelyAggro")]
-        public static void BattleUnitEmotionDetail_CanForcelyAggro(BattleUnitModel ____self, ref bool __result)
+        [HarmonyPatch(typeof(BattleUnitModel), "CanChangeAttackTarget")]
+        public static void BattleUnitModel_CanChangeAttackTarget(BattleUnitModel __instance, BattleUnitModel target,
+            int myIndex, int targetIndex, ref bool __result)
         {
-            __result = (____self != null && ____self.passiveDetail.PassiveList
-                           .Exists(x =>
-                               ModParameters.PassiveOptions.Any(y =>
-                                   y.Key == x.id.packageId &&
-                                   y.Value.Any(z => z.PassiveId == x.id.id && z.ForceAggro)))) ||
-                       __result;
+            if (target == null) return;
+            if (!target.AllowTargetChanging(__instance, targetIndex) || __instance.DirectAttack() ||
+                !target.IsTauntable() || (target.faction == Faction.Enemy &&
+                                          Singleton<StageController>.Instance.IsBlockEnemyAggroChange()))
+                return;
+            if (ModParameters.KeypageOptions.TryGetValue(__instance.Book.BookId.packageId, out var keypageOptions))
+            {
+                var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.Book.BookId.id);
+                if (keypageOption != null)
+                {
+                    if (keypageOption.ForceAggroSpeedDie.Contains(myIndex) || (keypageOption.ForceAggroLastDie &&
+                                                                               myIndex == __instance.speedDiceResult
+                                                                                   .Count - 1))
+                    {
+                        __result = true;
+                        return;
+                    }
+
+                    if (keypageOption.RedirectOnlyWithSlowerSpeed)
+                    {
+                        var speed = __instance.GetSpeed(myIndex);
+                        var speed2 = target.GetSpeed(targetIndex);
+                        __result = speed < speed2;
+                    }
+                }
+            }
+
+            var checkCard = false;
+            BattleUnitModel targetedUnit = null;
+            if (targetIndex < target.cardSlotDetail.cardAry.Count)
+                if (target.cardSlotDetail.cardAry[targetIndex] != null)
+                {
+                    checkCard = true;
+                    targetedUnit = target.cardSlotDetail.cardAry[targetIndex].target;
+                }
+
+            var passives = ModParameters.PassiveOptions.SelectMany(x => x.Value.Select(y => Tuple.Create(x.Key, y)))
+                .ToList();
+            foreach (var passive in __instance.passiveDetail.PassiveList.Select(unitPassive =>
+                         passives.FirstOrDefault(x =>
+                             x.Item1 == unitPassive.id.packageId && x.Item2.PassiveId == unitPassive.id.id &&
+                             x.Item2.ForceAggroOptions != null)))
+            {
+                if (passive == null) continue;
+                if (passive.Item2.ForceAggroOptions.ForceAggro)
+                {
+                    __result = true;
+                    return;
+                }
+
+                if (passive.Item2.ForceAggroOptions.ForceAggroByTargetPassive.Any() &&
+                    target.passiveDetail.PassiveList.Any(x =>
+                        passive.Item2.ForceAggroOptions.ForceAggroByTargetPassive.Any(y => x.id == y)))
+                {
+                    __result = true;
+                    return;
+                }
+
+                if (passive.Item2.ForceAggroOptions.ForceAggroByTargetBuffs.Any() && target.bufListDetail
+                        .GetActivatedBufList().Any(x =>
+                            passive.Item2.ForceAggroOptions.ForceAggroByTargetBuffs.Any(y =>
+                                x.GetType() == y.GetType())))
+                {
+                    __result = true;
+                    return;
+                }
+
+                if (!checkCard) continue;
+                if (passive.Item2.ForceAggroOptions.ForceAggroByTargetedPassive.Any() &&
+                    targetedUnit.passiveDetail.PassiveList.Any(x =>
+                        passive.Item2.ForceAggroOptions.ForceAggroByTargetedPassive.Any(y => x.id == y)))
+                {
+                    __result = true;
+                    return;
+                }
+
+                if (!passive.Item2.ForceAggroOptions.ForceAggroByTargetedBuffs.Any()) continue;
+                if (!targetedUnit.bufListDetail.GetActivatedBufList().Any(x =>
+                        passive.Item2.ForceAggroOptions.ForceAggroByTargetedBuffs.Any(y =>
+                            x.GetType() == y.GetType()))) continue;
+                __result = true;
+                return;
+            }
         }
 
         [HarmonyPrefix]
@@ -389,6 +467,7 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
