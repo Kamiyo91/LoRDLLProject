@@ -512,13 +512,14 @@ namespace BigDLL4221.Models
     {
         public ForceAggroOptions(bool forceAggro = false, List<LorId> forceAggroByTargetedPassive = null,
             List<BattleUnitBuf> forceAggroByTargetedBuffs = null, List<LorId> forceAggroByTargetPassive = null,
-            List<BattleUnitBuf> forceAggroByTargetBuffs = null)
+            List<BattleUnitBuf> forceAggroByTargetBuffs = null, bool forceAggroLastDie = false)
         {
             ForceAggro = forceAggro;
             ForceAggroByTargetedPassive = forceAggroByTargetedPassive ?? new List<LorId>();
             ForceAggroByTargetedBuffs = forceAggroByTargetedBuffs ?? new List<BattleUnitBuf>();
             ForceAggroByTargetPassive = forceAggroByTargetPassive ?? new List<LorId>();
             ForceAggroByTargetBuffs = forceAggroByTargetBuffs ?? new List<BattleUnitBuf>();
+            ForceAggroLastDie = forceAggroLastDie;
         }
 
         public bool ForceAggro { get; set; }
@@ -526,6 +527,7 @@ namespace BigDLL4221.Models
         public List<BattleUnitBuf> ForceAggroByTargetBuffs { get; set; }
         public List<LorId> ForceAggroByTargetedPassive { get; set; }
         public List<BattleUnitBuf> ForceAggroByTargetedBuffs { get; set; }
+        public bool ForceAggroLastDie { get; set; }
     }
 
     public class PassiveColorOptions

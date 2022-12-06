@@ -367,14 +367,13 @@ namespace BigDLL4221.Harmony
                 !target.IsTauntable() || (target.faction == Faction.Enemy &&
                                           Singleton<StageController>.Instance.IsBlockEnemyAggroChange()))
                 return;
+            var isLastDie = myIndex == __instance.speedDiceResult.Count - 1;
             if (ModParameters.KeypageOptions.TryGetValue(__instance.Book.BookId.packageId, out var keypageOptions))
             {
                 var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.Book.BookId.id);
                 if (keypageOption != null)
                 {
-                    if (keypageOption.ForceAggroSpeedDie.Contains(myIndex) || (keypageOption.ForceAggroLastDie &&
-                                                                               myIndex == __instance.speedDiceResult
-                                                                                   .Count - 1))
+                    if (keypageOption.ForceAggroSpeedDie.Contains(myIndex) || (keypageOption.ForceAggroLastDie && isLastDie))
                     {
                         __result = true;
                         return;
@@ -406,6 +405,11 @@ namespace BigDLL4221.Harmony
                              x.Item2.ForceAggroOptions != null)))
             {
                 if (passive == null) continue;
+                if (passive.Item2.ForceAggroOptions.ForceAggroLastDie && isLastDie)
+                {
+                    __result = true;
+                    return;
+                }
                 if (passive.Item2.ForceAggroOptions.ForceAggro)
                 {
                     __result = true;
