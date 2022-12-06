@@ -405,7 +405,7 @@ namespace BigDLL4221.Harmony
                              x.Item2.ForceAggroOptions != null)))
             {
                 if (passive == null) continue;
-                if (passive.Item2.ForceAggroOptions.ForceAggroLastDie && isLastDie)
+                if (passive.Item2.ForceAggroOptions.ForceAggroSpeedDie.Contains(myIndex) || (passive.Item2.ForceAggroOptions.ForceAggroLastDie && isLastDie))
                 {
                     __result = true;
                     return;
