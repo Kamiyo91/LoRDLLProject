@@ -68,14 +68,13 @@ namespace BigDLL4221.Models
     public class CustomBookSkinsOption
     {
         public CustomBookSkinsOption(string skinName, int? keypageId = null, string keypageName = "",
-            string characterName = "", int? characterNameId = null, string iconId = "", bool useLocalization = true)
+            string characterName = "", int? characterNameId = null, bool useLocalization = true)
         {
             SkinName = skinName;
             KeypageName = keypageName;
             KeypageId = keypageId;
             CharacterName = characterName;
             CharacterNameId = characterNameId;
-            IconId = iconId;
             UseLocalization = useLocalization;
         }
 
@@ -84,7 +83,6 @@ namespace BigDLL4221.Models
         public string KeypageName { get; set; }
         public string CharacterName { get; set; }
         public int? CharacterNameId { get; set; }
-        public string IconId { get; set; }
         public bool UseLocalization { get; set; }
     }
 
@@ -249,8 +247,7 @@ namespace BigDLL4221.Models
     public class CustomFloorOptions
     {
         public CustomFloorOptions(string packageId = "", string floorCode = "", string iconId = "",
-            string floorName = "", string floorNameId = "", MapModel customFloorMap = null,
-            bool lockOriginalEmotionSlots = false, bool lockOriginalEgoSlots = false)
+            string floorName = "", string floorNameId = "", MapModel customFloorMap = null)
         {
             PackageId = packageId;
             FloorCode = floorCode;
@@ -258,8 +255,6 @@ namespace BigDLL4221.Models
             CustomFloorMap = customFloorMap;
             FloorName = floorName;
             FloorNameId = floorNameId;
-            LockOriginalEmotionSlots = lockOriginalEmotionSlots;
-            LockOriginalEgoSlots = lockOriginalEgoSlots;
         }
 
         public string PackageId { get; set; }
@@ -268,9 +263,6 @@ namespace BigDLL4221.Models
         public string IconId { get; set; }
         public string FloorNameId { get; set; }
         public string FloorName { get; set; }
-        public bool LockOriginalEmotionSlots { get; set; }
-
-        public bool LockOriginalEgoSlots { get; set; }
         public List<EmotionCardXmlInfo> OriginalEmotionCards { get; set; }
         public List<EmotionEgoXmlInfo> OriginalEgoCards { get; set; }
         public MapModel CustomFloorMap { get; set; }

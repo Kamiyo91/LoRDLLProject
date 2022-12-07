@@ -625,8 +625,7 @@ namespace BigDLL4221.Utils
                     dataName = string.IsNullOrEmpty(keypageName) ? workshopSkinData.dataName : keypageName,
                     id = dictionary.Count,
                     PackageId = packageId,
-                    RealKeypageId = customSkinOption.KeypageId,
-                    IconId = customSkinOption.IconId
+                    RealKeypageId = customSkinOption.KeypageId
                 });
             }
         }

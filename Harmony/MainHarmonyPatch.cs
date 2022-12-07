@@ -631,9 +631,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPrefix]
         [HarmonyPatch(typeof(UISettingInvenEquipPageListSlot), "SetBooksData")]
         [HarmonyPatch(typeof(UIInvenEquipPageListSlot), "SetBooksData")]
-        public static void General_SetBooksData_Pre(object __instance,
-            List<BookModel> books, UIStoryKeyData storyKey, Image ___img_EdgeFrame, Image ___img_LineFrame,
-            Image ___img_IconGlow, Image ___img_Icon)
+        public static void General_SetBooksData_Pre(object __instance, Image ___img_Icon)
         {
             var uiOrigin = __instance as UIOriginEquipPageList;
             ArtUtil.ResetColorData(uiOrigin, ___img_Icon);
@@ -671,8 +669,9 @@ namespace BigDLL4221.Harmony
                 {
                     type = artWork.Key,
                     icon = artWork.Value,
-                    iconGlow = ModParameters.ArtWorks.FirstOrDefault(x => x.Key.Equals($"{artWork.Key}Glow")).Value ??
-                               artWork.Value
+                    iconGlow = ModParameters.ArtWorks.TryGetValue($"{artWork.Key}Glow", out var artWorkGlow)
+                        ? artWorkGlow
+                        : artWork.Value
                 });
         }
 

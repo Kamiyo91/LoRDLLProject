@@ -1025,18 +1025,18 @@ namespace BigDLL4221.Harmony
         public static void UIEquipPageCustomizeSlot_SetData(object __instance, object data, Image ___Icon,
             Image ___IconGlow, ref BookModel ____bookDataModel)
         {
-            if (!(data is WorkshopSkinDataExtension workshopData)) return;
-            ___Icon.sprite = ModParameters.ArtWorks.TryGetValue(workshopData.IconId, out var icon)
-                ? icon
-                : ___Icon.sprite;
-            ___IconGlow.sprite = ModParameters.ArtWorks.TryGetValue(workshopData.IconId + "Glow", out var iconGlow)
-                ? iconGlow
-                : ___IconGlow.sprite;
-            if (!(__instance is UIOriginEquipPageSlot instance)) return;
+            if (!(data is WorkshopSkinDataExtension workshopData) ||
+                !(__instance is UIOriginEquipPageSlot instance)) return;
             if (workshopData.RealKeypageId.HasValue)
+            {
                 ____bookDataModel =
                     new BookModel(Singleton<BookXmlList>.Instance.GetData(new LorId(workshopData.PackageId,
                         workshopData.RealKeypageId.Value)));
+                var sprite = UISpriteDataManager.instance.GetStoryIcon(____bookDataModel.ClassInfo.BookIcon);
+                ___Icon.sprite = sprite.icon;
+                ___IconGlow.sprite = sprite.iconGlow;
+            }
+
             if (StaticModsInfo.SetGlowColorOrigin == null)
                 StaticModsInfo.SetGlowColorOrigin = instance.GetType().GetMethod("SetGlowColor", AccessTools.all);
             StaticModsInfo.SetGlowColorOrigin?.Invoke(instance, new object[] { Color.white });
