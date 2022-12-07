@@ -25,8 +25,15 @@ namespace BigDLL4221.BaseClass
             Model.Survive = false;
             UnitUtil.UnitReviveAndRecovery(Model.Owner, 0, Model.RecoverLightOnSurvive);
             if (Model.SurviveAbDialogList.Any())
-                UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.SurviveAbDialogList,
-                    Model.SurviveAbDialogColor);
+            {
+                if (Model.SurviveAbDialogCustomColor.HasValue)
+                    UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.SurviveAbDialogList,
+                        Model.SurviveAbDialogCustomColor.Value);
+                else
+                    UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.SurviveAbDialogList,
+                        Model.SurviveAbDialogColor);
+            }
+
             Model.Owner.SetHp(Model.RecoverToHp);
             if (Model.NearDeathBuffType != null)
                 Model.Owner.bufListDetail.AddBufWithoutDuplication(Model.NearDeathBuffType);
@@ -43,8 +50,11 @@ namespace BigDLL4221.BaseClass
             Model.ReviveOnDeath = false;
             UnitUtil.UnitReviveAndRecovery(Model.Owner, Model.RecoverHpOnRevive, Model.RecoverLightOnSurvive);
             if (Model.ReviveAbDialogList.Any())
-                UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
-                    Model.ReviveAbDialogColor);
+                if (Model.ReviveAbDialogCustomColor.HasValue) UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
+                    Model.ReviveAbDialogCustomColor.Value);
+                else
+                    UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
+                            Model.ReviveAbDialogColor);
             if (Model.ForceRetreatOnRevive) Model.Owner.forceRetreat = true;
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             if (egoOptions.ActiveEgoOnDeath) EgoActive();
@@ -84,8 +94,11 @@ namespace BigDLL4221.BaseClass
                 UnitUtil.UnitReviveAndRecovery(Model.Owner, egoOptions.RecoverHpOnEgo, false);
             if (egoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
             if (egoOptions.EgoAbDialogList.Any())
-                UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, egoOptions.EgoAbDialogList,
-                    egoOptions.EgoAbColorColor);
+                if (egoOptions.EgoAbColorCustomColor.HasValue) UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, egoOptions.EgoAbDialogList,
+                    egoOptions.EgoAbColorCustomColor.Value);
+                else
+                    UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, egoOptions.EgoAbDialogList,
+                            egoOptions.EgoAbColorColor);
             if (egoOptions.SummonUnitDefaultData.Any())
                 foreach (var unitModel in egoOptions.SummonUnitDefaultData)
                     UnitUtil.AddNewUnitWithDefaultData(unitModel,

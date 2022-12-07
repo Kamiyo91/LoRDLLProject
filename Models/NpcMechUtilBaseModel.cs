@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BigDLL4221.Enum;
 using LOR_XML;
+using UnityEngine;
 
 namespace BigDLL4221.Models
 {
@@ -24,14 +25,14 @@ namespace BigDLL4221.Models
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
             LorId firstEgoFormCard = null, string egoSaveDataId = "", Dictionary<LorId, MapModel> egoMaps = null,
             List<BattleUnitBuf> addBuffsOnPlayerUnitsAtStart = null, bool phaseChangingRoundStartAfter = false,
-            bool forcedRetreatOnRevive = false, bool originalSkinIsBaseGame = false) : base(
+            bool forcedRetreatOnRevive = false, bool originalSkinIsBaseGame = false,Color? reviveAbDialogCustomColor = null, Color? surviveAbDialogCustomColor = null) : base(
             egoOptions, additionalStartDraw, surviveHp,
             recoverToHp,
             originalSkinName, survive,
             recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
             nearDeathBuffType, permanentBuffList, personalCards, reusableEgo, reviveOnDeath, recoverHpOnRevive,
             reviveAbDialogList, reviveAbDialogColor, firstEgoFormCard, false, egoMaps, forcedRetreatOnRevive,
-            originalSkinIsBaseGame)
+            originalSkinIsBaseGame,surviveAbDialogCustomColor,reviveAbDialogCustomColor)
         {
             MechOptions = mechOptions ?? new Dictionary<int, MechPhaseOptions>();
             ReloadMassAttackOnLethal = reloadMassAttackOnLethal;
@@ -108,7 +109,7 @@ namespace BigDLL4221.Models
             , bool hasExtraFunctionRoundStart = false, bool mechOnScenesCount = false, int scenesBeforeNextPhase = 0,
             bool hasExtraFunctionRoundPreEnd = false,
             List<int> summonOriginalUnitByIndex = null, int? summonedEmotionLevelAlly = null,
-            int? summonedEmotionLevelEnemy = null, bool dieFake = false, bool forcedRetreatOnDeath = false)
+            int? summonedEmotionLevelEnemy = null, bool dieFake = false, bool forcedRetreatOnDeath = false, Color? onPhaseChangeDialogCustomColor = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();
@@ -162,6 +163,7 @@ namespace BigDLL4221.Models
             SummonedEmotionLevelEnemy = summonedEmotionLevelEnemy;
             DieFake = dieFake;
             ForcedRetreatOnDeath = forcedRetreatOnDeath;
+            OnPhaseChangeDialogCustomColor = onPhaseChangeDialogCustomColor;
         }
 
         public int MechHp { get; set; }
@@ -206,6 +208,7 @@ namespace BigDLL4221.Models
         public List<LorId> UnitsThatDieTogetherByPassive { get; set; }
         public List<AbnormalityCardDialog> OnPhaseChangeDialogList { get; set; }
         public AbColorType OnPhaseChangeDialogColor { get; set; }
+        public Color? OnPhaseChangeDialogCustomColor { get; set; }
         public int ExtraMaxHp { get; set; }
         public int ExtraMaxStagger { get; set; }
         public int Counter { get; set; }

@@ -199,9 +199,12 @@ namespace BigDLL4221.Passives
             if (Model.EgoOptions.RecoverHpOnEgo != 0)
                 UnitUtil.UnitReviveAndRecovery(owner, Model.EgoOptions.RecoverHpOnEgo, false);
             if (Model.EgoOptions.RefreshUI) UnitUtil.RefreshCombatUI();
-            if (Model.EgoOptions.EgoAbDialogList.Any())
+            if (!Model.EgoOptions.EgoAbDialogList.Any()) return;
+            if(Model.EgoOptions.EgoAbColorCustomColor.HasValue)
                 UnitUtil.BattleAbDialog(owner.view.dialogUI, Model.EgoOptions.EgoAbDialogList,
-                    Model.EgoOptions.EgoAbColorColor);
+                    Model.EgoOptions.EgoAbColorCustomColor.Value);
+            else UnitUtil.BattleAbDialog(owner.view.dialogUI, Model.EgoOptions.EgoAbDialogList,
+                Model.EgoOptions.EgoAbColorColor);
         }
 
         public override void OnUseCard(BattlePlayingCardDataInUnitModel curCard)

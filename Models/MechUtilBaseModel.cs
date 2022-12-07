@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using BigDLL4221.Enum;
 using LOR_XML;
+using UnityEngine;
 
 namespace BigDLL4221.Models
 {
@@ -18,7 +19,7 @@ namespace BigDLL4221.Models
             List<AbnormalityCardDialog> reviveAbDialogList = null,
             AbColorType reviveAbDialogColor = AbColorType.Negative, LorId firstEgoFormCard = null,
             bool customData = false, Dictionary<LorId, MapModel> egoMaps = null, bool forceRetreatOnRevive = false,
-            bool originalSkinIsBaseGame = false)
+            bool originalSkinIsBaseGame = false, Color? surviveAbDialogCustomColor = null, Color? reviveAbDialogCustomColor = null)
         {
             EgoOptions = egoOptions ?? new Dictionary<int, EgoOptions>();
             AdditionalStartDraw = additionalStartDraw;
@@ -46,6 +47,8 @@ namespace BigDLL4221.Models
             EgoMaps = egoMaps ?? new Dictionary<LorId, MapModel>();
             ForceRetreatOnRevive = forceRetreatOnRevive;
             OriginalSkinIsBaseGame = originalSkinIsBaseGame;
+            SurviveAbDialogCustomColor = surviveAbDialogCustomColor;
+            ReviveAbDialogCustomColor = reviveAbDialogCustomColor;
         }
 
         public BattleUnitModel Owner { get; set; }
@@ -64,8 +67,10 @@ namespace BigDLL4221.Models
         public DamageOptions DamageOptions { get; set; }
         public List<AbnormalityCardDialog> ReviveAbDialogList { get; set; }
         public AbColorType ReviveAbDialogColor { get; set; }
+        public Color? ReviveAbDialogCustomColor { get; set; }
         public List<AbnormalityCardDialog> SurviveAbDialogList { get; set; }
         public AbColorType SurviveAbDialogColor { get; set; }
+        public Color? SurviveAbDialogCustomColor { get; set; }
         public BattleUnitBuf NearDeathBuffType { get; set; }
         public List<PermanentBuffOptions> PermanentBuffList { get; set; }
         public Dictionary<LorId, PersonalCardOptions> PersonalCards { get; set; }
@@ -101,7 +106,7 @@ namespace BigDLL4221.Models
             List<LorId> unitsThatDieTogetherByPassive = null, bool removeEgoWhenSolo = false,
             bool deactiveEgoOnBreak = false, int recoverHpOnEgo = 0, int extraMaxHp = 0, int extraMaxStagger = 0,
             int activeEgoOnHpRange = 0, bool activeEgoOnStart = false, LorId assimilationEgoWithMap = null,
-            bool isBaseGameSkin = false)
+            bool isBaseGameSkin = false, Color? egoAbColorCustomColor = null)
         {
             EgoType = egoType;
             EgoActivated = false;
@@ -128,6 +133,7 @@ namespace BigDLL4221.Models
             AssimilationEgoWithMap = assimilationEgoWithMap;
             EgoActive = false;
             IsBaseGameSkin = isBaseGameSkin;
+            EgoAbColorCustomColor = egoAbColorCustomColor;
         }
 
         public bool ActiveEgoOnStart { get; set; }
@@ -143,6 +149,7 @@ namespace BigDLL4221.Models
         public int RecoverHpOnEgo { get; set; }
         public List<AbnormalityCardDialog> EgoAbDialogList { get; set; }
         public AbColorType EgoAbColorColor { get; set; }
+        public Color? EgoAbColorCustomColor { get; set; }
         public int Duration { get; set; }
         public int Count { get; set; }
         public List<UnitModel> SummonUnitCustomData { get; set; }

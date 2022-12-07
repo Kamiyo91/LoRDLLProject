@@ -209,7 +209,6 @@ namespace BigDLL4221.Utils
             battleCardResultLog?.SetDiceBehaviourAbility(true, ability.behavior, ability.card.card);
         }
 
-        [Obsolete("Use the new one with the custom Color.")]
         public static void BattleAbDialog(BattleDialogUI instance, List<AbnormalityCardDialog> dialogs,
             AbColorType colorType)
         {
