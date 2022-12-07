@@ -508,6 +508,21 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static void SetEmotionCardColors(string packageId, List<int> cardIds,
+            EmotionCardColorOptions cardColorOptions)
+        {
+            if (!ModParameters.EmotionCards.TryGetValue(packageId, out var cards)) return;
+            foreach (var card in cardIds
+                         .Select(cardId =>
+                             cards.FirstOrDefault(x => x.CardXml.LorId == new LorId(packageId, cardId)))
+                         .Where(card => card != null))
+            {
+                cards.Remove(card);
+                card.ColorOptions = cardColorOptions;
+                cards.Add(card);
+            }
+        }
+
         public static void SetEmotionCardOnlyForBookIds(string packageId, List<int> cardIds, List<LorId> bookIds)
         {
             if (!ModParameters.EmotionCards.TryGetValue(packageId, out var cards)) return;

@@ -109,6 +109,7 @@
     <Compile Include="Extensions\EmotionCardXmlExtension.cs" />
     <Compile Include="Extensions\EmotionEgoCardXmlExtension.cs" />
     <Compile Include="Extensions\EtcRoot.cs" />
+    <Compile Include="Extensions\WorkshopSkinDataExtension.cs" />
     <Compile Include="FarAreaEffects\BehaviourAction_BaseMassAttackEffect_DLL4221.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
     <Compile Include="Models\HSVColors.cs" />

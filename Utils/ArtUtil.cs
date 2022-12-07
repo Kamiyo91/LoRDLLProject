@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using BigDLL4221.Enum;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using HarmonyLib;
 using Sound;
@@ -600,28 +601,42 @@ namespace BigDLL4221.Utils
                 var customSkinOption = customSkins.FirstOrDefault(x => workshopSkinData.dataName.Contains(x.SkinName));
                 if (customSkinOption == null) continue;
                 var keypageName = string.Empty;
-                var localization = ModParameters.LocalizedItems.TryGetValue(packageId, out var localizatedItem);
-                if (localization)
-                    if (customSkinOption.KeypageNameId.HasValue)
-                    {
-                        var keypageLoc =
-                            localizatedItem.Keypages.FirstOrDefault(x =>
-                                x.bookID == customSkinOption.KeypageNameId.Value);
-                        if (keypageLoc != null) keypageName = keypageLoc.bookName;
-                    }
-                    else if (!string.IsNullOrEmpty(customSkinOption.KeypageName))
-                    {
-                        keypageName = customSkinOption.KeypageName;
-                    }
+                if (customSkinOption.UseLocalization)
+                {
+                    var localization = ModParameters.LocalizedItems.TryGetValue(packageId, out var localizatedItem);
+                    if (localization)
+                        if (customSkinOption.KeypageId.HasValue)
+                        {
+                            var keypageLoc =
+                                localizatedItem.Keypages.FirstOrDefault(x =>
+                                    x.bookID == customSkinOption.KeypageId.Value);
+                            if (keypageLoc != null) keypageName = keypageLoc.bookName;
+                        }
+                        else if (!string.IsNullOrEmpty(customSkinOption.KeypageName))
+                        {
+                            keypageName = customSkinOption.KeypageName;
+                        }
+                }
 
-                dictionary.Add(workshopSkinData.dataName, new WorkshopSkinData
+                dictionary.Add(workshopSkinData.dataName, new WorkshopSkinDataExtension
                 {
                     dic = workshopSkinData.dic,
                     contentFolderIdx = workshopSkinData.dataName,
                     dataName = string.IsNullOrEmpty(keypageName) ? workshopSkinData.dataName : keypageName,
-                    id = dictionary.Count
+                    id = dictionary.Count,
+                    PackageId = packageId,
+                    RealKeypageId = customSkinOption.KeypageId,
+                    IconId = customSkinOption.IconId
                 });
             }
+        }
+
+        public static void ChangeEmotionCardColor(EmotionCardOptions cardOptions, ref _2dxFX_ColorChange component)
+        {
+            component._Color = cardOptions.ColorOptions.FrameColor ?? component._Color;
+            component._HueShift = cardOptions.ColorOptions.FrameHSVColor?.H ?? component._HueShift;
+            component._Saturation = cardOptions.ColorOptions.FrameHSVColor?.S ?? component._Saturation;
+            component._ValueBrightness = cardOptions.ColorOptions.FrameHSVColor?.V ?? component._Saturation;
         }
 
         public static void LocalizationCustomBook()
@@ -635,11 +650,11 @@ namespace BigDLL4221.Utils
                              .ToList())
                 {
                     var customSkinOption = customSkins.FirstOrDefault(x => workshopSkinData.Key.Contains(x.SkinName));
-                    if (customSkinOption?.KeypageNameId == null) continue;
+                    if (customSkinOption?.KeypageId == null || !customSkinOption.UseLocalization) continue;
                     var localization = ModParameters.LocalizedItems.TryGetValue(packageId, out var localizatedItem);
                     if (!localization) continue;
                     var keypageLoc =
-                        localizatedItem.Keypages.FirstOrDefault(x => x.bookID == customSkinOption.KeypageNameId.Value);
+                        localizatedItem.Keypages.FirstOrDefault(x => x.bookID == customSkinOption.KeypageId.Value);
                     if (keypageLoc == null) continue;
                     workshopSkinData.Value.dataName = keypageLoc.bookName;
                     dictionary[workshopSkinData.Key] = workshopSkinData.Value;

@@ -3,7 +3,7 @@
     public static class HSVColors
     {
         public static HSVColor Black = new HSVColor(0, 0, 0.05f);
-        public static HSVColor White = new HSVColor(0, 0, 1);
+        public static HSVColor White = new HSVColor(0, 0, 1.5f);
         public static HSVColor Purple = new HSVColor(60, 1, 1);
         public static HSVColor Blue = new HSVColor(145, 1, 1);
         public static HSVColor Green = new HSVColor(220, 1, 1);

@@ -2,6 +2,8 @@
 using System.Linq;
 using BigDLL4221.Models;
 using BigDLL4221.Passives;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BigDLL4221.Extensions
 {
@@ -102,6 +104,18 @@ namespace BigDLL4221.Extensions
             return xmlInfo != null;
         }
 
+        public static bool GetEmotionCardOptions(string packageId, int id, out EmotionCardOptions cardOptions)
+        {
+            if (!ModParameters.EmotionCards.TryGetValue(packageId, out var cards))
+            {
+                cardOptions = null;
+                return false;
+            }
+
+            cardOptions = cards.FirstOrDefault(x => x.CardXml.LorId == new LorId(packageId, id));
+            return cardOptions != null;
+        }
+
         public static bool GetFloorEgoCard(string packageId, int id, out EmotionEgoCardXmlExtension xmlInfo)
         {
             if (!ModParameters.EmotionEgoCards.TryGetValue(packageId, out var cards))
@@ -133,6 +147,23 @@ namespace BigDLL4221.Extensions
                     PassiveAbility_PlayerMechBase_DLL4221 passive)) return false;
             passive.ForcedEgo(egoPhase);
             return true;
+        }
+
+        public static T GetOrAddComponent<T>(this GameObject self) where T : MonoBehaviour
+        {
+            if (self == null) return default;
+            var t = self.GetComponent<T>();
+            if (t == null)
+                t = self.AddComponent<T>();
+            return t;
+        }
+
+        public static void SafeDestroyComponent<T>(this GameObject self) where T : MonoBehaviour
+        {
+            if (self == null) return;
+            var component = self.GetComponent<T>();
+            if (component != null)
+                Object.Destroy(component);
         }
     }
 }

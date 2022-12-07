@@ -209,6 +209,7 @@ namespace BigDLL4221.Utils
             battleCardResultLog?.SetDiceBehaviourAbility(true, ability.behavior, ability.card.card);
         }
 
+        [Obsolete("Use the new one with the custom Color.")]
         public static void BattleAbDialog(BattleDialogUI instance, List<AbnormalityCardDialog> dialogs,
             AbColorType colorType)
         {
@@ -226,6 +227,31 @@ namespace BigDLL4221.Utils
                 txtAbnormalityDlg.color = colorType == AbColorType.Negative
                     ? SingletonBehavior<BattleManagerUI>.Instance.negativeTextColor
                     : SingletonBehavior<BattleManagerUI>.Instance.positiveTextColor;
+                var canvas = (Canvas)typeof(BattleDialogUI).GetField("_canvas", AccessTools.all)?.GetValue(instance);
+                if (canvas != null) canvas.enabled = true;
+                component.interactable = true;
+                component.blocksRaycasts = true;
+                txtAbnormalityDlg.GetComponent<AbnormalityDlgEffect>().Init();
+            }
+
+            var _ = (Coroutine)typeof(BattleDialogUI).GetField("_routine",
+                AccessTools.all)?.GetValue(instance);
+            var method = typeof(BattleDialogUI).GetMethod("AbnormalityDlgRoutine", AccessTools.all);
+            if (method != null) instance.StartCoroutine(method.Invoke(instance, Array.Empty<object>()) as IEnumerator);
+        }
+
+        public static void BattleAbDialog(BattleDialogUI instance, List<AbnormalityCardDialog> dialogs,
+            Color color)
+        {
+            var component = instance.GetComponent<CanvasGroup>();
+            var dialog = dialogs[Random.Range(0, dialogs.Count)].dialog;
+            var txtAbnormalityDlg = (TextMeshProUGUI)typeof(BattleDialogUI).GetField("_txtAbnormalityDlg",
+                AccessTools.all)?.GetValue(instance);
+            if (txtAbnormalityDlg != null)
+            {
+                txtAbnormalityDlg.text = dialog;
+                txtAbnormalityDlg.fontMaterial.SetColor("_GlowColor", color);
+                txtAbnormalityDlg.color = color;
                 var canvas = (Canvas)typeof(BattleDialogUI).GetField("_canvas", AccessTools.all)?.GetValue(instance);
                 if (canvas != null) canvas.enabled = true;
                 component.interactable = true;

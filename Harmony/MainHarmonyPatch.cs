@@ -373,7 +373,8 @@ namespace BigDLL4221.Harmony
                 var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.Book.BookId.id);
                 if (keypageOption != null)
                 {
-                    if (keypageOption.ForceAggroSpeedDie.Contains(myIndex) || (keypageOption.ForceAggroLastDie && isLastDie))
+                    if (keypageOption.ForceAggroSpeedDie.Contains(myIndex) ||
+                        (keypageOption.ForceAggroLastDie && isLastDie))
                     {
                         __result = true;
                         return;
@@ -405,11 +406,13 @@ namespace BigDLL4221.Harmony
                              x.Item2.ForceAggroOptions != null)))
             {
                 if (passive == null) continue;
-                if (passive.Item2.ForceAggroOptions.ForceAggroSpeedDie.Contains(myIndex) || (passive.Item2.ForceAggroOptions.ForceAggroLastDie && isLastDie))
+                if (passive.Item2.ForceAggroOptions.ForceAggroSpeedDie.Contains(myIndex) ||
+                    (passive.Item2.ForceAggroOptions.ForceAggroLastDie && isLastDie))
                 {
                     __result = true;
                     return;
                 }
+
                 if (passive.Item2.ForceAggroOptions.ForceAggro)
                 {
                     __result = true;
@@ -890,8 +893,18 @@ namespace BigDLL4221.Harmony
             {
                 UIOptions.ChangedMultiView = false;
                 ArtUtil.RevertMultiDeckUI(___multiDeckLayout);
-                __instance.GetType().GetMethod("SetDeckLayout", AccessTools.all)
-                    ?.Invoke(__instance, Array.Empty<object>());
+                if (StaticModsInfo.DeckLayoutMethod == null)
+                {
+                    StaticModsInfo.DeckLayoutMethod = __instance.GetType()
+                        .GetMethod("SetDeckLayout", AccessTools.all);
+                    StaticModsInfo.DeckLayoutMethod?.Invoke(__instance.GetType(),
+                        Array.Empty<object>());
+                }
+                else
+                {
+                    StaticModsInfo.DeckLayoutMethod.Invoke(__instance.GetType(),
+                        Array.Empty<object>());
+                }
             }
         }
 
@@ -902,12 +915,22 @@ namespace BigDLL4221.Harmony
             if (__instance.CurrentBookModel == null) return;
             try
             {
-                SingletonBehavior<UIEquipDeckCardList>.Instance.GetType()
-                    .GetMethod("SetDeckLayout", AccessTools.all)
-                    ?.Invoke(SingletonBehavior<UIEquipDeckCardList>.Instance, Array.Empty<object>());
+                if (StaticModsInfo.DeckLayoutMethod == null)
+                {
+                    StaticModsInfo.DeckLayoutMethod = SingletonBehavior<UIEquipDeckCardList>.Instance.GetType()
+                        .GetMethod("SetDeckLayout", AccessTools.all);
+                    StaticModsInfo.DeckLayoutMethod?.Invoke(SingletonBehavior<UIEquipDeckCardList>.Instance,
+                        Array.Empty<object>());
+                }
+                else
+                {
+                    StaticModsInfo.DeckLayoutMethod.Invoke(SingletonBehavior<UIEquipDeckCardList>.Instance,
+                        Array.Empty<object>());
+                }
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -1128,17 +1151,6 @@ namespace BigDLL4221.Harmony
             ____self.view.charAppearance.ChangeMotion(keypageItem.BookCustomOptions.XiaoTaotieAction);
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
-        [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
-        public static void EmotionPassiveCardUI_SetSprites(object ____card, ref Image ____artwork)
-        {
-            if (!(____card is EmotionCardXmlExtension cardExtension)) return;
-            ____artwork.sprite =
-                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
-                    cardExtension.Artwork);
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StageLibraryFloorModel), "StartPickEmotionCard")]
         public static bool StageLibraryFloorModel_StartPickEmotionCard(StageLibraryFloorModel __instance)
@@ -1162,16 +1174,6 @@ namespace BigDLL4221.Harmony
                 SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.InitEgo(0, egoList);
             return false;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIAbnormalityCardPreviewSlot), "Init")]
-        public static void UIAbnormalityCardPreviewSlot_Init(object card, ref Image ___artwork)
-        {
-            if (!(card is EmotionCardXmlExtension cardExtension)) return;
-            ___artwork.sprite =
-                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
-                    cardExtension.Artwork);
         }
 
         [HarmonyPostfix]

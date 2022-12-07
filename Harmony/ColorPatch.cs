@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using HarmonyLib;
@@ -9,6 +10,7 @@ using UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Workshop;
 
 namespace BigDLL4221.Harmony
 {
@@ -681,10 +683,12 @@ namespace BigDLL4221.Harmony
                 ___img_BookIconGlow.color = keypageItem.KeypageColorOptions.FrameColor.Value;
             }
 
-            ___setter_bookname.GetType().GetMethod("Awake", AccessTools.all)
-                ?.Invoke(___setter_bookname, Array.Empty<object>());
-            ___setter_bookname.GetType().GetMethod("Start", AccessTools.all)
-                ?.Invoke(___setter_bookname, Array.Empty<object>());
+            if (StaticModsInfo.TextMeshAwake == null)
+                StaticModsInfo.TextMeshAwake = ___setter_bookname.GetType().GetMethod("Awake", AccessTools.all);
+            if (StaticModsInfo.TextMeshStart == null)
+                StaticModsInfo.TextMeshStart = ___setter_bookname.GetType().GetMethod("Start", AccessTools.all);
+            StaticModsInfo.TextMeshAwake?.Invoke(___setter_bookname, Array.Empty<object>());
+            StaticModsInfo.TextMeshStart?.Invoke(___setter_bookname, Array.Empty<object>());
             if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
             ___setter_bookname.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
             ___setter_bookname.enabled = false;
@@ -808,7 +812,7 @@ namespace BigDLL4221.Harmony
         public static void UIBattleSettingLibrarianInfoPanel_SetEquipPageSlotColor(
             UIBattleSettingLibrarianInfoPanel __instance, UnitDataModel ___unitdata,
             TextMeshProMaterialSetter ___setter_bookname, Image ___img_BookIconGlow, Graphic[] ___graphic_Frames,
-            TextMeshProUGUI ___txt_BookName, bool ___isSephirahPanel)
+            TextMeshProUGUI ___txt_BookName)
         {
             if (___unitdata == null) return;
             if (!ModParameters.KeypageOptions.TryGetValue(___unitdata.bookItem.BookId.packageId,
@@ -1014,6 +1018,120 @@ namespace BigDLL4221.Harmony
             if (stageOption?.StageColorOptions?.FrameColor == null) return;
             if (___button_SendButton.interactable)
                 ___button_SendButton.SetColor(stageOption.StageColorOptions.FrameColor.Value);
+        }
+
+        [HarmonyPatch(typeof(UIEquipPageCustomizeSlot), "SetData", typeof(WorkshopSkinData))]
+        [HarmonyPostfix]
+        public static void UIEquipPageCustomizeSlot_SetData(object __instance, object data, Image ___Icon,
+            Image ___IconGlow, ref BookModel ____bookDataModel)
+        {
+            if (!(data is WorkshopSkinDataExtension workshopData)) return;
+            ___Icon.sprite = ModParameters.ArtWorks.TryGetValue(workshopData.IconId, out var icon)
+                ? icon
+                : ___Icon.sprite;
+            ___IconGlow.sprite = ModParameters.ArtWorks.TryGetValue(workshopData.IconId + "Glow", out var iconGlow)
+                ? iconGlow
+                : ___IconGlow.sprite;
+            if (!(__instance is UIOriginEquipPageSlot instance)) return;
+            if (workshopData.RealKeypageId.HasValue)
+                ____bookDataModel =
+                    new BookModel(Singleton<BookXmlList>.Instance.GetData(new LorId(workshopData.PackageId,
+                        workshopData.RealKeypageId.Value)));
+            if (StaticModsInfo.SetGlowColorOrigin == null)
+                StaticModsInfo.SetGlowColorOrigin = instance.GetType().GetMethod("SetGlowColor", AccessTools.all);
+            StaticModsInfo.SetGlowColorOrigin?.Invoke(instance, new object[] { Color.white });
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
+        [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
+        public static void EmotionPassiveCardUI_SetSprites(object ____card, ref Image ____artwork,
+            TextMeshProUGUI ____flavorText,
+            TextMeshProUGUI ____abilityDesc, TextMeshProUGUI ___txt_Level, Image ___img_LeftTotalFrame,
+            Image ____leftFrameTitleLineardodge, Image ____rightFrame,
+            Image ____rightBg, Sprite[] ____positiveBgSprite, Image ____hOverImg, Image ____rootImageBg,
+            Sprite[] ____positiveFrameSprite)
+        {
+            if (!(____card is EmotionCardXmlExtension cardExtension))
+            {
+                ___img_LeftTotalFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+                ____leftFrameTitleLineardodge.gameObject.SetActive(true);
+                ____rightFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+                return;
+            }
+
+            ____artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
+            if (!UtilExtensions.GetEmotionCardOptions(cardExtension.LorId.packageId, cardExtension.LorId.id,
+                    out var cardOptions) || cardOptions.ColorOptions == null)
+            {
+                ___img_LeftTotalFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+                ____leftFrameTitleLineardodge.gameObject.SetActive(true);
+                ____rightFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+                return;
+            }
+
+            var orAddComponent = ___img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ArtUtil.ChangeEmotionCardColor(cardOptions, ref orAddComponent);
+            ____rightBg.sprite = ____positiveBgSprite[1];
+            var orAddComponent2 = ____rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ArtUtil.ChangeEmotionCardColor(cardOptions, ref orAddComponent2);
+            ____rightFrame.sprite = ____positiveFrameSprite[1];
+            var orAddComponent3 = ____rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ArtUtil.ChangeEmotionCardColor(cardOptions, ref orAddComponent3);
+            ____leftFrameTitleLineardodge.gameObject.SetActive(false);
+            if (cardOptions.ColorOptions.TextColor.HasValue)
+            {
+                ____flavorText.fontMaterial.SetColor("_UnderlayColor", cardOptions.ColorOptions.TextColor.Value);
+                ____abilityDesc.fontMaterial.SetColor("_UnderlayColor", cardOptions.ColorOptions.TextColor.Value);
+            }
+
+            if (!cardOptions.ColorOptions.FrameColor.HasValue) return;
+            ____hOverImg.color = cardOptions.ColorOptions.FrameColor.Value;
+            var rootColor = cardOptions.ColorOptions.FrameColor.Value;
+            rootColor.a = 0.25f;
+            ____rootImageBg.color = rootColor;
+            var component = ___txt_Level.GetComponent<TextMeshProMaterialSetter>();
+            if (component == null) return;
+            component.glowColor = cardOptions.ColorOptions.FrameColor.Value;
+            component.underlayColor = cardOptions.ColorOptions.FrameColor.Value;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIAbnormalityCardPreviewSlot), "Init")]
+        public static void UIAbnormalityCardPreviewSlot_Init(object card, ref Image ___artwork, Image ___frame,
+            TextMeshProUGUI ___cardName, TextMeshProUGUI ___cardLevel)
+        {
+            if (!(card is EmotionCardXmlExtension cardExtension)) return;
+            ___artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
+            if (!UtilExtensions.GetEmotionCardOptions(cardExtension.LorId.packageId, cardExtension.LorId.id,
+                    out var cardOptions) || cardOptions.ColorOptions == null) return;
+            if (cardOptions.ColorOptions.FrameColor.HasValue)
+                ___frame.color = cardOptions.ColorOptions.FrameColor.Value;
+            if (!cardOptions.ColorOptions.TextColor.HasValue) return;
+            ___cardName.color = cardOptions.ColorOptions.TextColor.Value;
+            ___cardName.GetComponent<TextMeshProMaterialSetter>().underlayColor =
+                cardOptions.ColorOptions.TextColor.Value;
+            ___cardName.gameObject.SetActive(false);
+            ___cardName.gameObject.SetActive(true);
+            ___cardLevel.color = cardOptions.ColorOptions.TextColor.Value;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BattleDialogUI), "TurnOnAbnormalityDlg")]
+        public static void BattleDialogUI_TurnOnAbnormalityDlg(object card, TextMeshProUGUI ____txtAbnormalityDlg)
+        {
+            if (!(card is EmotionCardXmlExtension cardExtension) ||
+                !UtilExtensions.GetEmotionCardOptions(cardExtension.LorId.packageId, cardExtension.LorId.id,
+                    out var cardOptions) || cardOptions.ColorOptions?.TextColor == null) return;
+            ____txtAbnormalityDlg.fontMaterial.SetColor("_GlowColor", cardOptions.ColorOptions.TextColor.Value);
+            ____txtAbnormalityDlg.color = cardOptions.ColorOptions.TextColor.Value;
+            ____txtAbnormalityDlg.GetComponent<AbnormalityDlgEffect>().Init();
         }
     }
 }

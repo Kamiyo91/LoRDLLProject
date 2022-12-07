@@ -67,21 +67,25 @@ namespace BigDLL4221.Models
 
     public class CustomBookSkinsOption
     {
-        public CustomBookSkinsOption(string skinName, int? keypageNameId = null, string keypageName = "",
-            string characterName = "", int? characterNameId = null)
+        public CustomBookSkinsOption(string skinName, int? keypageId = null, string keypageName = "",
+            string characterName = "", int? characterNameId = null, string iconId = "", bool useLocalization = true)
         {
             SkinName = skinName;
             KeypageName = keypageName;
-            KeypageNameId = keypageNameId;
+            KeypageId = keypageId;
             CharacterName = characterName;
             CharacterNameId = characterNameId;
+            IconId = iconId;
+            UseLocalization = useLocalization;
         }
 
         public string SkinName { get; set; }
-        public int? KeypageNameId { get; set; }
+        public int? KeypageId { get; set; }
         public string KeypageName { get; set; }
         public string CharacterName { get; set; }
         public int? CharacterNameId { get; set; }
+        public string IconId { get; set; }
+        public bool UseLocalization { get; set; }
     }
 
     public class StaticModsInfo
@@ -96,6 +100,10 @@ namespace BigDLL4221.Models
         public static LorId OnPlayEmotionCardUsedBy = null;
         public static bool OnPlayCardEmotion = false;
         public static bool DaatFloorFound = false;
+        public static MethodInfo DeckLayoutMethod;
+        public static MethodInfo TextMeshAwake;
+        public static MethodInfo TextMeshStart;
+        public static MethodInfo SetGlowColorOrigin;
     }
 
     public class SavedFloorOptions
@@ -132,18 +140,34 @@ namespace BigDLL4221.Models
     {
         public EmotionCardOptions(EmotionCardXmlExtension cardXml, List<string> code = null,
             List<string> floorCode = null,
-            List<LorId> usableByBookIds = null)
+            List<LorId> usableByBookIds = null, EmotionCardColorOptions colorOptions = null)
         {
             CardXml = cardXml;
             Code = code ?? new List<string>();
             FloorCode = floorCode ?? new List<string>();
             UsableByBookIds = usableByBookIds ?? new List<LorId>();
+            ColorOptions = colorOptions;
         }
 
         public EmotionCardXmlExtension CardXml { get; set; }
         public List<LorId> UsableByBookIds { get; set; }
         public List<string> Code { get; set; }
         public List<string> FloorCode { get; set; }
+        public EmotionCardColorOptions ColorOptions { get; set; }
+    }
+
+    public class EmotionCardColorOptions
+    {
+        public EmotionCardColorOptions(Color? frameColor = null, Color? textColor = null, HSVColor frameHSVColor = null)
+        {
+            FrameColor = frameColor;
+            TextColor = textColor;
+            FrameHSVColor = frameHSVColor;
+        }
+
+        public HSVColor FrameHSVColor { get; set; }
+        public Color? FrameColor { get; set; }
+        public Color? TextColor { get; set; }
     }
 
     public static class UIOptions
@@ -512,7 +536,8 @@ namespace BigDLL4221.Models
     {
         public ForceAggroOptions(bool forceAggro = false, List<LorId> forceAggroByTargetedPassive = null,
             List<BattleUnitBuf> forceAggroByTargetedBuffs = null, List<LorId> forceAggroByTargetPassive = null,
-            List<BattleUnitBuf> forceAggroByTargetBuffs = null, bool forceAggroLastDie = false, List<int> forceAggroSpeedDie = null)
+            List<BattleUnitBuf> forceAggroByTargetBuffs = null, bool forceAggroLastDie = false,
+            List<int> forceAggroSpeedDie = null)
         {
             ForceAggro = forceAggro;
             ForceAggroByTargetedPassive = forceAggroByTargetedPassive ?? new List<LorId>();
