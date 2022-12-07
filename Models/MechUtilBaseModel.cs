@@ -19,7 +19,8 @@ namespace BigDLL4221.Models
             List<AbnormalityCardDialog> reviveAbDialogList = null,
             AbColorType reviveAbDialogColor = AbColorType.Negative, LorId firstEgoFormCard = null,
             bool customData = false, Dictionary<LorId, MapModel> egoMaps = null, bool forceRetreatOnRevive = false,
-            bool originalSkinIsBaseGame = false, Color? surviveAbDialogCustomColor = null, Color? reviveAbDialogCustomColor = null)
+            bool originalSkinIsBaseGame = false, Color? surviveAbDialogCustomColor = null,
+            Color? reviveAbDialogCustomColor = null)
         {
             EgoOptions = egoOptions ?? new Dictionary<int, EgoOptions>();
             AdditionalStartDraw = additionalStartDraw;

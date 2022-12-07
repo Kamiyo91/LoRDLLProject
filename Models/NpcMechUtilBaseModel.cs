@@ -25,14 +25,15 @@ namespace BigDLL4221.Models
             bool massAttackStartCount = false, SpecialCardOption specialCardOptions = null,
             LorId firstEgoFormCard = null, string egoSaveDataId = "", Dictionary<LorId, MapModel> egoMaps = null,
             List<BattleUnitBuf> addBuffsOnPlayerUnitsAtStart = null, bool phaseChangingRoundStartAfter = false,
-            bool forcedRetreatOnRevive = false, bool originalSkinIsBaseGame = false,Color? reviveAbDialogCustomColor = null, Color? surviveAbDialogCustomColor = null) : base(
+            bool forcedRetreatOnRevive = false, bool originalSkinIsBaseGame = false,
+            Color? reviveAbDialogCustomColor = null, Color? surviveAbDialogCustomColor = null) : base(
             egoOptions, additionalStartDraw, surviveHp,
             recoverToHp,
             originalSkinName, survive,
             recoverLightOnSurvive, dieOnFightEnd, damageOptions, surviveAbDialogList, surviveAbDialogColor,
             nearDeathBuffType, permanentBuffList, personalCards, reusableEgo, reviveOnDeath, recoverHpOnRevive,
             reviveAbDialogList, reviveAbDialogColor, firstEgoFormCard, false, egoMaps, forcedRetreatOnRevive,
-            originalSkinIsBaseGame,surviveAbDialogCustomColor,reviveAbDialogCustomColor)
+            originalSkinIsBaseGame, surviveAbDialogCustomColor, reviveAbDialogCustomColor)
         {
             MechOptions = mechOptions ?? new Dictionary<int, MechPhaseOptions>();
             ReloadMassAttackOnLethal = reloadMassAttackOnLethal;
@@ -109,7 +110,8 @@ namespace BigDLL4221.Models
             , bool hasExtraFunctionRoundStart = false, bool mechOnScenesCount = false, int scenesBeforeNextPhase = 0,
             bool hasExtraFunctionRoundPreEnd = false,
             List<int> summonOriginalUnitByIndex = null, int? summonedEmotionLevelAlly = null,
-            int? summonedEmotionLevelEnemy = null, bool dieFake = false, bool forcedRetreatOnDeath = false, Color? onPhaseChangeDialogCustomColor = null)
+            int? summonedEmotionLevelEnemy = null, bool dieFake = false, bool forcedRetreatOnDeath = false,
+            Color? onPhaseChangeDialogCustomColor = null)
         {
             AdditionalPassiveByIds = additionalPassiveByIds ?? new List<LorId>();
             RemovePassiveByIds = removePassiveByIds ?? new List<LorId>();

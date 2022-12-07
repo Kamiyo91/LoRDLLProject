@@ -204,8 +204,9 @@ namespace BigDLL4221.Passives
             if (Model.EgoOptions.EgoAbColorCustomColor.HasValue)
                 UnitUtil.BattleAbDialog(owner.view.dialogUI, Model.EgoOptions.EgoAbDialogList,
                     Model.EgoOptions.EgoAbColorCustomColor.Value);
-            else UnitUtil.BattleAbDialog(owner.view.dialogUI, Model.EgoOptions.EgoAbDialogList,
-                Model.EgoOptions.EgoAbColorColor);
+            else
+                UnitUtil.BattleAbDialog(owner.view.dialogUI, Model.EgoOptions.EgoAbDialogList,
+                    Model.EgoOptions.EgoAbColorColor);
         }
     }
 }

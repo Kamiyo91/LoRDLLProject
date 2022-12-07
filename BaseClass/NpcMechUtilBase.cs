@@ -29,9 +29,9 @@ namespace BigDLL4221.BaseClass
         public virtual void AddStartBuffsToPlayerUnits()
         {
             foreach (var buff in Model.AddBuffsOnPlayerUnitsAtStart)
-                foreach (var unit in BattleObjectManager.instance.GetAliveList(
-                             UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)))
-                    unit.bufListDetail.AddBuf(buff);
+            foreach (var unit in BattleObjectManager.instance.GetAliveList(
+                         UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)))
+                unit.bufListDetail.AddBuf(buff);
         }
 
         public virtual bool MechHpCheck(int dmg)
@@ -61,11 +61,12 @@ namespace BigDLL4221.BaseClass
             Model.Owner.breakDetail.nextTurnBreak = false;
             Model.Owner.bufListDetail.AddBufWithoutDuplication(new BattleUnitBuf_Immortal_DLL4221());
             if (Model.SurviveAbDialogList.Any())
-                if (Model.SurviveAbDialogCustomColor.HasValue) UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.SurviveAbDialogList,
-                    Model.SurviveAbDialogCustomColor.Value);
+                if (Model.SurviveAbDialogCustomColor.HasValue)
+                    UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.SurviveAbDialogList,
+                        Model.SurviveAbDialogCustomColor.Value);
                 else
                     UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.SurviveAbDialogList,
-                            Model.SurviveAbDialogColor);
+                        Model.SurviveAbDialogColor);
             if (Model.NearDeathBuffType != null)
                 Model.Owner.bufListDetail.AddBufWithoutDuplication(Model.NearDeathBuffType);
         }
@@ -131,17 +132,17 @@ namespace BigDLL4221.BaseClass
         public virtual void ExhaustEgoAttackCards()
         {
             foreach (var mechOptions in Model.MechOptions.Where(x => x.Value.EgoMassAttackCardsOptions.Any()))
-                foreach (var card in mechOptions.Value.EgoMassAttackCardsOptions.SelectMany(cardItem =>
-                             Model.Owner.allyCardDetail.GetAllDeck().Where(x => cardItem.CardId == x.GetID())))
-                    Model.Owner.allyCardDetail.ExhaustACardAnywhere(card);
+            foreach (var card in mechOptions.Value.EgoMassAttackCardsOptions.SelectMany(cardItem =>
+                         Model.Owner.allyCardDetail.GetAllDeck().Where(x => cardItem.CardId == x.GetID())))
+                Model.Owner.allyCardDetail.ExhaustACardAnywhere(card);
         }
 
         public virtual void ExhaustMechBufAttackCards()
         {
             foreach (var mechOptions in Model.MechOptions.Where(x => x.Value.SingletonBufMech != null))
-                foreach (var card in mechOptions.Value.SingletonBufMech.MassAttackCards.SelectMany(cardItem =>
-                             Model.Owner.allyCardDetail.GetAllDeck().Where(x => cardItem.CardId == x.GetID())))
-                    Model.Owner.allyCardDetail.ExhaustACardAnywhere(card);
+            foreach (var card in mechOptions.Value.SingletonBufMech.MassAttackCards.SelectMany(cardItem =>
+                         Model.Owner.allyCardDetail.GetAllDeck().Where(x => cardItem.CardId == x.GetID())))
+                Model.Owner.allyCardDetail.ExhaustACardAnywhere(card);
         }
 
         public virtual BattleUnitModel IgnoreSephiraSelectionTarget(LorId cardId)
@@ -252,12 +253,12 @@ namespace BigDLL4221.BaseClass
             if (mechOptions.MechBuffOptions != null)
             {
                 foreach (var buff in mechOptions.MechBuffOptions.OtherSideBuffs)
-                    foreach (var unit in BattleObjectManager.instance
-                                 .GetAliveList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Where(x =>
-                                     (buff.OnlySephirah && x.UnitData.unitData.isSephirah) ||
-                                     (buff.Index.HasValue && x.index == buff.Index.Value) ||
-                                     (!buff.OnlySephirah && !buff.Index.HasValue)))
-                        unit.bufListDetail.AddBuf(buff.Buff);
+                foreach (var unit in BattleObjectManager.instance
+                             .GetAliveList(UnitUtil.ReturnOtherSideFaction(Model.Owner.faction)).Where(x =>
+                                 (buff.OnlySephirah && x.UnitData.unitData.isSephirah) ||
+                                 (buff.Index.HasValue && x.index == buff.Index.Value) ||
+                                 (!buff.OnlySephirah && !buff.Index.HasValue)))
+                    unit.bufListDetail.AddBuf(buff.Buff);
                 foreach (var buff in mechOptions.MechBuffOptions.Buffs)
                     Model.Owner.bufListDetail.AddBuf(buff);
                 foreach (var buff in mechOptions.MechBuffOptions.OneRoundBuffs)
@@ -298,8 +299,9 @@ namespace BigDLL4221.BaseClass
             if (mechOptions.SummonUnit.Any() || mechOptions.SummonPlayerUnit.Any() ||
                 mechOptions.SummonOriginalUnitByIndex.Any()) UnitUtil.RefreshCombatUI();
             if (mechOptions.OnPhaseChangeDialogList.Any())
-                if (mechOptions.OnPhaseChangeDialogCustomColor.HasValue) UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, mechOptions.OnPhaseChangeDialogList,
-                    mechOptions.OnPhaseChangeDialogCustomColor.Value);
+                if (mechOptions.OnPhaseChangeDialogCustomColor.HasValue)
+                    UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, mechOptions.OnPhaseChangeDialogList,
+                        mechOptions.OnPhaseChangeDialogCustomColor.Value);
                 else
                     UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, mechOptions.OnPhaseChangeDialogList,
                         mechOptions.OnPhaseChangeDialogColor);
@@ -508,7 +510,8 @@ namespace BigDLL4221.BaseClass
                 if (Model.ReviveAbDialogCustomColor.HasValue)
                     UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
                         Model.ReviveAbDialogCustomColor.Value);
-                else UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
+                else
+                    UnitUtil.BattleAbDialog(Model.Owner.view.dialogUI, Model.ReviveAbDialogList,
                         Model.ReviveAbDialogColor);
             if (Model.ForceRetreatOnRevive) Model.Owner.forceRetreat = true;
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
