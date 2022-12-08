@@ -22,6 +22,7 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<CardOptions>> CardOptions = new Dictionary<string, List<CardOptions>>();
         public static Dictionary<string, string> DefaultKeyword = new Dictionary<string, string>();
         public static Dictionary<string, Type> CustomEffects = new Dictionary<string, Type>();
+        public static HarmonyLib.Harmony Harmony = new HarmonyLib.Harmony("LOR.BigDLL4221HarmonyPatch_MOD");
 
         public static Dictionary<string, List<DropBookOptions>> DropBookOptions =
             new Dictionary<string, List<DropBookOptions>>();
@@ -98,10 +99,20 @@ namespace BigDLL4221.Models
         public static LorId OnPlayEmotionCardUsedBy = null;
         public static bool OnPlayCardEmotion = false;
         public static bool DaatFloorFound = false;
+        public static bool BaseModFound = false;
         public static MethodInfo DeckLayoutMethod;
         public static MethodInfo TextMeshAwake;
         public static MethodInfo TextMeshStart;
         public static MethodInfo SetGlowColorOrigin;
+    }
+
+    public static class LucasTiphEgoModInfo
+    {
+        public static string TiphEgoPath;
+        public static bool TiphEgoModFound = false;
+        public static bool TiphEgoPatchChanged = false;
+        public static readonly string TiphEgoModId = "Mod.Luca1125.EgoTiphereth";
+        public static Dictionary<string, Sprite> TiphEgoArtWorks = new Dictionary<string, Sprite>();
     }
 
     public class SavedFloorOptions

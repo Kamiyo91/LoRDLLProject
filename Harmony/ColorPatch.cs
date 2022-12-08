@@ -78,6 +78,18 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(UIDetailEgoCardSlot), "SetData")]
         [HarmonyPatch(typeof(UIOriginCardSlot), "SetData")]
+        [HarmonyPrefix]
+        public static void UICard_SetData_Pre(DiceCardItemModel cardmodel, Image[] ___img_Frames, Image ___img_Artwork)
+        {
+            if (cardmodel == null) return;
+            var frame = ___img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
+            if (frame != null) frame.overrideSprite = null;
+            var component = ___img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
+            if (component != null) component.overrideSprite = null;
+        }
+
+        [HarmonyPatch(typeof(UIDetailEgoCardSlot), "SetData")]
+        [HarmonyPatch(typeof(UIOriginCardSlot), "SetData")]
         [HarmonyPostfix]
         public static void UICard_SetData_Post(DiceCardItemModel cardmodel, Image[] ___img_Frames,
             Image[] ___img_linearDodge, NumbersData ___costNumbers, Image ___img_RangeIcon, Image ___img_Artwork,
@@ -85,12 +97,6 @@ namespace BigDLL4221.Harmony
             ref Color ___colorLineardodge)
         {
             if (cardmodel == null) return;
-            var frame = ___img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
-            if (frame != null)
-                frame.overrideSprite = null;
-            var component = ___img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
-            if (component != null)
-                component.overrideSprite = null;
             if (!ModParameters.CardOptions.TryGetValue(cardmodel.GetID().packageId, out var cardOptions)) return;
             var cardItem = cardOptions.FirstOrDefault(x => x.CardId == cardmodel.GetID().id);
             if (cardItem?.CardColorOptions == null) return;
@@ -106,6 +112,7 @@ namespace BigDLL4221.Harmony
                 ___img_RangeIcon.color = cardItem.CardColorOptions.CardColor.Value;
             }
 
+            var frame = ___img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
             if (frame != null)
                 if (!string.IsNullOrEmpty(cardItem.CardColorOptions.LeftFrame) &&
                     ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.LeftFrame, out var leftFrameImg))
@@ -116,11 +123,8 @@ namespace BigDLL4221.Harmony
                         frame.color = cardItem.CardColorOptions.CardColor.Value;
                     else frame.color = Color.white;
                 }
-                else
-                {
-                    frame.overrideSprite = null;
-                }
 
+            var component = ___img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
             if (component != null)
                 if (!string.IsNullOrEmpty(cardItem.CardColorOptions.FrontFrame) &&
                     ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.FrontFrame, out var frontFrameImg))
@@ -130,14 +134,22 @@ namespace BigDLL4221.Harmony
                     if (cardItem.CardColorOptions.ApplyFrontColor && cardItem.CardColorOptions.CardColor.HasValue)
                         component.color = cardItem.CardColorOptions.CardColor.Value;
                 }
-                else
-                {
-                    component.overrideSprite = null;
-                }
 
             if (string.IsNullOrEmpty(cardItem.CardColorOptions.CustomIcon) ||
                 !ModParameters.ArtWorks.TryGetValue(cardItem.CardColorOptions.CustomIcon, out var icon)) return;
             ___img_RangeIcon.overrideSprite = icon;
+        }
+
+        [HarmonyPatch(typeof(UIDetailCardSlot), "SetData")]
+        [HarmonyPrefix]
+        public static void UIDetailCardSlot_SetData_Pre(DiceCardItemModel cardmodel, GameObject ___ob_selfAbility)
+        {
+            if (cardmodel == null) return;
+            var gameObject = ___ob_selfAbility.transform.parent.parent.parent.gameObject;
+            var rightFrame = gameObject.GetComponentsInChildren<Image>()
+                .FirstOrDefault(x => x.name.Contains("[Image]BgFrame"));
+            if (rightFrame == null) return;
+            rightFrame.overrideSprite = null;
         }
 
         [HarmonyPatch(typeof(UIDetailCardSlot), "SetData")]
@@ -149,7 +161,6 @@ namespace BigDLL4221.Harmony
             var rightFrame = gameObject.GetComponentsInChildren<Image>()
                 .FirstOrDefault(x => x.name.Contains("[Image]BgFrame"));
             if (rightFrame == null) return;
-            rightFrame.overrideSprite = null;
             if (!ModParameters.CardOptions.TryGetValue(cardmodel.GetID().packageId, out var cardOptions)) return;
             var cardItem = cardOptions.FirstOrDefault(x => x.CardId == cardmodel.GetID().id);
             if (cardItem?.CardColorOptions == null ||
@@ -255,10 +266,9 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPatch(typeof(BattleDiceCardUI), "SetCard")]
-        [HarmonyPostfix]
-        public static void UIBattleCard_SetCard_Post(BattleDiceCardModel cardModel, Image[] ___img_Frames,
-            Image[] ___img_linearDodges, NumbersData ___costNumbers, Image ___img_icon, Image ___img_artwork,
-            ref Color ___colorFrame, ref Color ___colorLineardodge, ref Color ___colorLineardodge_deactive)
+        [HarmonyPrefix]
+        public static void UIBattleCard_SetCard_Pre(BattleDiceCardModel cardModel, Image[] ___img_Frames,
+            Image ___img_artwork)
         {
             if (cardModel == null) return;
             var frame = ___img_Frames.ElementAtOrDefault(0);
@@ -269,6 +279,14 @@ namespace BigDLL4221.Harmony
                 rightFrame.overrideSprite = null;
             var component = ___img_artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
             if (component != null) component.overrideSprite = null;
+        }
+
+        [HarmonyPatch(typeof(BattleDiceCardUI), "SetCard")]
+        [HarmonyPostfix]
+        public static void UIBattleCard_SetCard_Post(BattleDiceCardModel cardModel, Image[] ___img_Frames,
+            Image[] ___img_linearDodges, NumbersData ___costNumbers, Image ___img_icon, Image ___img_artwork,
+            ref Color ___colorFrame, ref Color ___colorLineardodge, ref Color ___colorLineardodge_deactive)
+        {
             if (!ModParameters.CardOptions.TryGetValue(cardModel.GetID().packageId, out var cardOptions)) return;
             var cardItem = cardOptions.FirstOrDefault(x => x.CardId == cardModel.GetID().id);
             if (cardItem?.CardColorOptions == null) return;
@@ -285,6 +303,7 @@ namespace BigDLL4221.Harmony
                 ___img_icon.color = cardItem.CardColorOptions.CardColor.Value;
             }
 
+            var frame = ___img_Frames.ElementAtOrDefault(0);
             if (frame != null && !string.IsNullOrEmpty(cardItem.CardColorOptions.LeftFrame) &&
                 ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.LeftFrame, out var leftFrameImg))
             {
@@ -295,6 +314,7 @@ namespace BigDLL4221.Harmony
                 else frame.color = Color.white;
             }
 
+            var rightFrame = ___img_Frames.ElementAtOrDefault(4);
             if (rightFrame != null && !string.IsNullOrEmpty(cardItem.CardColorOptions.RightFrame) &&
                 ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.RightFrame, out var rightFrameImg))
             {
@@ -305,6 +325,7 @@ namespace BigDLL4221.Harmony
                 else rightFrame.color = Color.white;
             }
 
+            var component = ___img_artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
             if (component != null)
                 if (!string.IsNullOrEmpty(cardItem.CardColorOptions.FrontFrame) &&
                     ModParameters.CardArtWorks.TryGetValue(cardItem.CardColorOptions.FrontFrame, out var frontFrameImg))
@@ -313,10 +334,6 @@ namespace BigDLL4221.Harmony
                     component.overrideSprite.name = $"{cardItem.CardColorOptions.FrontFrame}_FFrame";
                     if (cardItem.CardColorOptions.ApplyFrontColor && cardItem.CardColorOptions.CardColor.HasValue)
                         component.color = cardItem.CardColorOptions.CardColor.Value;
-                }
-                else
-                {
-                    component.overrideSprite = null;
                 }
 
             if (!string.IsNullOrEmpty(cardItem.CardColorOptions.CustomIcon) &&
@@ -1042,6 +1059,17 @@ namespace BigDLL4221.Harmony
             StaticModsInfo.SetGlowColorOrigin?.Invoke(instance, new object[] { Color.white });
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
+        [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
+        public static void EmotionPassiveCardUI_SetSprites_Pre(Image ___img_LeftTotalFrame,
+            Image ____leftFrameTitleLineardodge, Image ____rightFrame)
+        {
+            ___img_LeftTotalFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+            ____leftFrameTitleLineardodge.gameObject.SetActive(true);
+            ____rightFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
         [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
@@ -1052,32 +1080,19 @@ namespace BigDLL4221.Harmony
             Image ____rightBg, Sprite[] ____positiveBgSprite, Image ____hOverImg, Image ____rootImageBg,
             Sprite[] ____positiveFrameSprite)
         {
-            if (!(____card is EmotionCardXmlExtension cardExtension))
-            {
-                ___img_LeftTotalFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
-                ____leftFrameTitleLineardodge.gameObject.SetActive(true);
-                ____rightFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
-                return;
-            }
-
+            if (!(____card is EmotionCardXmlExtension cardExtension)) return;
             ____artwork.sprite =
                 Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
                     cardExtension.Artwork);
             if (!UtilExtensions.GetEmotionCardOptions(cardExtension.LorId.packageId, cardExtension.LorId.id,
-                    out var cardOptions) || cardOptions.ColorOptions == null)
-            {
-                ___img_LeftTotalFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
-                ____leftFrameTitleLineardodge.gameObject.SetActive(true);
-                ____rightFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
-                return;
-            }
-
+                    out var cardOptions) || cardOptions.ColorOptions == null) return;
+            ___img_LeftTotalFrame.sprite = UISpriteDataManager.instance.AbnormalityFrame.ElementAtOrDefault(0);
             var orAddComponent = ___img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
             ArtUtil.ChangeEmotionCardColor(cardOptions, ref orAddComponent);
-            ____rightBg.sprite = ____positiveBgSprite[1];
+            ____rightBg.sprite = ____positiveBgSprite.ElementAtOrDefault(1);
             var orAddComponent2 = ____rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
             ArtUtil.ChangeEmotionCardColor(cardOptions, ref orAddComponent2);
-            ____rightFrame.sprite = ____positiveFrameSprite[1];
+            ____rightFrame.sprite = ____positiveFrameSprite.ElementAtOrDefault(1);
             var orAddComponent3 = ____rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
             ArtUtil.ChangeEmotionCardColor(cardOptions, ref orAddComponent3);
             ____leftFrameTitleLineardodge.gameObject.SetActive(false);

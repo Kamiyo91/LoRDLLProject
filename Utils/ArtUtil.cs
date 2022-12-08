@@ -48,6 +48,25 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static void GetArtWorksTiphEgo(DirectoryInfo dir)
+        {
+            if (dir.GetDirectories().Length != 0)
+            {
+                var directories = dir.GetDirectories();
+                foreach (var t in directories) GetArtWorks(t);
+            }
+
+            foreach (var fileInfo in dir.GetFiles().Where(x => x.Name.Contains("EgoTiphereth_")))
+            {
+                var texture2D = new Texture2D(2, 2);
+                texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
+                var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
+                    new Vector2(0f, 0f));
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+                LucasTiphEgoModInfo.TiphEgoArtWorks[fileNameWithoutExtension] = value;
+            }
+        }
+
         public static void GetCardArtWorks(DirectoryInfo dir)
         {
             if (dir.GetDirectories().Length != 0)
@@ -636,6 +655,12 @@ namespace BigDLL4221.Utils
             component._HueShift = cardOptions.ColorOptions.FrameHSVColor?.H ?? component._HueShift;
             component._Saturation = cardOptions.ColorOptions.FrameHSVColor?.S ?? component._Saturation;
             component._ValueBrightness = cardOptions.ColorOptions.FrameHSVColor?.V ?? component._Saturation;
+        }
+
+        public static void ChangeEmotionCardColorTiphEgo(ref _2dxFX_ColorChange component)
+        {
+            component._Color = Color.yellow;
+            component._HueShift = 90f;
         }
 
         public static void LocalizationCustomBook()

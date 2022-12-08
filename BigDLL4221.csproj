@@ -112,10 +112,12 @@
     <Compile Include="Extensions\WorkshopSkinDataExtension.cs" />
     <Compile Include="FarAreaEffects\BehaviourAction_BaseMassAttackEffect_DLL4221.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
+    <Compile Include="Harmony\TiphEgoHarmonyPatchFix.cs" />
     <Compile Include="Models\HSVColors.cs" />
     <Compile Include="Models\SummonedUnitStatModel.cs" />
     <Compile Include="Passives\PassiveAbility_CustomDialogSet_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_DrawSpecialCards_DLL4221.cs" />
+    <Compile Include="Passives\PassiveAbility_EmotionCardScreen_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_NoEmotionAndEgoFloor_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_SupportChar_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_UnitSummonedLinkedToMainChar_DLL4221.cs" />

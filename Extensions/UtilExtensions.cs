@@ -163,7 +163,7 @@ namespace BigDLL4221.Extensions
             if (self == null) return;
             var component = self.GetComponent<T>();
             if (component != null)
-                Object.Destroy(component);
+                Object.DestroyImmediate(component);
         }
     }
 }

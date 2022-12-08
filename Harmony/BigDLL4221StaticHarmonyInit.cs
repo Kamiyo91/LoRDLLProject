@@ -1,4 +1,5 @@
-﻿using BigDLL4221.Utils;
+﻿using BigDLL4221.Models;
+using BigDLL4221.Utils;
 
 namespace BigDLL4221.Harmony
 {
@@ -8,7 +9,14 @@ namespace BigDLL4221.Harmony
         {
             GenericUtil.OtherModCheck();
             CardUtil.FillDictionary();
-            new HarmonyLib.Harmony("LOR.BigDLL4221HarmonyPatch_MOD").PatchAll();
+            ModParameters.Harmony.CreateClassProcessor(typeof(MainHarmonyPatch)).Patch();
+            ModParameters.Harmony.CreateClassProcessor(typeof(ColorPatch)).Patch();
+            ModParameters.Harmony.CreateClassProcessor(typeof(EmotionSelectionUnitPatch)).Patch();
+            ModParameters.Harmony.CreateClassProcessor(typeof(UpdateEmotionCoinPatch)).Patch();
+            if (!StaticModsInfo.BaseModFound)
+                ModParameters.Harmony.CreateClassProcessor(typeof(UnitLimitPatch)).Patch();
+            if (!LucasTiphEgoModInfo.TiphEgoModFound) return;
+            ModParameters.Harmony.CreateClassProcessor(typeof(TiphEgoHarmonyPatchFix)).Patch();
         }
     }
 }

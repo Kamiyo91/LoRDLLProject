@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Battle.DiceAttackEffect;
 using BigDLL4221.Buffs;
@@ -19,7 +20,7 @@ using Object = UnityEngine.Object;
 namespace BigDLL4221.Harmony
 {
     [HarmonyPatch]
-    public class MainHarmoyPatch
+    public class MainHarmonyPatch
     {
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIBookStoryChapterSlot), "SetEpisodeSlots")]
@@ -679,6 +680,25 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(DropBookInventoryModel), "LoadFromSaveData")]
         public static void DropBookInventoryModel_LoadFromSaveData(DropBookInventoryModel __instance)
         {
+            if (LucasTiphEgoModInfo.TiphEgoModFound && !LucasTiphEgoModInfo.TiphEgoPatchChanged)
+            {
+                LucasTiphEgoModInfo.TiphEgoPatchChanged = true;
+                try
+                {
+                    ArtUtil.GetArtWorksTiphEgo(new DirectoryInfo(LucasTiphEgoModInfo.TiphEgoPath + "/ArtWork"));
+                    var original = typeof(EmotionPassiveCardUI).GetMethod("SetSprites", AccessTools.all);
+                    var original2 = typeof(UIEmotionPassiveCardInven).GetMethod("SetSprites", AccessTools.all);
+                    ModParameters.Harmony.Unpatch(original, HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
+                    ModParameters.Harmony.Unpatch(original2, HarmonyPatchType.Postfix,
+                        LucasTiphEgoModInfo.TiphEgoModId);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
+
             foreach (var book in ModParameters.StartUpRewardOptions.SelectMany(x => x.Books))
             {
                 var bookCount = __instance.GetBookCount(book.Key);
@@ -1150,31 +1170,6 @@ namespace BigDLL4221.Harmony
             ____self.view.charAppearance.ChangeMotion(keypageItem.BookCustomOptions.XiaoTaotieAction);
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(StageLibraryFloorModel), "StartPickEmotionCard")]
-        public static bool StageLibraryFloorModel_StartPickEmotionCard(StageLibraryFloorModel __instance)
-        {
-            if (!string.IsNullOrEmpty(StaticModsInfo.EmotionCardPullCode))
-            {
-                var emotionList = CardUtil.CustomCreateSelectableList(__instance.team.emotionLevel);
-                StaticModsInfo.EmotionCardPullCode = string.Empty;
-                if (emotionList.Count <= 0) return false;
-                if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
-                    SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
-                SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(0, emotionList);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(StaticModsInfo.EgoCardPullCode)) return true;
-            var egoList = CardUtil.CustomCreateSelectableEgoList();
-            StaticModsInfo.EgoCardPullCode = string.Empty;
-            if (egoList.Count <= 0) return false;
-            if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
-                SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
-            SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.InitEgo(0, egoList);
-            return false;
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIFloorTitlePanel), "SetData")]
         public static void UIFloorTitlePanel_SetData(SephirahType sep, ref Image ___img_floorTitle,
@@ -1397,6 +1392,14 @@ namespace BigDLL4221.Harmony
             var stage = stageOptions.FirstOrDefault(x => x.StageId == __instance.id.id);
             if (stage?.StageRequirements == null) return;
             if (UnitUtil.IsLocked(stage.StageRequirements)) __result = StoryState.Close;
+        }
+
+        [HarmonyPatch(typeof(LevelUpUI), "Init")]
+        [HarmonyPrefix]
+        public static void LevelUpUI_InitBase(LevelUpUI __instance, ref int count)
+        {
+            if (count >= __instance._emotionLevels.Length)
+                count = __instance._emotionLevels.Length - 1;
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using BigDLL4221.Models;
+using BigDLL4221.Utils;
+using UnityEngine;
 
 namespace BigDLL4221.CardAbility
 {
@@ -13,15 +15,21 @@ namespace BigDLL4221.CardAbility
             StaticModsInfo.EmotionCardPullCode = PoolName;
             if (OnlyForUser) StaticModsInfo.OnPlayEmotionCardUsedBy = unit.Book.BookId;
             if (!IncreaseEmotionSelectLevel) StaticModsInfo.OnPlayCardEmotion = true;
-            Activate();
+            Activate(unit);
             self.exhaust = true;
         }
 
-        private static void Activate()
+        private static void Activate(BattleUnitModel unit)
         {
-            var currentStageFloorModel = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
-            //SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
-            currentStageFloorModel.StartPickEmotionCard();
+            var emotionList =
+                CardUtil.CustomCreateSelectableList(unit.emotionDetail.EmotionLevel,
+                    StaticModsInfo.EmotionCardPullCode);
+            StaticModsInfo.EmotionCardPullCode = string.Empty;
+            if (emotionList.Count <= 0) return;
+            if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
+                SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
+            SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(
+                Mathf.Clamp(unit.emotionDetail.EmotionLevel - 1, 0, 4), emotionList);
         }
 
         public override bool IsTargetableSelf()

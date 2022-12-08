@@ -121,10 +121,10 @@ namespace BigDLL4221.Utils
                 }
         }
 
-        public static List<EmotionCardXmlInfo> CustomCreateSelectableList(int emotionLevel)
+        public static List<EmotionCardXmlInfo> CustomCreateSelectableList(int emotionLevel, string pullCode = "")
         {
             var emotionLevelPull = emotionLevel <= 2 ? 1 : emotionLevel <= 4 ? 2 : 3;
-            var code = StaticModsInfo.EmotionCardPullCode;
+            var code = string.IsNullOrEmpty(pullCode) ? StaticModsInfo.EmotionCardPullCode : pullCode;
             var dataCardList = ModParameters.EmotionCards.SelectMany(x => x.Value).Where(x =>
                 x.FloorCode.Contains(code) && x.CardXml.EmotionLevel == emotionLevelPull &&
                 !x.CardXml.Locked).Select(x => x.CardXml as EmotionCardXmlInfo).ToList();
@@ -192,9 +192,9 @@ namespace BigDLL4221.Utils
             return center;
         }
 
-        public static List<EmotionEgoXmlInfo> CustomCreateSelectableEgoList()
+        public static List<EmotionEgoXmlInfo> CustomCreateSelectableEgoList(string pullCode = "")
         {
-            var code = StaticModsInfo.EgoCardPullCode;
+            var code = string.IsNullOrEmpty(pullCode) ? StaticModsInfo.EgoCardPullCode : pullCode;
             var dataEgoCardList = ModParameters.EmotionEgoCards.SelectMany(x => x.Value)
                 .Where(x => x.FloorCode.Contains(code)).Select(x => x.CardXml).ToList();
             var sephirah = Singleton<StageController>.Instance.GetCurrentStageFloorModel().Sephirah;
