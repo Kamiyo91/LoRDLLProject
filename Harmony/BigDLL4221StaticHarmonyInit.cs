@@ -1,5 +1,7 @@
-﻿using BigDLL4221.Models;
+﻿using System.Reflection;
+using BigDLL4221.Models;
 using BigDLL4221.Utils;
+using UnityEngine;
 
 namespace BigDLL4221.Harmony
 {
@@ -7,6 +9,7 @@ namespace BigDLL4221.Harmony
     {
         public override void OnInitializeMod()
         {
+            Debug.Log($"BigDLL4221: Using Version {Assembly.GetExecutingAssembly().GetName().Version}");
             GenericUtil.OtherModCheck();
             CardUtil.FillDictionary();
             ModParameters.Harmony.CreateClassProcessor(typeof(MainHarmonyPatch)).Patch();

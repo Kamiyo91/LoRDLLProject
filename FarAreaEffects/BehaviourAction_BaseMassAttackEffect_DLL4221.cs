@@ -159,6 +159,7 @@ namespace BigDLL4221.FarAreaEffects
     public class DiceAttackEffect_BaseAreaAtk_DLL4221 : DiceAttackEffect
     {
         public float? Duration;
+        public bool FixedScale;
         public float OffsetX;
         public float OffsetY;
         public string Path;
@@ -167,7 +168,7 @@ namespace BigDLL4221.FarAreaEffects
         public float Scale;
 
         public void SetParameters(string path, float positionX = 0.3f, float positionY = 0.6f, float scale = 1f,
-            float? duration = null, float offsetX = -20f, float offsetY = 0.5f)
+            float? duration = null, float offsetX = -20f, float offsetY = 0.5f, bool fixedScale = false)
         {
             Path = path;
             PositionX = positionX;
@@ -176,6 +177,7 @@ namespace BigDLL4221.FarAreaEffects
             OffsetY = offsetY;
             Scale = scale;
             Duration = duration;
+            FixedScale = fixedScale;
         }
 
         public override void Initialize(BattleUnitView self, BattleUnitView target, float destroyTime)
@@ -202,8 +204,7 @@ namespace BigDLL4221.FarAreaEffects
 
         public override void SetScale(float scaleFactor)
         {
-            scaleFactor *= Scale;
-            base.SetScale(scaleFactor);
+            base.SetScale(FixedScale ? Scale : scaleFactor * Scale);
         }
     }
 }

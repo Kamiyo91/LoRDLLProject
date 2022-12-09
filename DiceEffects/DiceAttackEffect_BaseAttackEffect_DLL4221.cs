@@ -8,6 +8,7 @@ namespace BigDLL4221.DiceEffects
     {
         private float _duration;
         public float? Duration;
+        public bool FixedScale;
         public bool OverSelf;
         public string Path;
         public float PositionX;
@@ -15,7 +16,7 @@ namespace BigDLL4221.DiceEffects
         public float Scale;
 
         public void SetParameters(string path, float positionX = 0.3f, float positionY = 0.6f, float scale = 0.5f,
-            bool overSelf = true, float? duration = null)
+            bool overSelf = true, float? duration = null, bool fixedScale = false)
         {
             Path = path;
             PositionX = positionX;
@@ -23,6 +24,7 @@ namespace BigDLL4221.DiceEffects
             Scale = scale;
             OverSelf = overSelf;
             Duration = duration;
+            FixedScale = fixedScale;
         }
 
         public override void Initialize(BattleUnitView self, BattleUnitView target, float destroyTime)
@@ -53,8 +55,7 @@ namespace BigDLL4221.DiceEffects
 
         public override void SetScale(float scaleFactor)
         {
-            scaleFactor *= Scale;
-            base.SetScale(scaleFactor);
+            base.SetScale(FixedScale ? Scale : scaleFactor * Scale);
         }
     }
 }
