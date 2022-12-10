@@ -514,6 +514,7 @@ namespace BigDLL4221.Harmony
         {
             if (data == null) return;
             ___bookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            ArtUtil.ChangeColorToCombatPageList(UIColorManager.Manager.GetUIColor(UIColor.Default));
         }
 
         [HarmonyPatch(typeof(UILibrarianEquipBookInfoPanel), "SetUnitData")]
@@ -522,7 +523,6 @@ namespace BigDLL4221.Harmony
             List<Graphic> ___targetGraphics, TextMeshProUGUI ___bookName, Image ___icon)
         {
             if (data == null) return;
-            ArtUtil.ChangeColorToCombatPageList(UIColorManager.Manager.GetUIColor(UIColor.Default));
             if (!ModParameters.KeypageOptions.TryGetValue(data.bookItem.BookId.packageId, out var keypageOptions))
                 return;
             var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == data.bookItem.BookId.id);
