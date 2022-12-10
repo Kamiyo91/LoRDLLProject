@@ -197,6 +197,7 @@ namespace BigDLL4221.Harmony
             if (bookOptions == null) return;
             if (bookOptions.BookCustomOptions != null)
             {
+                if (!bookOptions.Editable) __instance.EquipCustomCoreBook(null);
                 if (bookOptions.BookCustomOptions.EgoSkin.Contains(__state.GetCharacterName()) ||
                     __state.ClassInfo.CharacterSkin.Any(x => bookOptions.BookCustomOptions.EgoSkin.Contains(x)))
                     if (bookOptions.BookCustomOptions.OriginalSkinIsBaseGame)
@@ -216,9 +217,9 @@ namespace BigDLL4221.Harmony
                             bookOptions.CustomFloorOptions);
                     }
 
-                __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
                 if (!UnitUtil.CheckSkinUnitData(__instance))
                 {
+                    __instance.customizeData.SetCustomData(bookOptions.BookCustomOptions.CustomFaceData);
                     var locTryGet =
                         ModParameters.LocalizedItems.TryGetValue(__state.BookId.packageId, out var localizedItem);
                     __instance.SetTempName(!locTryGet ||
@@ -333,6 +334,7 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -500,6 +502,7 @@ namespace BigDLL4221.Harmony
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -565,6 +568,32 @@ namespace BigDLL4221.Harmony
             __instance.ResetTempName();
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UICustomizePopup), "Open")]
+        public static void UICustomizePopup_Open(UICustomizePopup __instance)
+        {
+            if (!ModParameters.KeypageOptions.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
+                    out var keypageOptions)) return;
+            var keypageItem =
+                keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.SelectedUnit.bookItem.ClassInfo.id.id);
+            if (keypageItem?.BookCustomOptions == null) return;
+            __instance.SelectedUnit.customizeData.SetCustomData(true);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UICustomizePopup), "OnClickExit")]
+        public static void UICustomizePopup_OnClickExit(UICustomizePopup __instance)
+        {
+            if (!ModParameters.KeypageOptions.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
+                    out var keypageOptions)) return;
+            var keypageItem =
+                keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.SelectedUnit.bookItem.ClassInfo.id.id);
+            if (keypageItem?.BookCustomOptions == null) return;
+            if (__instance.SelectedUnit.bookItem == __instance.SelectedUnit.CustomBookItem &&
+                string.IsNullOrEmpty(__instance.SelectedUnit.workshopSkin))
+                __instance.SelectedUnit.customizeData.SetCustomData(keypageItem.BookCustomOptions.CustomFaceData);
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(UICustomizePopup), "OnClickSave")]
         public static void UICustomizePopup_OnClickSave(UICustomizePopup __instance)
@@ -583,6 +612,7 @@ namespace BigDLL4221.Harmony
                     keypageOptions.FirstOrDefault(x =>
                         x.KeypageId == __instance.SelectedUnit.bookItem.ClassInfo.id.id);
                 if (keypageItem?.BookCustomOptions == null) return;
+                __instance.SelectedUnit.customizeData.SetCustomData(keypageItem.BookCustomOptions.CustomFaceData);
                 var locTryGet =
                     ModParameters.LocalizedItems.TryGetValue(
                         __instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
@@ -595,6 +625,7 @@ namespace BigDLL4221.Harmony
             }
             else
             {
+                __instance.SelectedUnit.customizeData.SetCustomData(true);
                 var skins = ModParameters.CustomBookSkinsOptions.SelectMany(x =>
                     x.Value.Select(y => Tuple.Create(x.Key, y)));
                 var skin = skins.FirstOrDefault(x => x.Item2.SkinName == __instance.SelectedUnit.workshopSkin);
@@ -680,6 +711,8 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(DropBookInventoryModel), "LoadFromSaveData")]
         public static void DropBookInventoryModel_LoadFromSaveData(DropBookInventoryModel __instance)
         {
+            StaticModsInfo.ExtraEmotionCardUsed.Clear();
+            StaticModsInfo.ExtraFloorEgoCardUsed.Clear();
             if (LucasTiphEgoModInfo.TiphEgoModFound && !LucasTiphEgoModInfo.TiphEgoPatchChanged)
             {
                 LucasTiphEgoModInfo.TiphEgoPatchChanged = true;
@@ -716,8 +749,18 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(StageController), "EndBattlePhaseAfter")]
+        public static void StageController_EndBattlePhaseAfter(StageController __instance)
+        {
+            var stageModel = __instance.GetStageModel();
+            if (stageModel.GetFrontAvailableWave() != null && stageModel.GetFrontAvailableFloor() != null) return;
+            StaticModsInfo.ExtraEmotionCardUsed.Clear();
+            StaticModsInfo.ExtraFloorEgoCardUsed.Clear();
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(StageController), "BonusRewardWithPopup")]
-        public static void BonusRewardWithPopup(LorId stageId)
+        public static void StageController_BonusRewardWithPopup(LorId stageId)
         {
             if (!ModParameters.PackageIds.Contains(stageId.packageId)) return;
             if (!ModParameters.StageOptions.TryGetValue(stageId.packageId, out var stageOptions)) return;
@@ -1375,11 +1418,22 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickPassiveCard")]
         [HarmonyPostfix]
-        public static void StageLibraryFloorModel_OnPickPassiveCard_Post(StageLibraryFloorModel __instance)
+        public static void StageLibraryFloorModel_OnPickPassiveCard_Post(StageLibraryFloorModel __instance,
+            EmotionCardXmlInfo card)
         {
             if (!StaticModsInfo.OnPlayCardEmotion) return;
             StaticModsInfo.OnPlayCardEmotion = false;
+            StaticModsInfo.ExtraEmotionCardUsed.Add(card);
             __instance.team.currentSelectEmotionLevel--;
+        }
+
+        [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickEgoCard")]
+        [HarmonyPostfix]
+        public static void StageLibraryFloorModel_OnPickEgoCard_Post(EmotionEgoXmlInfo egoCard)
+        {
+            if (!StaticModsInfo.OnPlayCardEmotion) return;
+            StaticModsInfo.OnPlayCardEmotion = false;
+            StaticModsInfo.ExtraFloorEgoCardUsed.Add(egoCard);
         }
 
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]
@@ -1394,8 +1448,24 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(LevelUpUI), "Init")]
         [HarmonyPrefix]
-        public static void LevelUpUI_InitBase(LevelUpUI __instance, ref int count)
+        public static void LevelUpUI_Init(LevelUpUI __instance, ref int count)
         {
+            if (typeof(StageLibraryFloorModel).GetField("_selectedList", AccessTools.all)
+                    ?.GetValue(Singleton<StageController>.Instance.GetCurrentStageFloorModel()) is
+                List<EmotionCardXmlInfo> emotionCardsList)
+                count = emotionCardsList.Count(x => !StaticModsInfo.ExtraEmotionCardUsed.Contains(x));
+            if (count >= __instance._emotionLevels.Length)
+                count = __instance._emotionLevels.Length - 1;
+        }
+
+        [HarmonyPatch(typeof(LevelUpUI), "InitEgo")]
+        [HarmonyPrefix]
+        public static void LevelUpUI_InitEgo(LevelUpUI __instance, ref int count)
+        {
+            if (typeof(StageLibraryFloorModel).GetField("_selectableEgoList", AccessTools.all)
+                    ?.GetValue(Singleton<StageController>.Instance.GetCurrentStageFloorModel()) is
+                List<EmotionEgoXmlInfo> emotionEgoCardsList)
+                count = emotionEgoCardsList.Count(x => !StaticModsInfo.ExtraFloorEgoCardUsed.Contains(x));
             if (count >= __instance._emotionLevels.Length)
                 count = __instance._emotionLevels.Length - 1;
         }

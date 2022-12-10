@@ -104,6 +104,8 @@ namespace BigDLL4221.Models
         public static MethodInfo TextMeshAwake;
         public static MethodInfo TextMeshStart;
         public static MethodInfo SetGlowColorOrigin;
+        public static List<EmotionCardXmlInfo> ExtraEmotionCardUsed = new List<EmotionCardXmlInfo>();
+        public static List<EmotionEgoXmlInfo> ExtraFloorEgoCardUsed = new List<EmotionEgoXmlInfo>();
     }
 
     public static class LucasTiphEgoModInfo

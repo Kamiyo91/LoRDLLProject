@@ -8,13 +8,12 @@ namespace BigDLL4221.CardAbility
     {
         public virtual string PoolName { get; set; }
         public virtual bool OnlyForUser { get; set; } = false;
-        public virtual bool IncreaseEmotionSelectLevel { get; set; } = false;
 
         public override void OnUseInstance(BattleUnitModel unit, BattleDiceCardModel self, BattleUnitModel targetUnit)
         {
             StaticModsInfo.EmotionCardPullCode = PoolName;
+            StaticModsInfo.OnPlayCardEmotion = true;
             if (OnlyForUser) StaticModsInfo.OnPlayEmotionCardUsedBy = unit.Book.BookId;
-            if (!IncreaseEmotionSelectLevel) StaticModsInfo.OnPlayCardEmotion = true;
             Activate(unit);
             self.exhaust = true;
         }
@@ -25,7 +24,13 @@ namespace BigDLL4221.CardAbility
                 CardUtil.CustomCreateSelectableList(unit.emotionDetail.EmotionLevel,
                     StaticModsInfo.EmotionCardPullCode);
             StaticModsInfo.EmotionCardPullCode = string.Empty;
-            if (emotionList.Count <= 0) return;
+            if (emotionList.Count <= 0)
+            {
+                StaticModsInfo.OnPlayEmotionCardUsedBy = null;
+                StaticModsInfo.OnPlayCardEmotion = false;
+                return;
+            }
+
             if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
                 SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(

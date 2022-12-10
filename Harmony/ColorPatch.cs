@@ -1044,19 +1044,20 @@ namespace BigDLL4221.Harmony
         {
             if (!(data is WorkshopSkinDataExtension workshopData) ||
                 !(__instance is UIOriginEquipPageSlot instance)) return;
-            if (workshopData.RealKeypageId.HasValue)
-            {
-                ____bookDataModel =
-                    new BookModel(Singleton<BookXmlList>.Instance.GetData(new LorId(workshopData.PackageId,
-                        workshopData.RealKeypageId.Value)));
-                var sprite = UISpriteDataManager.instance.GetStoryIcon(____bookDataModel.ClassInfo.BookIcon);
-                ___Icon.sprite = sprite.icon;
-                ___IconGlow.sprite = sprite.iconGlow;
-            }
-
+            if (!workshopData.RealKeypageId.HasValue) return;
+            ____bookDataModel =
+                new BookModel(Singleton<BookXmlList>.Instance.GetData(new LorId(workshopData.PackageId,
+                    workshopData.RealKeypageId.Value)));
+            var sprite = UISpriteDataManager.instance.GetStoryIcon(____bookDataModel.ClassInfo.BookIcon);
+            ___Icon.sprite = sprite.icon;
+            ___IconGlow.sprite = sprite.iconGlow;
+            if (!ModParameters.KeypageOptions.TryGetValue(workshopData.PackageId, out var keypageOptions)) return;
+            var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == workshopData.RealKeypageId);
+            if (keypageOption?.KeypageColorOptions.FrameColor == null) return;
             if (StaticModsInfo.SetGlowColorOrigin == null)
                 StaticModsInfo.SetGlowColorOrigin = instance.GetType().GetMethod("SetGlowColor", AccessTools.all);
-            StaticModsInfo.SetGlowColorOrigin?.Invoke(instance, new object[] { Color.white });
+            StaticModsInfo.SetGlowColorOrigin?.Invoke(instance,
+                new object[] { keypageOption.KeypageColorOptions.FrameColor });
         }
 
         [HarmonyPrefix]
