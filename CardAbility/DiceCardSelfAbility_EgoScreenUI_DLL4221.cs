@@ -23,7 +23,6 @@ namespace BigDLL4221.CardAbility
             Singleton<StageController>.Instance.GetCurrentStageFloorModel().team.egoSelectionPoint++;
             if (egoList.Count <= 0)
             {
-                StaticModsInfo.OnPlayEmotionCardUsedBy = null;
                 StaticModsInfo.OnPlayCardEmotion = false;
                 return;
             }
