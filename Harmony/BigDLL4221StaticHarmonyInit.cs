@@ -10,6 +10,7 @@ namespace BigDLL4221.Harmony
         public override void OnInitializeMod()
         {
             Debug.Log($"BigDLL4221: Using Version {Assembly.GetExecutingAssembly().GetName().Version}");
+            GenericUtil.PutUtilInTheFirstSlot();
             GenericUtil.OtherModCheck();
             CardUtil.FillDictionary();
             ModParameters.Harmony.CreateClassProcessor(typeof(MainHarmonyPatch)).Patch();
