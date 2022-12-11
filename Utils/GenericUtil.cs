@@ -11,6 +11,9 @@ namespace BigDLL4221.Utils
 {
     public static class GenericUtil
     {
+        private static readonly List<string> LoadingOrder = new List<string>
+            { "UnityExplorer", "HarmonyLoadOrderFix", "BaseMod" };
+
         public static async Task PutTaskDelay(int delay)
         {
             await Task.Delay(delay);
@@ -36,9 +39,11 @@ namespace BigDLL4221.Utils
                 .GetField("_allMods", AccessTools.all)?.GetValue(Singleton<ModContentManager>.Instance);
             var modContentInfo =
                 modContentInfoList?.FirstOrDefault(x => x.invInfo.workshopInfo.uniqueId == "BigDLLUtilLoader21341");
-            if (modContentInfo == null || modContentInfoList[0] == modContentInfo) return;
+            if (modContentInfo == null) return;
+            var index = modContentInfoList.FindIndex(x => !LoadingOrder.Contains(x.invInfo.workshopInfo.uniqueId));
+            if (index == -1 || modContentInfoList[index] == modContentInfo) return;
             modContentInfoList.Remove(modContentInfo);
-            modContentInfoList.Insert(0, modContentInfo);
+            modContentInfoList.Insert(index, modContentInfo);
         }
     }
 }
