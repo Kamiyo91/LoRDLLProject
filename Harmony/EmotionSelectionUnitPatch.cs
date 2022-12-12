@@ -38,9 +38,10 @@ namespace BigDLL4221.Harmony
                     __result |= x.Book.BookId != StaticModsInfo.OnPlayEmotionCardUsedBy;
                     return;
                 }
+
                 if (ModParameters.EmotionEgoCards.Any())
                 {
-                    var emotionCards = ModParameters.EmotionCards.SelectMany(y => y.Value);
+                    var emotionCards = ModParameters.EmotionCards.SelectMany(y => y.Value).Where(y => y != null);
                     if (__instance.selectedEmotionCard != null &&
                         __instance.selectedEmotionCard.Card is EmotionCardXmlExtension card)
                     {
@@ -52,6 +53,7 @@ namespace BigDLL4221.Harmony
                         }
                     }
                 }
+
                 __result |= MatchAddon(x);
             }
 

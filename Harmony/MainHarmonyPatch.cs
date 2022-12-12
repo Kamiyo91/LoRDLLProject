@@ -10,7 +10,6 @@ using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using HarmonyLib;
 using LOR_DiceSystem;
-using TMPro;
 using UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,10 +23,9 @@ namespace BigDLL4221.Harmony
     {
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIBookStoryChapterSlot), "SetEpisodeSlots")]
-        public static void UIBookStoryChapterSlot_SetEpisodeSlots(UIBookStoryChapterSlot __instance,
-            UIBookStoryPanel ___panel, List<UIBookStoryEpisodeSlot> ___EpisodeSlots)
+        public static void UIBookStoryChapterSlot_SetEpisodeSlots(UIBookStoryChapterSlot __instance)
         {
-            ArtUtil.SetEpisodeSlots(__instance, ___panel, ___EpisodeSlots);
+            ArtUtil.SetEpisodeSlots(__instance, __instance.panel, __instance.EpisodeSlots);
         }
 
         [HarmonyPostfix]
@@ -61,11 +59,11 @@ namespace BigDLL4221.Harmony
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIBookStoryPanel), "OnSelectEpisodeSlot")]
         public static void UIBookStoryPanel_OnSelectEpisodeSlot(UIBookStoryPanel __instance,
-            UIBookStoryEpisodeSlot slot, TextMeshProUGUI ___selectedEpisodeText, Image ___selectedEpisodeIcon,
-            Image ___selectedEpisodeIconGlow)
+            UIBookStoryEpisodeSlot slot)
         {
-            ArtUtil.OnSelectEpisodeSlot(__instance, slot, ___selectedEpisodeText, ___selectedEpisodeIcon,
-                ___selectedEpisodeIconGlow);
+            ArtUtil.OnSelectEpisodeSlot(__instance, slot, __instance.selectedEpisodeText,
+                __instance.selectedEpisodeIcon,
+                __instance.selectedEpisodeIconGlow);
         }
 
         [HarmonyPostfix]
@@ -93,11 +91,11 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BookModel), "SetXmlInfo")]
-        public static void BookModel_SetXmlInfo(BookModel __instance, ref List<DiceCardXmlInfo> ____onlyCards)
+        public static void BookModel_SetXmlInfo(BookModel __instance)
         {
             if (!ModParameters.PackageIds.Contains(__instance.BookId.packageId)) return;
             foreach (var cardOption in ModParameters.CardOptions)
-                ____onlyCards.AddRange(cardOption.Value
+                __instance._onlyCards.AddRange(cardOption.Value
                     .Where(x => x.Option == CardOption.OnlyPage && x.BookId.Contains(__instance.BookId))
                     .Select(card =>
                         ItemXmlDataList.instance.GetCardItem(new LorId(cardOption.Key, card.CardId))));
@@ -105,8 +103,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UnitDataModel), "IsLockUnit")]
-        public static void UnitDataModel_IsLockUnit(UnitDataModel __instance, ref bool __result,
-            SephirahType ____ownerSephirah)
+        public static void UnitDataModel_IsLockUnit(UnitDataModel __instance, ref bool __result)
         {
             if (UI.UIController.Instance.CurrentUIPhase != UIPhase.BattleSetting) return;
             var stageModel = Singleton<StageController>.Instance.GetStageModel();
@@ -117,20 +114,20 @@ namespace BigDLL4221.Harmony
             if (stageOption?.PreBattleOptions == null) return;
             if (stageOption.PreBattleOptions.OnlySephirah)
             {
-                __result = !__instance.isSephirah && ____ownerSephirah != SephirahType.None;
+                __result = !__instance.isSephirah && __instance._ownerSephirah != SephirahType.None;
                 return;
             }
 
             if (stageOption.PreBattleOptions.SephirahLocked)
                 __result = __instance.isSephirah && (!stageOption.PreBattleOptions.UnlockedSephirah.Any() ||
                                                      stageOption.PreBattleOptions.UnlockedSephirah.Contains(
-                                                         ____ownerSephirah));
+                                                         __instance._ownerSephirah));
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(StageLibraryFloorModel), "InitUnitList")]
-        public static void StageLibraryFloorModel_InitUnitList(StageLibraryFloorModel __instance,
-            List<UnitBattleDataModel> ____unitList, StageModel stage, LibraryFloorModel floor)
+        public static void StageLibraryFloorModel_InitUnitList(StageLibraryFloorModel __instance, StageModel stage,
+            LibraryFloorModel floor)
         {
             if (!ModParameters.PackageIds.Contains(stage.ClassInfo.id.packageId)) return;
             if (!ModParameters.StageOptions.TryGetValue(stage.ClassInfo.id.packageId, out var stageOptions)) return;
@@ -138,27 +135,27 @@ namespace BigDLL4221.Harmony
             if (stageOption?.PreBattleOptions == null ||
                 (!stageOption.PreBattleOptions.CustomUnits.ContainsKey(__instance.Sephirah) &&
                  !stageOption.PreBattleOptions.SephirahUnits.ContainsKey(__instance.Sephirah))) return;
-            ____unitList.Clear();
+            __instance._unitList.Clear();
             switch (stageOption.PreBattleOptions.BattleType)
             {
                 case PreBattleType.CustomUnits:
-                    UnitUtil.AddCustomUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions,
+                    UnitUtil.AddCustomUnits(__instance, stage, __instance._unitList, stageOption.PreBattleOptions,
                         stage.ClassInfo.id.packageId);
                     break;
                 case PreBattleType.SephirahUnits:
-                    UnitUtil.AddSephirahUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions);
+                    UnitUtil.AddSephirahUnits(__instance, stage, __instance._unitList, stageOption.PreBattleOptions);
                     break;
                 case PreBattleType.HybridUnits:
-                    UnitUtil.AddSephirahUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions);
-                    UnitUtil.AddCustomUnits(__instance, stage, ____unitList, stageOption.PreBattleOptions,
+                    UnitUtil.AddSephirahUnits(__instance, stage, __instance._unitList, stageOption.PreBattleOptions);
+                    UnitUtil.AddCustomUnits(__instance, stage, __instance._unitList, stageOption.PreBattleOptions,
                         stage.ClassInfo.id.packageId);
                     break;
             }
 
-            if (!stageOption.PreBattleOptions.FillWithBaseUnits || ____unitList.Count >= 5) return;
+            if (!stageOption.PreBattleOptions.FillWithBaseUnits || __instance._unitList.Count >= 5) return;
             foreach (var unitDataModel in floor.GetUnitDataList().Where(x => !x.isSephirah))
-                if (____unitList.Count < 5)
-                    ____unitList.Add(UnitUtil.InitUnitDefault(stage, unitDataModel));
+                if (__instance._unitList.Count < 5)
+                    __instance._unitList.Add(UnitUtil.InitUnitDefault(stage, unitDataModel));
         }
 
         [HarmonyPrefix]
@@ -598,8 +595,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UICustomizePopup), "OnClickSave")]
         public static void UICustomizePopup_OnClickSave(UICustomizePopup __instance)
         {
-            var tempName = (string)__instance.SelectedUnit.GetType().GetField("_tempName", AccessTools.all)
-                ?.GetValue(__instance.SelectedUnit);
+            var tempName = __instance.SelectedUnit._tempName;
             __instance.SelectedUnit.ResetTempName();
             var keypageOptionsTry =
                 ModParameters.KeypageOptions.TryGetValue(__instance.SelectedUnit.bookItem.ClassInfo.id.packageId,
@@ -663,32 +659,52 @@ namespace BigDLL4221.Harmony
         [HarmonyPrefix]
         [HarmonyPatch(typeof(UISettingInvenEquipPageListSlot), "SetBooksData")]
         [HarmonyPatch(typeof(UIInvenEquipPageListSlot), "SetBooksData")]
-        public static void General_SetBooksData_Pre(object __instance, Image ___img_Icon)
+        public static void General_SetBooksData_Pre(object __instance)
         {
-            var uiOrigin = __instance as UIOriginEquipPageList;
-            ArtUtil.ResetColorData(uiOrigin, ___img_Icon);
+            switch (__instance)
+            {
+                case UISettingInvenEquipPageListSlot instance:
+                    ArtUtil.ResetColorData(instance);
+                    break;
+                case UIInvenEquipPageListSlot instance:
+                    ArtUtil.ResetColorData(instance);
+                    break;
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UISettingInvenEquipPageListSlot), "SetBooksData")]
         [HarmonyPatch(typeof(UIInvenEquipPageListSlot), "SetBooksData")]
         public static void General_SetBooksData(object __instance,
-            List<BookModel> books, UIStoryKeyData storyKey, Image ___img_EdgeFrame, Image ___img_LineFrame,
-            Image ___img_IconGlow, Image ___img_Icon)
+            List<BookModel> books, UIStoryKeyData storyKey)
         {
-            var uiOrigin = __instance as UIOriginEquipPageList;
-            ArtUtil.SetBooksData(uiOrigin, books, storyKey, ___img_EdgeFrame, ___img_LineFrame, ___img_IconGlow,
-                ___img_Icon);
+            switch (__instance)
+            {
+                case UISettingInvenEquipPageListSlot instance:
+                    ArtUtil.SetBooksData(instance, books, storyKey);
+                    break;
+                case UIInvenEquipPageListSlot instance:
+                    ArtUtil.SetBooksData(instance, books, storyKey);
+                    break;
+            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(UISettingEquipPageScrollList), "CalculateSlotsHeight")]
         [HarmonyPatch(typeof(UIEquipPageScrollList), "CalculateSlotsHeight")]
-        public static void General_CalculateSlotsHeight(List<BookModel> ___currentBookModelList,
-            List<UIStoryKeyData> ___totalkeysdata, Dictionary<UIStoryKeyData,
-                List<BookModel>> ___currentStoryBooksDic)
+        public static void General_CalculateSlotsHeight(object __instance)
         {
-            ArtUtil.SetMainData(___currentBookModelList, ___totalkeysdata, ___currentStoryBooksDic);
+            switch (__instance)
+            {
+                case UISettingEquipPageScrollList instance:
+                    ArtUtil.SetMainData(instance.currentBookModelList, instance.totalkeysdata,
+                        instance.currentStoryBooksDic);
+                    break;
+                case UIEquipPageScrollList instance:
+                    ArtUtil.SetMainData(instance.currentBookModelList, instance.totalkeysdata,
+                        instance.currentStoryBooksDic);
+                    break;
+            }
         }
 
         [HarmonyPrefix]
@@ -711,8 +727,6 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(DropBookInventoryModel), "LoadFromSaveData")]
         public static void DropBookInventoryModel_LoadFromSaveData(DropBookInventoryModel __instance)
         {
-            StaticModsInfo.ExtraEmotionCardUsed.Clear();
-            StaticModsInfo.ExtraFloorEgoCardUsed.Clear();
             if (LucasTiphEgoModInfo.TiphEgoModFound && !LucasTiphEgoModInfo.TiphEgoPatchChanged)
             {
                 LucasTiphEgoModInfo.TiphEgoPatchChanged = true;
@@ -746,16 +760,6 @@ namespace BigDLL4221.Harmony
                      where cardCount < cardItem.Value
                      select cardItem)
                 __instance.AddCard(cardItem.Key, cardItem.Value);
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(StageController), "EndBattlePhaseAfter")]
-        public static void StageController_EndBattlePhaseAfter(StageController __instance)
-        {
-            var stageModel = __instance.GetStageModel();
-            if (stageModel.GetFrontAvailableWave() != null && stageModel.GetFrontAvailableFloor() != null) return;
-            StaticModsInfo.ExtraEmotionCardUsed.Clear();
-            StaticModsInfo.ExtraFloorEgoCardUsed.Clear();
         }
 
         [HarmonyPostfix]
@@ -802,8 +806,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BattleUnitCardsInHandUI), "UpdateCardList")]
-        public static void BattleUnitCardsInHandUI_UpdateCardList(BattleUnitCardsInHandUI __instance,
-            List<BattleDiceCardUI> ____activatedCardList, ref float ____xInterval)
+        public static void BattleUnitCardsInHandUI_UpdateCardList(BattleUnitCardsInHandUI __instance)
         {
             if (__instance.CurrentHandState != BattleUnitCardsInHandUI.HandState.EgoCard) return;
             try
@@ -820,8 +823,9 @@ namespace BigDLL4221.Harmony
                         || x.Value.Any(y =>
                             y.IsBaseGameKeypage && y.KeypageId == unit.Book.BookId.id && y.BannedEgoFloorCards)))
                     return;
-                var list = ArtUtil.ReloadEgoHandUI(__instance, __instance.GetCardUIList(), unit, ____activatedCardList,
-                    ref ____xInterval).ToList();
+                var list = ArtUtil.ReloadEgoHandUI(__instance, __instance.GetCardUIList(), unit,
+                    __instance._activatedCardList,
+                    ref __instance._xInterval).ToList();
                 __instance.SetSelectedCardUI(null);
                 for (var i = list.Count; i < __instance.GetCardUIList().Count; i++)
                     __instance.GetCardUIList()[i].gameObject.SetActive(false);
@@ -846,9 +850,7 @@ namespace BigDLL4221.Harmony
                 .GetStageModel()
                 .ClassInfo.id.id);
             if (unitOptions?.PreBattleOptions == null) return;
-            var slot =
-                typeof(UICharacterListPanel).GetField("CharacterList", AccessTools.all)?.GetValue(__instance) as
-                    UICharacterList;
+            var slot = __instance.CharacterList;
             var stageModel = Singleton<StageController>.Instance.GetStageModel();
             if (!unitOptions.PreBattleOptions.SephirahUnits.TryGetValue(
                     Singleton<StageController>.Instance.CurrentFloor, out var sephirahUnitTypes)) return;
@@ -867,11 +869,27 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UIInvenLeftEquipPageSlot), "SetOperatingPanel")]
         [HarmonyPatch(typeof(UISettingInvenEquipPageSlot), "SetOperatingPanel")]
         [HarmonyPatch(typeof(UISettingInvenEquipPageLeftSlot), "SetOperatingPanel")]
-        public static void General_SetOperatingPanel(object __instance,
-            UICustomGraphicObject ___button_Equip, TextMeshProUGUI ___txt_equipButton, BookModel ____bookDataModel)
+        public static void General_SetOperatingPanel(object __instance)
         {
-            var uiOrigin = __instance as UIOriginEquipPageSlot;
-            SephiraUtil.SetOperationPanel(uiOrigin, ___button_Equip, ___txt_equipButton, ____bookDataModel);
+            switch (__instance)
+            {
+                case UIInvenEquipPageSlot instance:
+                    SephiraUtil.SetOperationPanel(instance, instance.button_Equip, instance.txt_equipButton,
+                        instance._bookDataModel);
+                    break;
+                case UIInvenLeftEquipPageSlot instance:
+                    SephiraUtil.SetOperationPanel(instance, instance.button_Equip, instance.txt_equipButton,
+                        instance._bookDataModel);
+                    break;
+                case UISettingInvenEquipPageSlot instance:
+                    SephiraUtil.SetOperationPanel(instance, instance.button_Equip, instance.txt_equipButton,
+                        instance._bookDataModel);
+                    break;
+                case UISettingInvenEquipPageLeftSlot instance:
+                    SephiraUtil.SetOperationPanel(instance, instance.button_Equip, instance.txt_equipButton,
+                        instance._bookDataModel);
+                    break;
+            }
         }
 
         [HarmonyPrefix]
@@ -899,8 +917,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIEquipDeckCardList), "SetDeckLayout")]
-        public static void UIEquipDeckCardList_SetDeckLayout(UIEquipDeckCardList __instance,
-            GameObject ___multiDeckLayout)
+        public static void UIEquipDeckCardList_SetDeckLayout(UIEquipDeckCardList __instance)
         {
             if (ModParameters.KeypageOptions.Any(x =>
                     x.Key == __instance.currentunit.bookItem.BookId.packageId && x.Value.Any(y =>
@@ -946,13 +963,13 @@ namespace BigDLL4221.Harmony
                 UIOptions.ChangedMultiView = true;
                 if (__instance.currentunit.bookItem.GetCurrentDeckIndex() > 1)
                     __instance.currentunit.ReEquipDeck();
-                ArtUtil.PrepareMultiDeckUI(___multiDeckLayout, labels,
+                ArtUtil.PrepareMultiDeckUI(__instance.multiDeckLayout, labels,
                     packageId);
             }
             else if (UIOptions.ChangedMultiView)
             {
                 UIOptions.ChangedMultiView = false;
-                ArtUtil.RevertMultiDeckUI(___multiDeckLayout);
+                ArtUtil.RevertMultiDeckUI(__instance.multiDeckLayout);
                 if (StaticModsInfo.DeckLayoutMethod == null)
                 {
                     StaticModsInfo.DeckLayoutMethod = __instance.GetType()
@@ -1014,8 +1031,9 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(StageController), "StartParrying")]
-        public static bool StageController_StartParrying_Pre(BattlePlayingCardDataInUnitModel cardA,
-            BattlePlayingCardDataInUnitModel cardB, ref StageController.StagePhase ____phase)
+        public static bool StageController_StartParrying_Pre(StageController __instance,
+            BattlePlayingCardDataInUnitModel cardA,
+            BattlePlayingCardDataInUnitModel cardB)
         {
             try
             {
@@ -1027,7 +1045,7 @@ namespace BigDLL4221.Harmony
                         x.Key == cardA.card.GetID().packageId &&
                         x.Value.Any(y => y.CardId == cardA.card.GetID().id && y.OneSideOnlyCard)))
                 {
-                    ____phase = StageController.StagePhase.ExecuteOneSideAction;
+                    __instance._phase = StageController.StagePhase.ExecuteOneSideAction;
                     cardA.owner.turnState = BattleUnitTurnState.DOING_ACTION;
                     cardA.target.turnState = BattleUnitTurnState.DOING_ACTION;
                     cardB.owner.currentDiceAction = null;
@@ -1078,16 +1096,15 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BattleDiceCardBuf), "GetBufIcon")]
-        public static void BattleDiceCardBuf_GetBufIcon(BattleDiceCardBuf __instance, ref bool ____iconInit,
-            ref Sprite ____bufIcon)
+        public static void BattleDiceCardBuf_GetBufIcon(BattleDiceCardBuf __instance)
         {
-            if (____iconInit) return;
+            if (__instance._iconInit) return;
             var bufIconKey = (string)__instance.GetType().GetProperty("keywordIconId", AccessTools.all)
                 ?.GetValue(__instance);
             if (string.IsNullOrEmpty(bufIconKey)) return;
             if (!ModParameters.ArtWorks.TryGetValue(bufIconKey, out var bufIconCustom)) return;
-            ____iconInit = true;
-            ____bufIcon = bufIconCustom;
+            __instance._iconInit = true;
+            __instance._bufIcon = bufIconCustom;
         }
 
         [HarmonyPostfix]
@@ -1146,12 +1163,9 @@ namespace BigDLL4221.Harmony
             gameObject.GetComponent<WorkshopSkinDataSetter>().SetData(workshopBookSkinData);
             __result = gameObject.GetComponent<CharacterAppearance>();
             __result.Initialize(resourceName);
-            var soundInfo = (CharacterSound)__result.GetType()
-                .GetField("_soundInfo", AccessTools.all)?.GetValue(__result);
-            var motionSounds = (List<CharacterSound.Sound>)soundInfo.GetType()
-                .GetField("_motionSounds", AccessTools.all)?.GetValue(soundInfo);
-            var dic = (Dictionary<MotionDetail, CharacterSound.Sound>)soundInfo.GetType()
-                .GetField("_dic", AccessTools.all)?.GetValue(soundInfo);
+            var soundInfo = __result._soundInfo;
+            var motionSounds = soundInfo._motionSounds;
+            var dic = soundInfo._dic;
             UnitUtil.PrepareSounds(motionSounds, dic, skin.MotionSounds);
             __result.InitCustomData(customizeData, unit.defaultBook.GetBookClassInfoId());
             __result.InitGiftDataAll(giftInventory.GetEquippedList());
@@ -1165,13 +1179,9 @@ namespace BigDLL4221.Harmony
         public static void BattleUnitView_ChangeSkin(BattleUnitView __instance, string charName)
         {
             if (!ModParameters.SkinOptions.TryGetValue(charName, out var skin)) return;
-            if (typeof(BattleUnitView).GetField("_skinInfo", AccessTools.all)?.GetValue(__instance) is
-                BattleUnitView.SkinInfo skinInfo)
-            {
-                skinInfo.state = BattleUnitView.SkinState.Changed;
-                skinInfo.skinName = charName;
-            }
-
+            var skinInfo = __instance._skinInfo;
+            skinInfo.state = BattleUnitView.SkinState.Changed;
+            skinInfo.skinName = charName;
             var currentMotionDetail = __instance.charAppearance.GetCurrentMotionDetail();
             __instance.DestroySkin();
             var gameObject =
@@ -1184,12 +1194,9 @@ namespace BigDLL4221.Harmony
             gameObject.GetComponent<WorkshopSkinDataSetter>().SetData(workshopBookSkinData);
             __instance.charAppearance = gameObject.GetComponent<CharacterAppearance>();
             __instance.charAppearance.Initialize(resourceName);
-            var soundInfo = (CharacterSound)__instance.charAppearance.GetType()
-                .GetField("_soundInfo", AccessTools.all)?.GetValue(__instance.charAppearance);
-            var motionSounds = (List<CharacterSound.Sound>)soundInfo.GetType()
-                .GetField("_motionSounds", AccessTools.all)?.GetValue(soundInfo);
-            var dic = (Dictionary<MotionDetail, CharacterSound.Sound>)soundInfo.GetType()
-                .GetField("_dic", AccessTools.all)?.GetValue(soundInfo);
+            var soundInfo = __instance.charAppearance._soundInfo;
+            var motionSounds = soundInfo._motionSounds;
+            var dic = soundInfo._dic;
             UnitUtil.PrepareSounds(motionSounds, dic, skin.MotionSounds);
             __instance.charAppearance.ChangeMotion(currentMotionDetail);
             __instance.charAppearance.ChangeLayer("Character");
@@ -1200,27 +1207,28 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FarAreaEffect_Xiao_Taotie), "LateInit")]
-        public static void FarAreaEffect_Xiao_Taotie_LateInit(BattleUnitModel ____self)
+        public static void FarAreaEffect_Xiao_Taotie_LateInit(FarAreaEffect_Xiao_Taotie __instance)
         {
-            if (!ModParameters.KeypageOptions.TryGetValue(____self.UnitData.unitData.bookItem.ClassInfo.id.packageId,
+            if (!ModParameters.KeypageOptions.TryGetValue(
+                    __instance._self.UnitData.unitData.bookItem.ClassInfo.id.packageId,
                     out var keypageOptions)) return;
             var keypageItem =
-                keypageOptions.FirstOrDefault(x => x.KeypageId == ____self.UnitData.unitData.bookItem.ClassInfo.id.id);
+                keypageOptions.FirstOrDefault(x =>
+                    x.KeypageId == __instance._self.UnitData.unitData.bookItem.ClassInfo.id.id);
             if (keypageItem?.BookCustomOptions == null ||
                 keypageItem.BookCustomOptions.XiaoTaotieAction == ActionDetail.NONE) return;
-            ____self.view.charAppearance.ChangeMotion(keypageItem.BookCustomOptions.XiaoTaotieAction);
+            __instance._self.view.charAppearance.ChangeMotion(keypageItem.BookCustomOptions.XiaoTaotieAction);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIFloorTitlePanel), "SetData")]
-        public static void UIFloorTitlePanel_SetData(SephirahType sep, ref Image ___img_floorTitle,
-            TextMeshProUGUI ___txt_titlename)
+        public static void UIFloorTitlePanel_SetData(UIFloorTitlePanel __instance, SephirahType sep)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sep, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
-            ___img_floorTitle.sprite = icon;
+            __instance.img_floorTitle.sprite = icon;
             var name = ModParameters.LocalizedItems.TryGetValue(savedOptions.FloorOptions.PackageId,
                 out var localizedItem)
                 ? localizedItem.EffectTexts.TryGetValue(savedOptions.FloorOptions.FloorNameId,
@@ -1230,45 +1238,46 @@ namespace BigDLL4221.Harmony
                 : !string.IsNullOrEmpty(savedOptions.FloorOptions.FloorName)
                     ? savedOptions.FloorOptions.FloorName
                     : "";
-            if (!string.IsNullOrEmpty(name)) ___txt_titlename.text = name;
-            ___txt_titlename.rectTransform.sizeDelta = new Vector2(___txt_titlename.preferredWidth,
-                ___txt_titlename.rectTransform.sizeDelta.y);
+            if (!string.IsNullOrEmpty(name)) __instance.txt_titlename.text = name;
+            __instance.txt_titlename.rectTransform.sizeDelta = new Vector2(__instance.txt_titlename.preferredWidth,
+                __instance.txt_titlename.rectTransform.sizeDelta.y);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UISephirahButton), "SetButtonState")]
-        public static void UISephirahButton_SetButtonState(UISephirahButton.ButtonState value,
-            ref Image ___img_Icon, SephirahType ___sephirahType)
+        public static void UISephirahButton_SetButtonState(UISephirahButton __instance,
+            UISephirahButton.ButtonState value)
         {
-            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(___sephirahType, out var savedOptions)) return;
+            if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(__instance.sephirahType, out var savedOptions))
+                return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
-            ___img_Icon.sprite = icon;
+            __instance.img_Icon.sprite = icon;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UISephirahSelectionButton), "InitAndActivate")]
-        public static void UISephirahSelectionButton_InitAndActivate(ref Image ___sephirahImage,
+        public static void UISephirahSelectionButton_InitAndActivate(UISephirahSelectionButton __instance,
             SephirahType _sephirahType)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(_sephirahType, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
-            ___sephirahImage.sprite = icon;
+            __instance.sephirahImage.sprite = icon;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BattleEmotionBarTeamSlotUI), "InitPlayerTeamIcon")]
-        public static void BattleEmotionBarTeamSlotUI_InitPlayerTeamIcon(ref Image ___img_Icon,
+        public static void BattleEmotionBarTeamSlotUI_InitPlayerTeamIcon(BattleEmotionBarTeamSlotUI __instance,
             EmotionBattleTeamModel team)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(team.sep, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (string.IsNullOrEmpty(savedOptions.FloorOptions.IconId) ||
                 !ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
-            ___img_Icon.sprite = icon;
+            __instance.img_Icon.sprite = icon;
         }
 
         [HarmonyPatch(typeof(EmotionEgoXmlInfo), "CardId", MethodType.Getter)]
@@ -1281,17 +1290,16 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(UIEgoCardPreviewSlot), "Init")]
         [HarmonyPostfix]
-        public static void UIEgoCardPreviewSlot_Init(DiceCardItemModel cardModel, TextMeshProUGUI ___cardName,
-            TextMeshProUGUI ___cardCost, Image ___artwork)
+        public static void UIEgoCardPreviewSlot_Init(UIEgoCardPreviewSlot __instance, DiceCardItemModel cardModel)
         {
             if (cardModel?.ClassInfo == null) return;
             var emotionEgoCards = ModParameters.EmotionEgoCards.SelectMany(x => x.Value);
             if (!emotionEgoCards.Any(x =>
                     x.PackageId == cardModel.GetID().packageId &&
                     x.CardXml.id == cardModel.GetID().id)) return;
-            ___cardName.text = cardModel.ClassInfo.Name;
-            ___cardCost.text = cardModel.GetSpec().Cost.ToString();
-            ___artwork.sprite =
+            __instance.cardName.text = cardModel.ClassInfo.Name;
+            __instance.cardCost.text = cardModel.GetSpec().Cost.ToString();
+            __instance.artwork.sprite =
                 Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(
                     cardModel.ClassInfo.workshopID, cardModel.GetArtworkSrc());
         }
@@ -1300,7 +1308,7 @@ namespace BigDLL4221.Harmony
             typeof(BattleUnitModel))]
         [HarmonyPostfix]
         public static void BattleEmotionCardModel_ctor_Post(BattleEmotionCardModel __instance,
-            EmotionCardXmlInfo xmlInfo, ref List<EmotionCardAbilityBase> ____abilityList)
+            EmotionCardXmlInfo xmlInfo)
         {
             using (var enumerator = xmlInfo.Script.GetEnumerator())
             {
@@ -1312,9 +1320,9 @@ namespace BigDLL4221.Harmony
                             out var abilityType)) continue;
                     var ability = (EmotionCardAbilityBase)Activator.CreateInstance(abilityType);
                     ability.SetEmotionCard(__instance);
-                    ____abilityList.RemoveAll(x =>
+                    __instance._abilityList.RemoveAll(x =>
                         x.GetType().Name.Substring("EmotionCardAbility_".Length).Trim() == text);
-                    ____abilityList.Add(ability);
+                    __instance._abilityList.Add(ability);
                 }
             }
         }
@@ -1335,16 +1343,15 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(LevelUpUI), "InitBase")]
         [HarmonyPostfix]
-        public static void LevelUpUI_InitBase_Post(Image ___FloorIconImage, Image ___ego_FloorIconImage,
-            Image ___NeedSelectAb_FloorIconImage)
+        public static void LevelUpUI_InitBase_Post(LevelUpUI __instance)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(Singleton<StageController>.Instance.CurrentFloor,
                     out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (!ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
-            ___FloorIconImage.sprite = icon;
-            ___ego_FloorIconImage.sprite = icon;
-            ___NeedSelectAb_FloorIconImage.sprite = icon;
+            __instance.FloorIconImage.sprite = icon;
+            __instance.ego_FloorIconImage.sprite = icon;
+            __instance.NeedSelectAb_FloorIconImage.sprite = icon;
         }
 
         [HarmonyPatch(typeof(BattleSceneRoot), "LoadFloor")]
@@ -1367,7 +1374,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(BattleSceneRoot), "ChangeToSephirahMap")]
         [HarmonyPostfix]
         public static void BattleSceneRoot_ChangeToSephirahMap(BattleSceneRoot __instance, SephirahType sephirah,
-            bool playEffect, MapChangeFilter ____mapChangeFilter)
+            bool playEffect)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
@@ -1390,7 +1397,7 @@ namespace BigDLL4221.Harmony
             if (x2 == __instance.currentMapObject)
                 return;
             if (playEffect)
-                ____mapChangeFilter.StartMapChangingEffect(Direction.RIGHT);
+                __instance._mapChangeFilter.StartMapChangingEffect(Direction.RIGHT);
             if (__instance.currentMapObject.isCreature)
                 Object.Destroy(__instance.currentMapObject.gameObject);
             else if (__instance.currentMapObject != null)
@@ -1423,7 +1430,6 @@ namespace BigDLL4221.Harmony
         {
             if (!StaticModsInfo.OnPlayCardEmotion) return;
             StaticModsInfo.OnPlayCardEmotion = false;
-            StaticModsInfo.ExtraEmotionCardUsed.Add(card);
             __instance.team.currentSelectEmotionLevel--;
         }
 
@@ -1433,7 +1439,6 @@ namespace BigDLL4221.Harmony
         {
             if (!StaticModsInfo.OnPlayCardEmotion) return;
             StaticModsInfo.OnPlayCardEmotion = false;
-            StaticModsInfo.ExtraFloorEgoCardUsed.Add(egoCard);
         }
 
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]
@@ -1450,10 +1455,6 @@ namespace BigDLL4221.Harmony
         [HarmonyPrefix]
         public static void LevelUpUI_Init(LevelUpUI __instance, ref int count)
         {
-            if (typeof(StageLibraryFloorModel).GetField("_selectedList", AccessTools.all)
-                    ?.GetValue(Singleton<StageController>.Instance.GetCurrentStageFloorModel()) is
-                List<EmotionCardXmlInfo> emotionCardsList)
-                count = emotionCardsList.Count(x => !StaticModsInfo.ExtraEmotionCardUsed.Contains(x));
             if (count >= __instance._emotionLevels.Length)
                 count = __instance._emotionLevels.Length - 1;
         }
@@ -1462,10 +1463,6 @@ namespace BigDLL4221.Harmony
         [HarmonyPrefix]
         public static void LevelUpUI_InitEgo(LevelUpUI __instance, ref int count)
         {
-            if (typeof(StageLibraryFloorModel).GetField("_selectableEgoList", AccessTools.all)
-                    ?.GetValue(Singleton<StageController>.Instance.GetCurrentStageFloorModel()) is
-                List<EmotionEgoXmlInfo> emotionEgoCardsList)
-                count = emotionEgoCardsList.Count(x => !StaticModsInfo.ExtraFloorEgoCardUsed.Contains(x));
             if (count >= __instance._emotionLevels.Length)
                 count = __instance._emotionLevels.Length - 1;
         }

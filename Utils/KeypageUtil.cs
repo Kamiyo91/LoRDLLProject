@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BigDLL4221.Models;
-using HarmonyLib;
 using UnityEngine;
 
 namespace BigDLL4221.Utils
@@ -13,15 +12,9 @@ namespace BigDLL4221.Utils
         {
             try
             {
-                var dictionary = (Dictionary<LorId, BookXmlInfo>)instance.GetType()
-                    .GetField("_dictionary", AccessTools.all)
-                    ?.GetValue(instance);
-                var workshopDictionary = (Dictionary<string, List<BookXmlInfo>>)instance.GetType()
-                    .GetField("_workshopBookDict", AccessTools.all)
-                    ?.GetValue(instance);
-                var list = (List<BookXmlInfo>)instance.GetType()
-                    .GetField("_list", AccessTools.all)
-                    ?.GetValue(instance);
+                var dictionary = instance._dictionary;
+                var workshopDictionary = instance._workshopBookDict;
+                var list = instance._list;
                 if (dictionary == null) return;
                 if (!ModParameters.KeypageOptions.TryGetValue(packageId, out var keypageOptions)) return;
                 var changedKeypageList = (from item in dictionary.Where(x => x.Key.packageId == packageId).ToList()

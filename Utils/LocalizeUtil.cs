@@ -5,7 +5,6 @@ using System.Linq;
 using System.Xml.Serialization;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
-using HarmonyLib;
 using LOR_XML;
 using Mod;
 using UnityEngine;
@@ -24,10 +23,7 @@ namespace BigDLL4221.Utils
                 FileInfo file;
                 try
                 {
-                    var dictionary =
-                        typeof(BattleEffectTextsXmlList).GetField("_dictionary", AccessTools.all)
-                                ?.GetValue(Singleton<BattleEffectTextsXmlList>.Instance) as
-                            Dictionary<string, BattleEffectText>;
+                    var dictionary = Singleton<BattleEffectTextsXmlList>.Instance._dictionary;
                     file = new DirectoryInfo(item.Value + "/Localize/" + ModParameters.Language + "/EffectTexts")
                         .GetFiles().FirstOrDefault();
                     error = true;
@@ -59,9 +55,7 @@ namespace BigDLL4221.Utils
                 try
                 {
                     error = false;
-                    var dictionary2 = (Dictionary<string, AbnormalityCard>)typeof(AbnormalityCardDescXmlList)
-                        .GetField("_dictionary", AccessTools.all)
-                        .GetValue(Singleton<AbnormalityCardDescXmlList>.Instance);
+                    var dictionary2 = Singleton<AbnormalityCardDescXmlList>.Instance._dictionary;
                     file = new DirectoryInfo(item.Value + "/Localize/" + ModParameters.Language + "/AbnormalityCards")
                         .GetFiles().FirstOrDefault();
                     error = true;
@@ -109,8 +103,6 @@ namespace BigDLL4221.Utils
                                 }
                             }
 
-                            typeof(ItemXmlDataList).GetField("_cardInfoTable", AccessTools.all)
-                                .GetValue(ItemXmlDataList.instance);
                             using (var enumerator2 = ItemXmlDataList.instance.GetCardList()
                                        .FindAll(x => x.id.packageId == item.Key).GetEnumerator())
                             {
@@ -137,10 +129,7 @@ namespace BigDLL4221.Utils
                     error = false;
                     file = new DirectoryInfo(item.Value + "/Localize/" + ModParameters.Language + "/BattleDialog")
                         .GetFiles().FirstOrDefault();
-                    var dialogDictionary =
-                        (Dictionary<string, BattleDialogRoot>)BattleDialogXmlList.Instance.GetType()
-                            .GetField("_dictionary", AccessTools.all)
-                            ?.GetValue(BattleDialogXmlList.Instance);
+                    var dialogDictionary = BattleDialogXmlList.Instance._dictionary;
                     error = true;
                     if (file != null)
                         using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
@@ -249,10 +238,7 @@ namespace BigDLL4221.Utils
                                 }
                             }
 
-                            (typeof(BookDescXmlList).GetField("_dictionaryWorkshop", AccessTools.all)
-                                        .GetValue(Singleton<BookDescXmlList>.Instance) as
-                                    Dictionary<string, List<BookDesc>>)
-                                [item.Key] = bookDescRoot.bookDescList;
+                            BookDescXmlList.Instance._dictionaryWorkshop[item.Key] = bookDescRoot.bookDescList;
                             localizedItem.Keypages = bookDescRoot.bookDescList;
                         }
                 }
@@ -379,10 +365,7 @@ namespace BigDLL4221.Utils
                 try
                 {
                     error = false;
-                    var cardAbilityDictionary = typeof(BattleCardAbilityDescXmlList)
-                            .GetField("_dictionary", AccessTools.all)
-                            ?.GetValue(Singleton<BattleCardAbilityDescXmlList>.Instance) as
-                        Dictionary<string, BattleCardAbilityDesc>;
+                    var cardAbilityDictionary = Singleton<BattleCardAbilityDescXmlList>.Instance._dictionary;
                     file = new DirectoryInfo(item.Value + "/Localize/" + ModParameters.Language +
                                              "/BattleCardAbilities").GetFiles().FirstOrDefault();
                     error = true;

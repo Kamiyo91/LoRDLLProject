@@ -108,25 +108,26 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPrefix]
-        public static void PrePatch(EmotionBattleTeamModel __instance, List<UnitBattleDataModel> ____unitlist,
+        public static void PrePatch(EmotionBattleTeamModel __instance,
             ref List<UnitBattleDataModel> __state)
         {
+            var unitList = __instance._unitlist;
             _coinsToRemove = 0;
             __state = new List<UnitBattleDataModel>();
             if (StageController.StageState.Battle != StageController.Instance.State) return;
             var models = BattleObjectManager.instance.GetAliveList(__instance.faction).FindAll(Match)
                 .Select(x => x.UnitData).ToList();
-            if (models.Count < ____unitlist.Count)
-                __state.AddRange(models.Where(____unitlist.Remove));
+            if (models.Count < unitList.Count)
+                __state.AddRange(models.Where(unitList.Remove));
             else
-                foreach (var num in ____unitlist.Select(x => x.emotionDetail.GetAccumulatedEmotionCoinNum()))
+                foreach (var num in unitList.Select(x => x.emotionDetail.GetAccumulatedEmotionCoinNum()))
                     _coinsToRemove += num;
         }
 
         [HarmonyPostfix]
-        public static void PostPatch(List<UnitBattleDataModel> ____unitlist, ref List<UnitBattleDataModel> __state)
+        public static void PostPatch(EmotionBattleTeamModel __instance, ref List<UnitBattleDataModel> __state)
         {
-            ____unitlist.AddRange(__state);
+            __instance._unitlist.AddRange(__state);
         }
     }
 }

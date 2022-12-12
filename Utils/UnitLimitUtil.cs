@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using HarmonyLib;
 using UI;
 
 namespace BigDLL4221.Utils
@@ -9,8 +8,7 @@ namespace BigDLL4221.Utils
     {
         public static void AddFormationPosition(FormationModel Formation)
         {
-            var list = (List<FormationPosition>)Formation.GetType().GetField("_postionList", AccessTools.all)
-                ?.GetValue(Formation);
+            var list = Formation._postionList;
             if (list == null) return;
             for (var i = list.Count; i < 99; i++)
             {
@@ -151,8 +149,7 @@ namespace BigDLL4221.Utils
 
         public static void AddFormationPositionForEnemy(FormationModel Formation)
         {
-            var list = (List<FormationPosition>)Formation.GetType().GetField("_postionList", AccessTools.all)
-                ?.GetValue(Formation);
+            var list = Formation._postionList;
             var num = -23;
             var num2 = 18;
             if (list == null) return;

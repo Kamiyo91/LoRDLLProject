@@ -15,19 +15,18 @@ namespace BigDLL4221.Harmony
     {
         [HarmonyPatch(typeof(LibraryFloorModel), "Init")]
         [HarmonyPostfix]
-        private static void LibraryFloorModel_Init_Post(ref List<int> ____formationIndex,
-            ref FormationModel ____defaultFormation, ref FormationModel ____formation)
+        private static void LibraryFloorModel_Init_Post(LibraryFloorModel __instance)
         {
             try
             {
-                ____formationIndex = new List<int>();
-                for (var i = 0; i < 99; i++) ____formationIndex.Add(i);
-                ____formationIndex[0] = 1;
-                ____formationIndex[1] = 0;
-                for (var j = 3; j < 99; j++) ____formationIndex[j] = j;
-                ____defaultFormation = new FormationModel(Singleton<FormationXmlList>.Instance.GetData(1));
-                UnitLimitUtil.AddFormationPosition(____defaultFormation);
-                ____formation = ____defaultFormation;
+                __instance._formationIndex = new List<int>();
+                for (var i = 0; i < 99; i++) __instance._formationIndex.Add(i);
+                __instance._formationIndex[0] = 1;
+                __instance._formationIndex[1] = 0;
+                for (var j = 3; j < 99; j++) __instance._formationIndex[j] = j;
+                __instance._defaultFormation = new FormationModel(Singleton<FormationXmlList>.Instance.GetData(1));
+                UnitLimitUtil.AddFormationPosition(__instance._defaultFormation);
+                __instance._formation = __instance._defaultFormation;
             }
             catch (Exception ex)
             {
@@ -37,12 +36,12 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(StageWaveModel), "Init")]
         [HarmonyPostfix]
-        private static void StageWaveModel_Init_Post(ref FormationModel ____formation, ref List<int> ____formationIndex)
+        private static void StageWaveModel_Init_Post(StageWaveModel __instance)
         {
             try
             {
-                for (var i = 5; i < 100; i++) ____formationIndex.Add(i);
-                UnitLimitUtil.AddFormationPositionForEnemy(____formation);
+                for (var i = 5; i < 100; i++) __instance._formationIndex.Add(i);
+                UnitLimitUtil.AddFormationPositionForEnemy(__instance._formation);
             }
             catch (Exception ex)
             {
@@ -53,16 +52,16 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(StageWaveModel), "GetUnitBattleDataListByFormation")]
         [HarmonyPrefix]
         private static bool StageWaveModel_GetUnitBattleDataListByFormation_Pre(StageWaveModel __instance,
-            ref List<UnitBattleDataModel> __result, List<UnitBattleDataModel> ____unitList)
+            ref List<UnitBattleDataModel> __result)
         {
             try
             {
                 var list = new List<UnitBattleDataModel>();
-                var num = Math.Max(____unitList.Count, 5);
+                var num = Math.Max(__instance._unitList.Count, 5);
                 for (var i = 0; i < num; i++)
                 {
                     var formationIndex = __instance.GetFormationIndex(i);
-                    if (formationIndex < ____unitList.Count) list.Add(____unitList[formationIndex]);
+                    if (formationIndex < __instance._unitList.Count) list.Add(__instance._unitList[formationIndex]);
                 }
 
                 __result = list;
@@ -79,7 +78,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(BattleUnitInfoManagerUI), "Initialize")]
         [HarmonyPrefix]
         private static bool BattleUnitInfoManagerUI_Initialize_Pre(BattleUnitInfoManagerUI __instance,
-            IList<BattleUnitModel> unitList, ref Direction ___allyDirection)
+            IList<BattleUnitModel> unitList)
         {
             try
             {
@@ -119,15 +118,15 @@ namespace BigDLL4221.Harmony
                         }
                 }
 
-                ___allyDirection = Singleton<StageController>.Instance.AllyFormationDirection;
+                __instance.allyDirection = Singleton<StageController>.Instance.AllyFormationDirection;
                 foreach (var t in __instance.allyProfileArray) t.gameObject.SetActive(false);
                 foreach (var t in __instance.enemyProfileArray) t.gameObject.SetActive(false);
                 foreach (var t in UnitLimitParameters.AllyProfileArray2) t.gameObject.SetActive(false);
                 foreach (var t in UnitLimitParameters.EnemyProfileArray2) t.gameObject.SetActive(false);
-                __instance.enemyarray = ___allyDirection == Direction.RIGHT
+                __instance.enemyarray = __instance.allyDirection == Direction.RIGHT
                     ? UnitLimitParameters.EnemyProfileArray2.ToArray()
                     : UnitLimitParameters.AllyProfileArray2.ToArray();
-                __instance.allyarray = ___allyDirection == Direction.RIGHT
+                __instance.allyarray = __instance.allyDirection == Direction.RIGHT
                     ? UnitLimitParameters.AllyProfileArray2.ToArray()
                     : UnitLimitParameters.EnemyProfileArray2.ToArray();
                 foreach (var battleUnitModel in unitList)
@@ -175,18 +174,14 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(BattleEmotionCoinUI), "Init")]
         [HarmonyPrefix]
-        private static bool BattleEmotionCoinUI_Init_Pre(BattleEmotionCoinUI __instance,
-            ref Dictionary<int, BattleEmotionCoinUI.BattleEmotionCoinData> ____librarian_lib,
-            ref Dictionary<int, BattleEmotionCoinUI.BattleEmotionCoinData> ____enemy_lib,
-            ref Dictionary<int, Queue<EmotionCoinType>> ____lib_queue,
-            ref Dictionary<int, Queue<EmotionCoinType>> ____ene_queue, ref bool ____init)
+        private static bool BattleEmotionCoinUI_Init_Pre(BattleEmotionCoinUI __instance)
         {
             try
             {
-                ____librarian_lib.Clear();
-                ____enemy_lib.Clear();
-                ____lib_queue.Clear();
-                ____ene_queue.Clear();
+                __instance._librarian_lib.Clear();
+                __instance._enemy_lib.Clear();
+                __instance._lib_queue.Clear();
+                __instance._ene_queue.Clear();
                 var aliveList = BattleObjectManager.instance.GetAliveList();
                 var num = 0;
                 var num2 = 0;
@@ -240,14 +235,14 @@ namespace BigDLL4221.Harmony
                 foreach (var battleUnitModel in aliveList)
                     if (battleUnitModel.faction == Faction.Enemy)
                     {
-                        if (num2 <= 8) ____enemy_lib.Add(battleUnitModel.id, array2[num2++]);
+                        if (num2 <= 8) __instance._enemy_lib.Add(battleUnitModel.id, array2[num2++]);
                     }
                     else
                     {
-                        if (num <= 8) ____librarian_lib.Add(battleUnitModel.id, array[num++]);
+                        if (num <= 8) __instance._librarian_lib.Add(battleUnitModel.id, array[num++]);
                     }
 
-                ____init = true;
+                __instance._init = true;
                 return false;
             }
             catch (Exception ex)
@@ -462,24 +457,24 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(BattleEmotionRewardInfoUI), "SetData")]
         [HarmonyPrefix]
-        private static bool BattleEmotionRewardInfoUI_SetData_Pre(List<UnitBattleDataModel> units, Faction faction,
-            List<BattleEmotionRewardSlotUI> ___slots)
+        private static bool BattleEmotionRewardInfoUI_SetData_Pre(BattleEmotionRewardInfoUI __instance,
+            List<UnitBattleDataModel> units, Faction faction)
         {
             try
             {
-                while (units.Count > ___slots.Count && ___slots.Count < 9)
+                while (units.Count > __instance.slots.Count && __instance.slots.Count < 9)
                 {
-                    var item = Object.Instantiate(___slots[0]);
-                    ___slots.Add(item);
+                    var item = Object.Instantiate(__instance.slots[0]);
+                    __instance.slots.Add(item);
                 }
 
-                foreach (var battleEmotionRewardSlotUI in ___slots)
+                foreach (var battleEmotionRewardSlotUI in __instance.slots)
                     battleEmotionRewardSlotUI.gameObject.SetActive(false);
                 for (var i = 0; i < units.Count; i++)
                 {
                     if (i > 8) break;
-                    ___slots[i].gameObject.SetActive(true);
-                    ___slots[i].SetData(units[i], faction);
+                    __instance.slots[i].gameObject.SetActive(true);
+                    __instance.slots[i].SetData(units[i], faction);
                 }
 
                 return false;

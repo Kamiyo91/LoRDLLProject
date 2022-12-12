@@ -6,13 +6,12 @@ using System.Reflection;
 using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
-using HarmonyLib;
+using LOR_BattleUnit_UI;
 using Sound;
 using TMPro;
 using UI;
 using UnityEngine;
 using UnityEngine.UI;
-using Workshop;
 using Object = UnityEngine.Object;
 
 namespace BigDLL4221.Utils
@@ -144,42 +143,66 @@ namespace BigDLL4221.Utils
             instance.UpdateBookSlots();
         }
 
-        public static void SetBooksDataOriginal(UIOriginEquipPageList instance,
-            List<BookModel> books, UIStoryKeyData storyKey, Image img_EdgeFrame, Image img_LineFrame,
-            Image img_IconGlow, Image img_Icon)
+        public static void SetBooksDataOriginal(UIInvenEquipPageListSlot instance,
+            List<BookModel> books, UIStoryKeyData storyKey)
         {
             if (!ModParameters.PackageIds.Contains(storyKey.workshopId)) return;
-            var image = (Image)instance.GetType().GetField("img_IconGlow", AccessTools.all).GetValue(instance);
-            var image2 = (Image)instance.GetType().GetField("img_Icon", AccessTools.all).GetValue(instance);
-            var textMeshProUGUI = (TextMeshProUGUI)instance.GetType().GetField("txt_StoryName", AccessTools.all)
-                .GetValue(instance);
             if (books.Count < 0) return;
             var credenzaOptionsTryGet =
                 ModParameters.CredenzaOptions.TryGetValue(storyKey.workshopId, out var credenzaOptions);
             if (!credenzaOptionsTryGet) credenzaOptions = new CredenzaOptions();
-            image.enabled = true;
-            image2.enabled = true;
+            instance.img_IconGlow.enabled = true;
+            instance.img_Icon.enabled = true;
             var icon = GetIcon(credenzaOptions.CustomIconSpriteId, credenzaOptions.BaseIconSpriteId,
                 "Chapter" + storyKey.chapter);
-            image2.sprite = icon;
-            image.sprite = icon;
-            textMeshProUGUI.text = CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
+            instance.img_IconGlow.sprite = icon;
+            instance.img_Icon.sprite = icon;
+            instance.txt_StoryName.text = CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
                 storyKey.workshopId);
             if (credenzaOptions.BookDataColor == null) return;
             if (credenzaOptions.BookDataColor.FrameColor.HasValue)
-                SetBooksDataFrameColor(credenzaOptions.BookDataColor.FrameColor.Value, img_EdgeFrame, img_LineFrame,
-                    img_IconGlow, img_Icon);
+                SetBooksDataFrameColor(credenzaOptions.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
+                    instance.img_LineFrame,
+                    instance.img_IconGlow, instance.img_Icon);
             if (!credenzaOptions.BookDataColor.TextColor.HasValue) return;
-            textMeshProUGUI.color = credenzaOptions.BookDataColor.TextColor.Value;
-            var component = textMeshProUGUI.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            instance.txt_StoryName.color = credenzaOptions.BookDataColor.TextColor.Value;
+            var component = instance.txt_StoryName.gameObject.GetComponent<TextMeshProMaterialSetter>();
             component.underlayColor = credenzaOptions.BookDataColor.TextColor.Value;
             component.enabled = false;
             component.enabled = true;
         }
 
-        public static void SetBooksData(UIOriginEquipPageList instance,
-            List<BookModel> books, UIStoryKeyData storyKey, Image img_EdgeFrame, Image img_LineFrame,
-            Image img_IconGlow, Image img_Icon)
+        public static void SetBooksDataOriginal(UISettingInvenEquipPageListSlot instance,
+            List<BookModel> books, UIStoryKeyData storyKey)
+        {
+            if (!ModParameters.PackageIds.Contains(storyKey.workshopId)) return;
+            if (books.Count < 0) return;
+            var credenzaOptionsTryGet =
+                ModParameters.CredenzaOptions.TryGetValue(storyKey.workshopId, out var credenzaOptions);
+            if (!credenzaOptionsTryGet) credenzaOptions = new CredenzaOptions();
+            instance.img_IconGlow.enabled = true;
+            instance.img_Icon.enabled = true;
+            var icon = GetIcon(credenzaOptions.CustomIconSpriteId, credenzaOptions.BaseIconSpriteId,
+                "Chapter" + storyKey.chapter);
+            instance.img_IconGlow.sprite = icon;
+            instance.img_Icon.sprite = icon;
+            instance.txt_StoryName.text = CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
+                storyKey.workshopId);
+            if (credenzaOptions.BookDataColor == null) return;
+            if (credenzaOptions.BookDataColor.FrameColor.HasValue)
+                SetBooksDataFrameColor(credenzaOptions.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
+                    instance.img_LineFrame,
+                    instance.img_IconGlow, instance.img_Icon);
+            if (!credenzaOptions.BookDataColor.TextColor.HasValue) return;
+            instance.txt_StoryName.color = credenzaOptions.BookDataColor.TextColor.Value;
+            var component = instance.txt_StoryName.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            component.underlayColor = credenzaOptions.BookDataColor.TextColor.Value;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void SetBooksData(UISettingInvenEquipPageListSlot instance,
+            List<BookModel> books, UIStoryKeyData storyKey)
         {
             var categoryOptions = ModParameters.CategoryOptions.SelectMany(x =>
                 x.Value.Where(y => storyKey.workshopId == y.PackageId + y.AdditionalValue));
@@ -187,47 +210,312 @@ namespace BigDLL4221.Utils
                 categoryOptions.FirstOrDefault(x => storyKey.workshopId == x.PackageId + x.AdditionalValue);
             if (categoryOption == null)
             {
-                SetBooksDataOriginal(instance, books, storyKey, img_EdgeFrame, img_LineFrame, img_IconGlow, img_Icon);
+                SetBooksDataOriginal(instance, books, storyKey);
                 return;
             }
 
-            var image = (Image)instance.GetType().GetField("img_IconGlow", AccessTools.all).GetValue(instance);
-            var image2 = (Image)instance.GetType().GetField("img_Icon", AccessTools.all).GetValue(instance);
-            var textMeshProUGUI = (TextMeshProUGUI)instance.GetType().GetField("txt_StoryName", AccessTools.all)
-                .GetValue(instance);
             if (books.Count < 0) return;
-            image.enabled = true;
-            image2.enabled = true;
+            instance.img_IconGlow.enabled = true;
+            instance.img_Icon.enabled = true;
             var icon = GetIcon(categoryOption.CustomIconSpriteId, categoryOption.BaseIconSpriteId,
                 "Chapter" + storyKey.chapter);
-            image2.sprite = icon;
-            image.sprite = icon;
-            textMeshProUGUI.text = CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
+            instance.img_Icon.sprite = icon;
+            instance.img_IconGlow.sprite = icon;
+            instance.txt_StoryName.text = CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
                 categoryOption.PackageId);
             if (categoryOption.BookDataColor == null) return;
             if (categoryOption.BookDataColor.FrameColor.HasValue)
-                SetBooksDataFrameColor(categoryOption.BookDataColor.FrameColor.Value, img_EdgeFrame, img_LineFrame,
-                    img_IconGlow, img_Icon);
+                SetBooksDataFrameColor(categoryOption.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
+                    instance.img_LineFrame,
+                    instance.img_IconGlow, instance.img_Icon);
             if (!categoryOption.BookDataColor.TextColor.HasValue) return;
-            textMeshProUGUI.color = categoryOption.BookDataColor.TextColor.Value;
-            var component = textMeshProUGUI.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            instance.txt_StoryName.color = categoryOption.BookDataColor.TextColor.Value;
+            var component = instance.txt_StoryName.gameObject.GetComponent<TextMeshProMaterialSetter>();
             component.underlayColor = categoryOption.BookDataColor.TextColor.Value;
             component.enabled = false;
             component.enabled = true;
         }
 
-        public static void ResetColorData(UIOriginEquipPageList instance, Image img_Icon)
+        public static void SetBooksData(UIInvenEquipPageListSlot instance,
+            List<BookModel> books, UIStoryKeyData storyKey)
+        {
+            var categoryOptions = ModParameters.CategoryOptions.SelectMany(x =>
+                x.Value.Where(y => storyKey.workshopId == y.PackageId + y.AdditionalValue));
+            var categoryOption =
+                categoryOptions.FirstOrDefault(x => storyKey.workshopId == x.PackageId + x.AdditionalValue);
+            if (categoryOption == null)
+            {
+                SetBooksDataOriginal(instance, books, storyKey);
+                return;
+            }
+
+            if (books.Count < 0) return;
+            instance.img_IconGlow.enabled = true;
+            instance.img_Icon.enabled = true;
+            var icon = GetIcon(categoryOption.CustomIconSpriteId, categoryOption.BaseIconSpriteId,
+                "Chapter" + storyKey.chapter);
+            instance.img_Icon.sprite = icon;
+            instance.img_IconGlow.sprite = icon;
+            instance.txt_StoryName.text = CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
+                categoryOption.PackageId);
+            if (categoryOption.BookDataColor == null) return;
+            if (categoryOption.BookDataColor.FrameColor.HasValue)
+                SetBooksDataFrameColor(categoryOption.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
+                    instance.img_LineFrame,
+                    instance.img_IconGlow, instance.img_Icon);
+            if (!categoryOption.BookDataColor.TextColor.HasValue) return;
+            instance.txt_StoryName.color = categoryOption.BookDataColor.TextColor.Value;
+            var component = instance.txt_StoryName.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            component.underlayColor = categoryOption.BookDataColor.TextColor.Value;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void ResetColorData(UIInvenEquipPageListSlot instance)
         {
             var defaultColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
-            img_Icon.color = defaultColor;
-            var text = (TextMeshProUGUI)instance.GetType().GetField("txt_StoryName", AccessTools.all)
-                ?.GetValue(instance);
-            if (text == null) return;
-            text.color = defaultColor;
-            var component = text.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            instance.img_Icon.color = defaultColor;
+            if (instance.txt_StoryName == null) return;
+            instance.txt_StoryName.color = defaultColor;
+            var component = instance.txt_StoryName.gameObject.GetComponent<TextMeshProMaterialSetter>();
             component.underlayColor = defaultColor;
             component.enabled = false;
             component.enabled = true;
+        }
+
+        public static void ResetColorData(UISettingInvenEquipPageListSlot instance)
+        {
+            var defaultColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            instance.img_Icon.color = defaultColor;
+            if (instance.txt_StoryName == null) return;
+            instance.txt_StoryName.color = defaultColor;
+            var component = instance.txt_StoryName.gameObject.GetComponent<TextMeshProMaterialSetter>();
+            component.underlayColor = defaultColor;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void UIInvitationSetColorPost(UIInvitationDropBookSlot instance, Color c)
+        {
+            if (instance.BookId == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted) ||
+                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
+            if (!ModParameters.DropBookOptions.TryGetValue(instance.BookId.packageId,
+                    out var dropBookOptions)) return;
+            var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == instance.BookId.id);
+            if (dropBookOption?.DropBookColorOptions == null) return;
+            if (dropBookOption.DropBookColorOptions.FrameColor.HasValue)
+                instance.bookNumBg.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+            if (!dropBookOption.DropBookColorOptions.NameColor.HasValue) return;
+            instance.txt_bookNum.color = dropBookOption.DropBookColorOptions.NameColor.Value;
+        }
+
+        public static void EmotionPassiveCardUISetSpritesPost(EmotionPassiveCardUI instance,
+            EmotionCardXmlExtension cardExtension)
+        {
+            instance._artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
+            if (!UtilExtensions.GetEmotionCardOptions(cardExtension.LorId.packageId, cardExtension.LorId.id,
+                    out var cardOptions) || cardOptions.ColorOptions == null) return;
+            instance.img_LeftTotalFrame.sprite = UISpriteDataManager.instance.AbnormalityFrame.ElementAtOrDefault(0);
+            var orAddComponent = instance.img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColor(cardOptions, ref orAddComponent);
+            instance._rightBg.sprite = instance._positiveBgSprite.ElementAtOrDefault(1);
+            var orAddComponent2 = instance._rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColor(cardOptions, ref orAddComponent2);
+            instance._rightFrame.sprite = instance._positiveFrameSprite.ElementAtOrDefault(1);
+            var orAddComponent3 = instance._rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColor(cardOptions, ref orAddComponent3);
+            instance._leftFrameTitleLineardodge.gameObject.SetActive(false);
+            if (cardOptions.ColorOptions.TextColor.HasValue)
+            {
+                instance._flavorText.fontMaterial.SetColor("_UnderlayColor", cardOptions.ColorOptions.TextColor.Value);
+                instance._abilityDesc.fontMaterial.SetColor("_UnderlayColor", cardOptions.ColorOptions.TextColor.Value);
+            }
+
+            if (!cardOptions.ColorOptions.FrameColor.HasValue) return;
+            instance._hOverImg.color = cardOptions.ColorOptions.FrameColor.Value;
+            var rootColor = cardOptions.ColorOptions.FrameColor.Value;
+            rootColor.a = 0.25f;
+            instance._rootImageBg.color = rootColor;
+            var component = instance.txt_Level.GetComponent<TextMeshProMaterialSetter>();
+            if (component == null) return;
+            component.glowColor = cardOptions.ColorOptions.FrameColor.Value;
+            component.underlayColor = cardOptions.ColorOptions.FrameColor.Value;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void EmotionPassiveCardUISetSpritesPost(UIEmotionPassiveCardInven instance,
+            EmotionCardXmlExtension cardExtension)
+        {
+            instance._artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
+            if (!UtilExtensions.GetEmotionCardOptions(cardExtension.LorId.packageId, cardExtension.LorId.id,
+                    out var cardOptions) || cardOptions.ColorOptions == null) return;
+            instance.img_LeftTotalFrame.sprite = UISpriteDataManager.instance.AbnormalityFrame.ElementAtOrDefault(0);
+            var orAddComponent = instance.img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColor(cardOptions, ref orAddComponent);
+            instance._rightBg.sprite = instance._positiveBgSprite.ElementAtOrDefault(1);
+            var orAddComponent2 = instance._rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColor(cardOptions, ref orAddComponent2);
+            instance._rightFrame.sprite = instance._positiveFrameSprite.ElementAtOrDefault(1);
+            var orAddComponent3 = instance._rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColor(cardOptions, ref orAddComponent3);
+            instance._leftFrameTitleLineardodge.gameObject.SetActive(false);
+            if (cardOptions.ColorOptions.TextColor.HasValue)
+            {
+                instance._flavorText.fontMaterial.SetColor("_UnderlayColor", cardOptions.ColorOptions.TextColor.Value);
+                instance._abilityDesc.fontMaterial.SetColor("_UnderlayColor", cardOptions.ColorOptions.TextColor.Value);
+            }
+
+            if (!cardOptions.ColorOptions.FrameColor.HasValue) return;
+            instance._hOverImg.color = cardOptions.ColorOptions.FrameColor.Value;
+            var rootColor = cardOptions.ColorOptions.FrameColor.Value;
+            rootColor.a = 0.25f;
+            instance._rootImageBg.color = rootColor;
+            var component = instance.txt_Level.GetComponent<TextMeshProMaterialSetter>();
+            if (component == null) return;
+            component.glowColor = cardOptions.ColorOptions.FrameColor.Value;
+            component.underlayColor = cardOptions.ColorOptions.FrameColor.Value;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void UIInvitationSetColorPost(UIAddedFeedBookSlot instance, Color c)
+        {
+            if (instance.BookId == null || c == UIColorManager.Manager.GetUIColor(UIColor.Highlighted) ||
+                c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
+            if (!ModParameters.DropBookOptions.TryGetValue(instance.BookId.packageId,
+                    out var dropBookOptions)) return;
+            var dropBookOption = dropBookOptions.FirstOrDefault(x => x.DropBookId == instance.BookId.id);
+            if (dropBookOption?.DropBookColorOptions == null) return;
+            if (dropBookOption.DropBookColorOptions.FrameColor.HasValue)
+                instance.bookNumBg.color = dropBookOption.DropBookColorOptions.FrameColor.Value;
+            if (!dropBookOption.DropBookColorOptions.NameColor.HasValue) return;
+            instance.txt_bookNum.color = dropBookOption.DropBookColorOptions.NameColor.Value;
+        }
+
+        public static void UIPassiveSuccessionEquipBookSlotSetRarityColorPost(UIPassiveEquipBookSlot instance, Color c)
+        {
+            if (instance.bookmodel == null || c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(instance.bookmodel.BookId.packageId, out var keypageOptions))
+                return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == instance.bookmodel.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            if (keypageItem.KeypageColorOptions.FrameColor.HasValue)
+            {
+                instance.img_Frame.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+                instance.img_IconGlow.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+            }
+
+            if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
+            instance.setter_txtbookname.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.setter_txtbookname.faceColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.txt_BookName.color = keypageItem.KeypageColorOptions.NameColor.Value;
+        }
+
+        public static void UIPassiveSuccessionEquipBookSlotSetRarityColorPost(UIPassiveSuccessionEquipBookSlot instance,
+            Color c)
+        {
+            if (instance.bookmodel == null || c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(instance.bookmodel.BookId.packageId, out var keypageOptions))
+                return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == instance.bookmodel.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            if (keypageItem.KeypageColorOptions.FrameColor.HasValue)
+            {
+                instance.img_Frame.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+                instance.img_IconGlow.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+            }
+
+            if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
+            instance.setter_txtbookname.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.setter_txtbookname.faceColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.txt_BookName.color = keypageItem.KeypageColorOptions.NameColor.Value;
+        }
+
+        public static void UIPassiveSuccessionEquipBookSlotSetRarityColorPre(UIPassiveEquipBookSlot instance)
+        {
+            if (instance.bookmodel == null) return;
+            instance.txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            instance.img_Frame.color = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            instance.img_IconGlow.color = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            instance.setter_txtbookname.underlayColor = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            instance.setter_txtbookname.faceColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
+        }
+
+        public static void UIPassiveSuccessionEquipBookSlotSetRarityColorPre(UIPassiveSuccessionEquipBookSlot instance)
+        {
+            if (instance.bookmodel == null) return;
+            instance.txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+            instance.img_Frame.color = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            instance.img_IconGlow.color = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            instance.setter_txtbookname.underlayColor = UIColorManager.Manager.GetUIColor(UIColor.Disabled);
+            instance.setter_txtbookname.faceColor = UIColorManager.Manager.GetUIColor(UIColor.Default);
+        }
+
+        public static void UIPassiveSuccessionPanelSetColorByRarityPre(UIPassiveSuccessionPreviewBookPanel instance)
+        {
+            if (instance._currentbookmodel == null) return;
+            instance.txt_name.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+        }
+
+        public static void UIPassiveSuccessionPanelSetColorByRarityPre(UIPassiveSuccessionCenterEquipBookSlot instance)
+        {
+            if (instance._currentbookmodel == null) return;
+            instance.txt_name.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+        }
+
+        public static void EmotionPassiveCardUISetSpritesPre(UIEmotionPassiveCardInven __instance)
+        {
+            __instance.img_LeftTotalFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+            __instance._leftFrameTitleLineardodge.gameObject.SetActive(true);
+            __instance._rightFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+        }
+
+        public static void EmotionPassiveCardUISetSpritesPre(EmotionPassiveCardUI __instance)
+        {
+            __instance.img_LeftTotalFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+            __instance._leftFrameTitleLineardodge.gameObject.SetActive(true);
+            __instance._rightFrame.gameObject.SafeDestroyComponent<_2dxFX_ColorChange>();
+        }
+
+        public static void UIPassiveSuccessionPanelSetColorByRarityPost(UIPassiveSuccessionCenterEquipBookSlot instance)
+        {
+            if (instance._currentbookmodel == null) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(instance._currentbookmodel.BookId.packageId,
+                    out var keypageOptions)) return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == instance._currentbookmodel.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            if (keypageItem.KeypageColorOptions.FrameColor.HasValue)
+            {
+                instance.img_Frame.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+                instance.img_IconGlow.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+            }
+
+            if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
+            instance.setter_name.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.txt_name.color = keypageItem.KeypageColorOptions.NameColor.Value;
+        }
+
+        public static void UIPassiveSuccessionPanelSetColorByRarityPost(UIPassiveSuccessionPreviewBookPanel instance)
+        {
+            if (instance._currentbookmodel == null) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(instance._currentbookmodel.BookId.packageId,
+                    out var keypageOptions)) return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == instance._currentbookmodel.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            if (keypageItem.KeypageColorOptions.FrameColor.HasValue)
+            {
+                instance.img_Frame.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+                instance.img_IconGlow.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+            }
+
+            if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
+            instance.setter_name.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.txt_name.color = keypageItem.KeypageColorOptions.NameColor.Value;
         }
 
         public static void SetBooksDataFrameColor(Color c, Image img_EdgeFrame, Image img_LineFrame, Image img_IconGlow,
@@ -237,6 +525,154 @@ namespace BigDLL4221.Utils
             img_LineFrame.color = c;
             img_IconGlow.color = c;
             img_Icon.color = c;
+        }
+
+        public static void UIEquipPageSetDataPost(UIEquipPagePreviewPanel instance)
+        {
+            if (instance.bookDataModel == null) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(instance.bookDataModel.BookId.packageId,
+                    out var keypageOptions))
+                return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == instance.bookDataModel.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            if (keypageItem.KeypageColorOptions.FrameColor.HasValue)
+                foreach (var t in instance.graphic_Frames)
+                    t.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+            if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
+            instance.setter_bookname.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.setter_bookname.enabled = false;
+            instance.setter_bookname.enabled = true;
+            instance.txt_BookName.color = keypageItem.KeypageColorOptions.NameColor.Value;
+        }
+
+        public static void UIEquipPageSetDataPost(UIEquipPageModelPreviewPanel instance)
+        {
+            if (instance.bookDataModel == null) return;
+            if (!ModParameters.KeypageOptions.TryGetValue(instance.bookDataModel.BookId.packageId,
+                    out var keypageOptions))
+                return;
+            var keypageItem = keypageOptions.FirstOrDefault(x => x.KeypageId == instance.bookDataModel.BookId.id);
+            if (keypageItem?.KeypageColorOptions == null) return;
+            if (keypageItem.KeypageColorOptions.FrameColor.HasValue)
+                foreach (var t in instance.graphic_Frames)
+                    t.color = keypageItem.KeypageColorOptions.FrameColor.Value;
+            if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
+            instance.setter_bookname.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
+            instance.setter_bookname.enabled = false;
+            instance.setter_bookname.enabled = true;
+            instance.txt_BookName.color = keypageItem.KeypageColorOptions.NameColor.Value;
+        }
+
+        public static void UIEquipPageSetDataPre(UIEquipPagePreviewPanel instance)
+        {
+            if (instance.bookDataModel == null) return;
+            instance.txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+        }
+
+        public static void UIEquipPageSetDataPre(UIEquipPageModelPreviewPanel instance)
+        {
+            if (instance.bookDataModel == null) return;
+            instance.txt_BookName.color = UIColorManager.Manager.GetUIColor(UIColor.Default);
+        }
+
+        public static void UICardSetDataPre(UIDetailEgoCardSlot instance)
+        {
+            var frame = instance.img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
+            if (frame != null) frame.overrideSprite = null;
+            var component = instance.img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
+            if (component != null) component.overrideSprite = null;
+        }
+
+        public static void UICardSetDataPre(UIOriginCardSlot instance)
+        {
+            var frame = instance.img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
+            if (frame != null) frame.overrideSprite = null;
+            var component = instance.img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
+            if (component != null) component.overrideSprite = null;
+        }
+
+        public static void UICardSetDataPost(UIDetailEgoCardSlot instance, CardColorOptions cardColorOption)
+        {
+            if (cardColorOption.CardColor.HasValue)
+            {
+                foreach (var img in instance.img_Frames)
+                    img.color = cardColorOption.CardColor.Value;
+                foreach (var img in instance.img_linearDodge)
+                    img.color = cardColorOption.CardColor.Value;
+                instance.costNumbers.SetContentColor(cardColorOption.CardColor.Value);
+                instance.colorFrame = cardColorOption.CardColor.Value;
+                instance.colorLineardodge = cardColorOption.CardColor.Value;
+                instance.img_RangeIcon.color = cardColorOption.CardColor.Value;
+            }
+
+            var frame = instance.img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
+            if (frame != null)
+                if (!string.IsNullOrEmpty(cardColorOption.LeftFrame) &&
+                    ModParameters.CardArtWorks.TryGetValue(cardColorOption.LeftFrame, out var leftFrameImg))
+                {
+                    frame.overrideSprite = leftFrameImg;
+                    frame.overrideSprite.name = $"{cardColorOption.LeftFrame}_LFrame";
+                    if (cardColorOption.ApplySideFrontColors && cardColorOption.CardColor.HasValue)
+                        frame.color = cardColorOption.CardColor.Value;
+                    else frame.color = Color.white;
+                }
+
+            var component = instance.img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
+            if (component != null)
+                if (!string.IsNullOrEmpty(cardColorOption.FrontFrame) &&
+                    ModParameters.CardArtWorks.TryGetValue(cardColorOption.FrontFrame, out var frontFrameImg))
+                {
+                    component.overrideSprite = frontFrameImg;
+                    component.overrideSprite.name = $"{cardColorOption.FrontFrame}_FFrame";
+                    if (cardColorOption.ApplyFrontColor && cardColorOption.CardColor.HasValue)
+                        component.color = cardColorOption.CardColor.Value;
+                }
+
+            if (string.IsNullOrEmpty(cardColorOption.CustomIcon) ||
+                !ModParameters.ArtWorks.TryGetValue(cardColorOption.CustomIcon, out var icon)) return;
+            instance.img_RangeIcon.overrideSprite = icon;
+        }
+
+        public static void UICardSetDataPost(UIOriginCardSlot instance, CardColorOptions cardColorOption)
+        {
+            if (cardColorOption.CardColor.HasValue)
+            {
+                foreach (var img in instance.img_Frames)
+                    img.color = cardColorOption.CardColor.Value;
+                foreach (var img in instance.img_linearDodge)
+                    img.color = cardColorOption.CardColor.Value;
+                instance.costNumbers.SetContentColor(cardColorOption.CardColor.Value);
+                instance.colorFrame = cardColorOption.CardColor.Value;
+                instance.colorLineardodge = cardColorOption.CardColor.Value;
+                instance.img_RangeIcon.color = cardColorOption.CardColor.Value;
+            }
+
+            var frame = instance.img_Frames.FirstOrDefault(x => x.name.Contains("[Image]NormalFrame"));
+            if (frame != null)
+                if (!string.IsNullOrEmpty(cardColorOption.LeftFrame) &&
+                    ModParameters.CardArtWorks.TryGetValue(cardColorOption.LeftFrame, out var leftFrameImg))
+                {
+                    frame.overrideSprite = leftFrameImg;
+                    frame.overrideSprite.name = $"{cardColorOption.LeftFrame}_LFrame";
+                    if (cardColorOption.ApplySideFrontColors && cardColorOption.CardColor.HasValue)
+                        frame.color = cardColorOption.CardColor.Value;
+                    else frame.color = Color.white;
+                }
+
+            var component = instance.img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
+            if (component != null)
+                if (!string.IsNullOrEmpty(cardColorOption.FrontFrame) &&
+                    ModParameters.CardArtWorks.TryGetValue(cardColorOption.FrontFrame, out var frontFrameImg))
+                {
+                    component.overrideSprite = frontFrameImg;
+                    component.overrideSprite.name = $"{cardColorOption.FrontFrame}_FFrame";
+                    if (cardColorOption.ApplyFrontColor && cardColorOption.CardColor.HasValue)
+                        component.color = cardColorOption.CardColor.Value;
+                }
+
+            if (string.IsNullOrEmpty(cardColorOption.CustomIcon) ||
+                !ModParameters.ArtWorks.TryGetValue(cardColorOption.CustomIcon, out var icon)) return;
+            instance.img_RangeIcon.overrideSprite = icon;
         }
 
         public static void SetMainData(List<BookModel> currentBookModelList, List<UIStoryKeyData> totalkeysdata,
@@ -317,22 +753,13 @@ namespace BigDLL4221.Utils
                                 {
                                     changed = true;
                                     uibookStoryEpisodeSlot.Init(panelBooks, instance);
-                                    ((TextMeshProUGUI)uibookStoryEpisodeSlot.GetType()
-                                            .GetField("episodeText", AccessTools.all)
-                                            .GetValue(uibookStoryEpisodeSlot)).text =
-                                        CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
-                                            packageId);
-                                    var image = (Image)uibookStoryEpisodeSlot.GetType()
-                                        .GetField("episodeIconGlow", AccessTools.all)
-                                        .GetValue(uibookStoryEpisodeSlot);
-                                    var image2 = (Image)uibookStoryEpisodeSlot.GetType()
-                                        .GetField("episodeIcon", AccessTools.all)
-                                        .GetValue(uibookStoryEpisodeSlot);
+                                    uibookStoryEpisodeSlot.episodeText.text = CredenzaName(
+                                        categoryOption.CategoryNameId, categoryOption.CategoryName, packageId);
                                     var icon = GetIcon(categoryOption.CustomIconSpriteId,
                                         categoryOption.BaseIconSpriteId,
                                         panelBooks[0].BookIcon);
-                                    image2.sprite = icon;
-                                    image.sprite = icon;
+                                    uibookStoryEpisodeSlot.episodeIconGlow.sprite = icon;
+                                    uibookStoryEpisodeSlot.episodeIcon.sprite = icon;
                                 }
 
                                 var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
@@ -372,21 +799,12 @@ namespace BigDLL4221.Utils
                             {
                                 changed = true;
                                 uibookStoryEpisodeSlot.Init(panelBooks, instance);
-                                ((TextMeshProUGUI)uibookStoryEpisodeSlot.GetType()
-                                        .GetField("episodeText", AccessTools.all)
-                                        .GetValue(uibookStoryEpisodeSlot)).text =
-                                    CredenzaName(credenzaOption.CredenzaNameId, credenzaOption.CredenzaName,
-                                        packageId);
-                                var image = (Image)uibookStoryEpisodeSlot.GetType()
-                                    .GetField("episodeIconGlow", AccessTools.all)
-                                    .GetValue(uibookStoryEpisodeSlot);
-                                var image2 = (Image)uibookStoryEpisodeSlot.GetType()
-                                    .GetField("episodeIcon", AccessTools.all)
-                                    .GetValue(uibookStoryEpisodeSlot);
+                                uibookStoryEpisodeSlot.episodeText.text = CredenzaName(credenzaOption.CredenzaNameId,
+                                    credenzaOption.CredenzaName, packageId);
                                 var icon = GetIcon(credenzaOption.CustomIconSpriteId, credenzaOption.BaseIconSpriteId,
                                     panelBooks[0].BookIcon);
-                                image2.sprite = icon;
-                                image.sprite = icon;
+                                uibookStoryEpisodeSlot.episodeIconGlow.sprite = icon;
+                                uibookStoryEpisodeSlot.episodeIcon.sprite = icon;
                             }
 
                             var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
@@ -611,8 +1029,7 @@ namespace BigDLL4221.Utils
         public static void MakeCustomBook(string packageId)
         {
             if (!ModParameters.CustomBookSkinsOptions.TryGetValue(packageId, out var customSkins)) return;
-            var dictionary = (Dictionary<string, WorkshopSkinData>)typeof(CustomizingResourceLoader)
-                .GetField("_skinData", AccessTools.all).GetValue(Singleton<CustomizingResourceLoader>.Instance);
+            var dictionary = Singleton<CustomizingResourceLoader>.Instance._skinData;
             foreach (var workshopSkinData in Singleton<CustomizingBookSkinLoader>.Instance
                          .GetWorkshopBookSkinData(packageId).Where(workshopSkinData =>
                              !workshopSkinData.dataName.Contains("x_proj")))
@@ -665,8 +1082,7 @@ namespace BigDLL4221.Utils
 
         public static void LocalizationCustomBook()
         {
-            var dictionary = (Dictionary<string, WorkshopSkinData>)typeof(CustomizingResourceLoader)
-                .GetField("_skinData", AccessTools.all).GetValue(Singleton<CustomizingResourceLoader>.Instance);
+            var dictionary = CustomizingResourceLoader.Instance._skinData;
             foreach (var packageId in ModParameters.PackageIds)
             {
                 if (!ModParameters.CustomBookSkinsOptions.TryGetValue(packageId, out var customSkins)) continue;
@@ -684,6 +1100,91 @@ namespace BigDLL4221.Utils
                     dictionary[workshopSkinData.Key] = workshopSkinData.Value;
                 }
             }
+        }
+
+        public static void SetSpritesEmotionTiphEgo(EmotionPassiveCardUI __instance, EmotionCardXmlInfo card)
+        {
+            __instance._artwork.sprite = LucasTiphEgoModInfo.TiphEgoArtWorks.TryGetValue(card.Artwork, out var sprite)
+                ? sprite
+                : null;
+            __instance.img_LeftTotalFrame.sprite = UISpriteDataManager.instance.AbnormalityFrame.ElementAtOrDefault(0);
+            var orAddComponent = __instance.img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColorTiphEgo(ref orAddComponent);
+            __instance._rightBg.sprite = __instance._positiveBgSprite.ElementAtOrDefault(1);
+            var orAddComponent2 = __instance._rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColorTiphEgo(ref orAddComponent2);
+            __instance._rightFrame.sprite = __instance._positiveFrameSprite.ElementAtOrDefault(1);
+            var orAddComponent3 = __instance._rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColorTiphEgo(ref orAddComponent3);
+            __instance._leftFrameTitleLineardodge.gameObject.SetActive(false);
+            __instance._flavorText.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
+            __instance._abilityDesc.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
+            __instance._hOverImg.color = Color.yellow;
+            var rootColor = Color.yellow;
+            rootColor.a = 0.25f;
+            __instance._rootImageBg.color = rootColor;
+            var component = __instance.txt_Level.GetComponent<TextMeshProMaterialSetter>();
+            if (component == null) return;
+            component.glowColor = Color.yellow;
+            component.underlayColor = Color.yellow;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void SetSpritesEmotionTiphEgo(UIEmotionPassiveCardInven __instance, EmotionCardXmlInfo card)
+        {
+            __instance._artwork.sprite = LucasTiphEgoModInfo.TiphEgoArtWorks.TryGetValue(card.Artwork, out var sprite)
+                ? sprite
+                : null;
+            __instance.img_LeftTotalFrame.sprite = UISpriteDataManager.instance.AbnormalityFrame.ElementAtOrDefault(0);
+            var orAddComponent = __instance.img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColorTiphEgo(ref orAddComponent);
+            __instance._rightBg.sprite = __instance._positiveBgSprite.ElementAtOrDefault(1);
+            var orAddComponent2 = __instance._rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColorTiphEgo(ref orAddComponent2);
+            __instance._rightFrame.sprite = __instance._positiveFrameSprite.ElementAtOrDefault(1);
+            var orAddComponent3 = __instance._rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
+            ChangeEmotionCardColorTiphEgo(ref orAddComponent3);
+            __instance._leftFrameTitleLineardodge.gameObject.SetActive(false);
+            __instance._flavorText.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
+            __instance._abilityDesc.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
+            __instance._hOverImg.color = Color.yellow;
+            var rootColor = Color.yellow;
+            rootColor.a = 0.25f;
+            __instance._rootImageBg.color = rootColor;
+            var component = __instance.txt_Level.GetComponent<TextMeshProMaterialSetter>();
+            if (component == null) return;
+            component.glowColor = Color.yellow;
+            component.underlayColor = Color.yellow;
+            component.enabled = false;
+            component.enabled = true;
+        }
+
+        public static void UI_ChangeSpeedDiceColor(string Name, string BaseChange, Color TextColor,
+            SpeedDiceUI __instance)
+        {
+            //if (__instance == null)
+            //{
+            //    return;
+            //}
+            //Sprite sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name];
+            //if (!string.IsNullOrWhiteSpace(BaseChange))
+            //{
+            //    sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name + "_" + BaseChange];
+            //}
+            //__instance.img_normalFrame.sprite = sprite;
+            //__instance.img_lightFrame.sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name + "_Glow"];
+            //__instance.img_highlightFrame.sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name + "_Hovered"];
+            //__instance._txtSpeedRange.color = TextColor;
+            //__instance._rouletteImg.color = TextColor;
+            //__instance._txtSpeedMax.color = TextColor;
+            //__instance.img_tensNum.color = TextColor;
+            //__instance.img_unitsNum.color = TextColor;
+            //TextColor.a -= 0.6f;
+            //__instance.img_breakedFrame.color = TextColor;
+            //__instance.img_breakedLinearDodge.color = TextColor;
+            //__instance.img_lockedFrame.color = TextColor;
+            //__instance.img_lockedIcon.color = TextColor;
         }
     }
 }

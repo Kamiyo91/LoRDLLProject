@@ -19,12 +19,8 @@ namespace BigDLL4221.Utils
         {
             try
             {
-                var dictionary = (Dictionary<LorId, DiceCardXmlInfo>)instance.GetType()
-                    .GetField("_cardInfoTable", AccessTools.all)
-                    ?.GetValue(instance);
-                var list = (List<DiceCardXmlInfo>)instance.GetType()
-                    .GetField("_cardInfoList", AccessTools.all)
-                    ?.GetValue(instance);
+                var dictionary = instance._cardInfoTable;
+                var list = instance._cardInfoList;
                 if (dictionary == null) return;
                 if (!ModParameters.CardOptions.TryGetValue(packageId, out var cardOptions)) return;
                 foreach (var item in dictionary.Where(x => x.Key.packageId == packageId).ToList())
@@ -105,20 +101,18 @@ namespace BigDLL4221.Utils
 
         public static void InitKeywordsList(List<Assembly> assemblies)
         {
+            var dictionary = BattleCardAbilityDescXmlList.Instance._dictionaryKeywordCache;
             foreach (var assembly in assemblies)
-                if (typeof(BattleCardAbilityDescXmlList).GetField("_dictionaryKeywordCache", AccessTools.all)
-                        ?.GetValue(BattleCardAbilityDescXmlList.Instance) is Dictionary<string, List<string>>
-                    dictionary)
-                {
-                    assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(DiceCardSelfAbilityBase))
-                                                   && x.Name.StartsWith("DiceCardSelfAbility_"))
-                        .Do(x => dictionary[x.Name.Replace("DiceCardSelfAbility_", "")] =
-                            new List<string>(((DiceCardSelfAbilityBase)Activator.CreateInstance(x)).Keywords));
-                    assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(DiceCardAbilityBase))
-                                                   && x.Name.StartsWith("DiceCardAbility_"))
-                        .Do(x => dictionary[x.Name.Replace("DiceCardAbility_", "")] =
-                            new List<string>(((DiceCardAbilityBase)Activator.CreateInstance(x)).Keywords));
-                }
+            {
+                assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(DiceCardSelfAbilityBase))
+                                               && x.Name.StartsWith("DiceCardSelfAbility_"))
+                    .Do(x => dictionary[x.Name.Replace("DiceCardSelfAbility_", "")] =
+                        new List<string>(((DiceCardSelfAbilityBase)Activator.CreateInstance(x)).Keywords));
+                assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(DiceCardAbilityBase))
+                                               && x.Name.StartsWith("DiceCardAbility_"))
+                    .Do(x => dictionary[x.Name.Replace("DiceCardAbility_", "")] =
+                        new List<string>(((DiceCardAbilityBase)Activator.CreateInstance(x)).Keywords));
+            }
         }
 
         public static List<EmotionCardXmlInfo> CustomCreateSelectableList(int emotionLevel, string pullCode = "")
@@ -130,8 +124,7 @@ namespace BigDLL4221.Utils
                 !x.CardXml.Locked).Select(x => x.CardXml as EmotionCardXmlInfo).ToList();
             if (!dataCardList.Any()) return dataCardList;
             var instance = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
-            var selectedList = (List<EmotionCardXmlInfo>)instance.GetType().GetField("_selectedList", AccessTools.all)
-                ?.GetValue(instance);
+            var selectedList = instance._selectedList;
             if (selectedList != null && selectedList.Any())
                 foreach (var item in selectedList)
                     dataCardList.Remove(item);
@@ -175,9 +168,7 @@ namespace BigDLL4221.Utils
         {
             var num = 0;
             var num2 = 0;
-            var unitList =
-                (List<UnitBattleDataModel>)instance.GetType().GetField("_unitList", AccessTools.all)
-                    ?.GetValue(instance);
+            var unitList = instance._unitList;
             if (unitList == null || !unitList.Any()) return 0;
             foreach (var unitBattleDataModel in
                      unitList.Where(unitBattleDataModel => unitBattleDataModel.IsAddedBattle))
@@ -199,11 +190,8 @@ namespace BigDLL4221.Utils
                 .Where(x => x.FloorCode.Contains(code)).Select(x => x.CardXml).ToList();
             var sephirah = Singleton<StageController>.Instance.GetCurrentStageFloorModel().Sephirah;
             var egoCardList = new List<EmotionEgoXmlInfo>();
-            if (!(Singleton<SpecialCardListModel>.Instance.GetType()
-                        .GetField("_cardSelectedDataByFloor", AccessTools.all)
-                        ?.GetValue(Singleton<SpecialCardListModel>.Instance) is
-                    Dictionary<SephirahType, List<BattleDiceCardModel>> dictionary) ||
-                !dictionary.TryGetValue(sephirah, out var cardList)) return egoCardList;
+            if (!Singleton<SpecialCardListModel>.Instance._cardSelectedDataByFloor.TryGetValue(sephirah,
+                    out var cardList)) return egoCardList;
             if (cardList.Any())
                 using (var enumerator = cardList.GetEnumerator())
                 {
@@ -249,8 +237,7 @@ namespace BigDLL4221.Utils
                 var changedCardList = new List<EmotionCardOptions>();
                 if (file != null)
                 {
-                    var list = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList).GetField("_list", AccessTools.all)
-                        .GetValue(Singleton<EmotionCardXmlList>.Instance);
+                    var list = EmotionCardXmlList.Instance._list;
                     using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
                     {
                         using (var enumerator =
@@ -285,22 +272,19 @@ namespace BigDLL4221.Utils
             }
 
             var changedEgoCardList = new List<EmotionEgoOptions>();
-            var cardList = (List<DiceCardXmlInfo>)ItemXmlDataList.instance.GetType()
-                .GetField("_cardInfoList", AccessTools.all)
-                ?.GetValue(ItemXmlDataList.instance);
-            var egoList = typeof(EmotionEgoXmlList).GetField("_list", AccessTools.all)
-                .GetValue(Singleton<EmotionEgoXmlList>.Instance) as List<EmotionEgoXmlInfo>;
-            foreach (var diceCardXmlInfo in cardList.FindAll(x =>
-                         x.id.packageId == packageId && x.optionList.Contains(CardOption.EGO)))
+            var cardList = ItemXmlDataList.instance._cardInfoList;
+            var egoList = EmotionEgoXmlList.Instance._list;
+            foreach (var emotionEgoXmlInfo in cardList.FindAll(x =>
+                         x.id.packageId == packageId && x.optionList.Contains(CardOption.EGO)).Select(diceCardXmlInfo =>
+                         new EmotionEgoCardXmlExtension
+                         {
+                             id = diceCardXmlInfo.id.id,
+                             _CardId = diceCardXmlInfo.id.id,
+                             Sephirah = SephirahType.ETC,
+                             isLock = false,
+                             PackageId = packageId
+                         }))
             {
-                var emotionEgoXmlInfo = new EmotionEgoCardXmlExtension
-                {
-                    id = diceCardXmlInfo.id.id,
-                    _CardId = diceCardXmlInfo.id.id,
-                    Sephirah = SephirahType.ETC,
-                    isLock = false,
-                    PackageId = packageId
-                };
                 egoList?.Add(emotionEgoXmlInfo);
                 changedEgoCardList.Add(new EmotionEgoOptions(emotionEgoXmlInfo, packageId: packageId));
             }
@@ -331,9 +315,7 @@ namespace BigDLL4221.Utils
         public static void SaveCardsBeforeChange(SephirahType sephirah)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
-            var listEmotionXmlCards = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
-                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
-
+            var listEmotionXmlCards = EmotionCardXmlList.Instance._list;
             if (listEmotionXmlCards != null)
             {
                 var listEmotionCards = (from emotionCardXmlInfo in listEmotionXmlCards
@@ -354,8 +336,7 @@ namespace BigDLL4221.Utils
                 savedOptions.FloorOptions.OriginalEmotionCards = listEmotionCards;
             }
 
-            var listEmotionEgoXmlCards = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
-                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
+            var listEmotionEgoXmlCards = EmotionEgoXmlList.Instance._list;
             if (listEmotionEgoXmlCards == null) return;
             var listFloorEgoCards = (from emotionEgoXmlInfo in listEmotionEgoXmlCards
                 where emotionEgoXmlInfo.Sephirah == sephirah
@@ -378,8 +359,7 @@ namespace BigDLL4221.Utils
                     .Select(x => x.CardXml).ToList();
                 if (customEmotionCardList.Any())
                 {
-                    var listEmotionXmlCards = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
-                        .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
+                    var listEmotionXmlCards = EmotionCardXmlList.Instance._list;
                     if (listEmotionXmlCards != null)
                     {
                         foreach (var item in listEmotionXmlCards.Where(x => x.Sephirah == sephirah))
@@ -397,8 +377,7 @@ namespace BigDLL4221.Utils
             if (!ModParameters.EmotionEgoCards.TryGetValue(packageId, out var egoCards)) return;
             var customEmotionEgoCardList = egoCards
                 .Where(x => x.FloorCode.Contains(floorOptions.FloorCode)).Select(x => x.CardXml).ToList();
-            var listEmotionEgoXmlCards = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
-                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
+            var listEmotionEgoXmlCards = EmotionEgoXmlList.Instance._list;
             if (listEmotionEgoXmlCards == null) return;
             foreach (var item in listEmotionEgoXmlCards.Where(x => x.Sephirah == sephirah))
                 item.Sephirah = SephirahType.ETC;
@@ -409,8 +388,7 @@ namespace BigDLL4221.Utils
         public static void RevertAbnoAndEgo(SephirahType sephirah)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
-            var emotionCardList = (List<EmotionCardXmlInfo>)typeof(EmotionCardXmlList)
-                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionCardXmlList>.Instance);
+            var emotionCardList = EmotionCardXmlList.Instance._list;
             if (emotionCardList != null)
             {
                 foreach (var card in emotionCardList.Where(x => x.Sephirah == sephirah))
@@ -423,8 +401,7 @@ namespace BigDLL4221.Utils
             }
 
             var floorEgoCards = savedOptions.FloorOptions.OriginalEgoCards;
-            var emotionEgoCardList = (List<EmotionEgoXmlInfo>)typeof(EmotionEgoXmlList)
-                .GetField("_list", AccessTools.all)?.GetValue(Singleton<EmotionEgoXmlList>.Instance);
+            var emotionEgoCardList = EmotionEgoXmlList.Instance._list;
             if (emotionEgoCardList == null) return;
             foreach (var card in emotionEgoCardList.Where(x => x.Sephirah == sephirah))
                 card.Sephirah = SephirahType.ETC;

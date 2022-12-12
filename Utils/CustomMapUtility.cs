@@ -83,6 +83,41 @@ namespace BigDLL4221.Utils
     /// </summary>
     public class CustomMapHandler
     {
+        #region MANAGER
+
+        private MapManager InitManager(Type managerType, GameObject mapObject)
+        {
+            var original = mapObject.GetComponent<MapManager>();
+            var newManager = mapObject.AddComponent(managerType) as MapManager;
+
+            newManager.isActivated = original.isActivated;
+            newManager.isEnabled = original.isEnabled;
+            newManager.mapSize = original.mapSize;
+            newManager.sephirahType = original.sephirahType;
+            newManager.borderFrame = original.borderFrame;
+            newManager.backgroundRoot = original.backgroundRoot;
+            newManager.sephirahColor = original.sephirahColor;
+            newManager.scratchPrefabs = original.scratchPrefabs;
+            newManager.wallCratersPrefabs = original.wallCratersPrefabs;
+
+            try
+            {
+                newManager._roots = original._roots;
+                // obstacleRootField.SetValue(newManager, obstacleRootField.GetValue(original));
+            }
+            catch
+            {
+                Debug.LogWarning("CustomMapUtility: InitManager had a minor error", newManager);
+            }
+
+            Object.Destroy(original);
+            return newManager;
+        }
+
+        // private static readonly FieldInfo obstacleRootField = typeof(MapManager).GetField("_obstacleRoot", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        #endregion
+
 #pragma warning disable IDE0051, IDE0059, CS0219, IDE1006
         private sealed class A_ReadMe : Utils.A_ReadMe
         {
@@ -619,10 +654,7 @@ namespace BigDLL4221.Utils
         protected MapManager Init(string stageName, Type managerType, Offsets offsets, bool isEgo, bool initBGMs)
         {
             // Debug.LogWarning("CustomMapUtility: StageController.InitializeMap throwing a NullReferenceException on stage start is expected, you can freely ignore it");
-            var addedMapList =
-                SingletonBehavior<BattleSceneRoot>.Instance.GetType()
-                    .GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetValue(SingletonBehavior<BattleSceneRoot>.Instance) as List<MapManager>;
+            var addedMapList = SingletonBehavior<BattleSceneRoot>.Instance._addedMapList;
             addedMapList?.RemoveAll(x => x == null || string.IsNullOrEmpty(x.name));
             var x2 = addedMapList?.Find(x => x.name.Contains(stageName));
             if (x2 != null && managerType.Equals(x2))
@@ -712,8 +744,7 @@ namespace BigDLL4221.Utils
             }
             else
             {
-                manager.GetType().GetField("_bMapInitialized", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .SetValue(manager, false);
+                manager._bMapInitialized = false;
                 SingletonBehavior<BattleSceneRoot>.Instance.AddEgoMap(manager);
                 Debug.Log("CustomMapUtility: EGO Map Added.");
                 mapOffsetsCache[stageName] = offsets;
@@ -815,8 +846,7 @@ namespace BigDLL4221.Utils
             //}
             //else
             //{
-            manager.GetType().GetField("_bMapInitialized", BindingFlags.NonPublic | BindingFlags.Instance)
-                .SetValue(manager, false);
+            manager._bMapInitialized = false;
             //SingletonBehavior<BattleSceneRoot>.Instance.AddEgoMap(manager);
             Debug.Log("CustomMapUtility: EGO Map Added.");
             mapOffsetsCache[stageName] = offsets;
@@ -1042,43 +1072,6 @@ namespace BigDLL4221.Utils
             log += Environment.NewLine + "}";
             Debug.Log(log);
         }
-
-        #endregion
-
-        #region MANAGER
-
-        private MapManager InitManager(Type managerType, GameObject mapObject)
-        {
-            var original = mapObject.GetComponent<MapManager>();
-            var newManager = mapObject.AddComponent(managerType) as MapManager;
-
-            newManager.isActivated = original.isActivated;
-            newManager.isEnabled = original.isEnabled;
-            newManager.mapSize = original.mapSize;
-            newManager.sephirahType = original.sephirahType;
-            newManager.borderFrame = original.borderFrame;
-            newManager.backgroundRoot = original.backgroundRoot;
-            newManager.sephirahColor = original.sephirahColor;
-            newManager.scratchPrefabs = original.scratchPrefabs;
-            newManager.wallCratersPrefabs = original.wallCratersPrefabs;
-
-            try
-            {
-                rootField.SetValue(newManager, rootField.GetValue(original));
-                // obstacleRootField.SetValue(newManager, obstacleRootField.GetValue(original));
-            }
-            catch
-            {
-                Debug.LogWarning("CustomMapUtility: InitManager had a minor error", newManager);
-            }
-
-            Object.Destroy(original);
-            return newManager;
-        }
-
-        private static readonly FieldInfo rootField =
-            typeof(MapManager).GetField("_roots", BindingFlags.NonPublic | BindingFlags.Instance);
-        // private static readonly FieldInfo obstacleRootField = typeof(MapManager).GetField("_obstacleRoot", BindingFlags.NonPublic | BindingFlags.Instance);
 
         #endregion
 
@@ -1893,10 +1886,7 @@ namespace BigDLL4221.Utils
             }
             else
             {
-                var addedMapList =
-                    SingletonBehavior<BattleSceneRoot>.Instance.GetType()
-                        .GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
-                        .GetValue(SingletonBehavior<BattleSceneRoot>.Instance) as List<MapManager>;
+                var addedMapList = SingletonBehavior<BattleSceneRoot>.Instance._addedMapList;
                 manager = addedMapList?.Find(x => x.name.Contains(mapName));
                 if (manager == null)
                 {
@@ -1941,10 +1931,7 @@ namespace BigDLL4221.Utils
             }
             else
             {
-                var addedMapList =
-                    SingletonBehavior<BattleSceneRoot>.Instance.GetType()
-                        .GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
-                        .GetValue(SingletonBehavior<BattleSceneRoot>.Instance) as List<MapManager>;
+                var addedMapList = SingletonBehavior<BattleSceneRoot>.Instance._addedMapList;
                 manager = addedMapList?.Find(x => x.name.Contains(mapName));
                 if (manager == null)
                 {
@@ -2009,10 +1996,7 @@ namespace BigDLL4221.Utils
             }
             else
             {
-                var addedMapList =
-                    SingletonBehavior<BattleSceneRoot>.Instance.GetType()
-                        .GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
-                        .GetValue(SingletonBehavior<BattleSceneRoot>.Instance) as List<MapManager>;
+                var addedMapList = SingletonBehavior<BattleSceneRoot>.Instance._addedMapList;
                 manager = addedMapList?.Find(x => x.name.Contains(mapName));
                 if (manager == null)
                 {
@@ -2055,10 +2039,7 @@ namespace BigDLL4221.Utils
             }
             else
             {
-                var addedMapList =
-                    SingletonBehavior<BattleSceneRoot>.Instance.GetType()
-                        .GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
-                        .GetValue(SingletonBehavior<BattleSceneRoot>.Instance) as List<MapManager>;
+                var addedMapList = SingletonBehavior<BattleSceneRoot>.Instance._addedMapList;
                 manager = addedMapList?.Find(x => x.name.Contains(mapName));
                 if (manager == null)
                 {
@@ -2220,12 +2201,8 @@ namespace BigDLL4221.Utils
                 return;
             }
 
-            var addedMapList =
-                Instance.GetType().GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetValue(Instance) as List<MapManager>;
-            var mapChangeFilter =
-                Instance.GetType().GetField("_mapChangeFilter", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetValue(Instance) as MapChangeFilter;
+            var addedMapList = Instance._addedMapList;
+            var mapChangeFilter = Instance._mapChangeFilter;
             var x2 = addedMapList?.Find(x => x.name.Contains(mapName));
             if (x2 == null && managerType == null)
             {
@@ -2274,19 +2251,9 @@ namespace BigDLL4221.Utils
                 return;
             }
 
-            var addedMapList =
-                Instance.GetType().GetField("_addedMapList", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetValue(Instance) as List<MapManager>;
-            var mapChangeFilter =
-                Instance.GetType().GetField("_mapChangeFilter", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetValue(Instance) as MapChangeFilter;
+            var addedMapList = Instance._addedMapList;
+            var mapChangeFilter = Instance._mapChangeFilter;
             var x2 = addedMapList?.Find(x => x.name.Contains(mapName));
-            if (x2 == null && typeof(T) == null)
-            {
-                Debug.LogError("CustomMapUtility: Ego map not initialized");
-                return;
-            }
-
             if (x2 == null)
             {
                 Debug.LogWarning("CustomMapUtility: Reinitializing Ego map");
@@ -2297,24 +2264,22 @@ namespace BigDLL4221.Utils
             mapChangeFilter.StartMapChangingEffect((Direction)faction);
             x2.isBossPhase = false;
             x2.isEgo = true;
-            if (x2 != Instance.currentMapObject)
+            if (x2 == Instance.currentMapObject) return;
+            Instance.currentMapObject.EnableMap(false);
+            Instance.currentMapObject = x2;
+            if (!byAssimilationFlag)
             {
-                Instance.currentMapObject.EnableMap(false);
-                Instance.currentMapObject = x2;
-                if (!byAssimilationFlag)
-                {
-                    Instance.currentMapObject.ActiveMap(true);
-                    Instance.currentMapObject.InitializeMap();
-                }
-                else
-                {
-                    if (!Instance.currentMapObject.IsMapInitialized) Instance.currentMapObject.InitializeMap();
-                    Instance.currentMapObject.EnableMap(true);
-                    Instance.currentMapObject.PlayMapChangedSound();
-                    SingletonBehavior<BattleCamManager>.Instance.SetVignetteColorBgCam(Instance.currentMapObject
-                        .sephirahColor);
-                    SingletonBehavior<BattleSoundManager>.Instance.SetEnemyTheme(Instance.currentMapObject.mapBgm);
-                }
+                Instance.currentMapObject.ActiveMap(true);
+                Instance.currentMapObject.InitializeMap();
+            }
+            else
+            {
+                if (!Instance.currentMapObject.IsMapInitialized) Instance.currentMapObject.InitializeMap();
+                Instance.currentMapObject.EnableMap(true);
+                Instance.currentMapObject.PlayMapChangedSound();
+                SingletonBehavior<BattleCamManager>.Instance.SetVignetteColorBgCam(Instance.currentMapObject
+                    .sephirahColor);
+                SingletonBehavior<BattleSoundManager>.Instance.SetEnemyTheme(Instance.currentMapObject.mapBgm);
             }
         }
 #pragma warning disable CS0618
@@ -2369,36 +2334,24 @@ namespace BigDLL4221.Utils
             Faction faction = Faction.Player, Type managerType = null)
         {
             if (Singleton<StageController>.Instance.IsTwistedArgaliaBattleEnd()) return;
-            var addedEgoMapOrigin =
-                Instance.GetType().GetField("_addedEgoMap", BindingFlags.NonPublic | BindingFlags.Instance);
-            var addedEgoMap = addedEgoMapOrigin.GetValue(Instance) as List<string>;
-            addedEgoMap.Add(name);
-            addedEgoMapOrigin.SetValue(Instance, addedEgoMap);
-            if (name != null && name != string.Empty)
-            {
-                if (faction == Faction.Player)
-                    SingletonBehavior<BattleSceneRoot>.Instance.ChangeToCustomEgoMap(name, faction, managerType, true);
-                else
-                    SingletonBehavior<BattleSceneRoot>.Instance.ChangeToSpecialMap(name, true, false);
-            }
+            Instance._addedEgoMap.Add(name);
+            if (string.IsNullOrEmpty(name)) return;
+            if (faction == Faction.Player)
+                SingletonBehavior<BattleSceneRoot>.Instance.ChangeToCustomEgoMap(name, faction, managerType, true);
+            else
+                SingletonBehavior<BattleSceneRoot>.Instance.ChangeToSpecialMap(name, true, false);
         }
 
         public static void AddCustomEgoMapByAssimilation<T>(this StageController Instance, string name,
             Faction faction = Faction.Player) where T : MapManager, IBGM, new()
         {
             if (Singleton<StageController>.Instance.IsTwistedArgaliaBattleEnd()) return;
-            var addedEgoMapOrigin =
-                Instance.GetType().GetField("_addedEgoMap", BindingFlags.NonPublic | BindingFlags.Instance);
-            var addedEgoMap = addedEgoMapOrigin.GetValue(Instance) as List<string>;
-            addedEgoMap.Add(name);
-            addedEgoMapOrigin.SetValue(Instance, addedEgoMap);
-            if (name != null && name != string.Empty)
-            {
-                if (faction == Faction.Player)
-                    SingletonBehavior<BattleSceneRoot>.Instance.ChangeToCustomEgoMap<T>(name, faction, true);
-                else
-                    SingletonBehavior<BattleSceneRoot>.Instance.ChangeToSpecialMap(name, true, false);
-            }
+            Instance._addedEgoMap.Add(name);
+            if (string.IsNullOrEmpty(name)) return;
+            if (faction == Faction.Player)
+                SingletonBehavior<BattleSceneRoot>.Instance.ChangeToCustomEgoMap<T>(name, faction, true);
+            else
+                SingletonBehavior<BattleSceneRoot>.Instance.ChangeToSpecialMap(name, true, false);
         }
 
         /// <inheritdoc cref="AddCustomEgoMapByAssimilation(StageController, string, Faction, Type)" />
