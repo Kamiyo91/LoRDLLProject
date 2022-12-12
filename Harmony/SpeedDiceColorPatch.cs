@@ -46,11 +46,9 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(SpeedDiceUI), "ChangeSprite")]
         public static void ChangeSprite(SpeedDiceUI __instance, int value)
         {
-            if (value < 999) return;
+            if (value < 999 || !ModParameters.SpeedDieArtWorks.TryGetValue("Infinite", out var sprite)) return;
             __instance._txtSpeedMax.gameObject.SetActive(false);
-            __instance.img_tensNum.sprite = ModParameters.SpeedDieArtWorks.TryGetValue("Infinite", out var sprite)
-                ? sprite
-                : __instance.img_tensNum.sprite;
+            __instance.img_tensNum.sprite = sprite;
             __instance.img_tensNum.gameObject.transform.localPosition += new Vector3(13f, 0f, 0f);
             __instance.img_tensNum.color = __instance.img_unitsNum.color;
             __instance.img_tensNum.gameObject.transform.localScale = new Vector3(0.95f, 0.85f, 0f);
