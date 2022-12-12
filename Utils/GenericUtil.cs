@@ -22,6 +22,8 @@ namespace BigDLL4221.Utils
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             if (assemblies.Any(x => x.GetName().Name == "Daat Floor MOD")) StaticModsInfo.DaatFloorFound = true;
+            if (assemblies.Any(x => x.GetName().Name == "Patty_SpeedDiceColor_MOD"))
+                StaticModsInfo.SpeedDiceColorModFound = true;
             if (assemblies.Any(
                     x => x.GetName().Name == "BaseMod" && x.GetType("SummonLiberation.Harmony_Patch") != null))
                 StaticModsInfo.BaseModFound = true;

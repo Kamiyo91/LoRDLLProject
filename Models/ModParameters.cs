@@ -16,6 +16,7 @@ namespace BigDLL4221.Models
         public static List<string> PackageIds = new List<string>();
         public static Dictionary<string, Sprite> ArtWorks = new Dictionary<string, Sprite>();
         public static Dictionary<string, Sprite> CardArtWorks = new Dictionary<string, Sprite>();
+        public static Dictionary<string, Sprite> SpeedDieArtWorks = new Dictionary<string, Sprite>();
         public static Dictionary<string, string> Path = new Dictionary<string, string>();
         public static Dictionary<string, LocalizedItem> LocalizedItems = new Dictionary<string, LocalizedItem>();
         public static string Language = GlobalGameManager.Instance.CurrentOption.language;
@@ -100,6 +101,7 @@ namespace BigDLL4221.Models
         public static bool OnPlayCardEmotion = false;
         public static bool DaatFloorFound = false;
         public static bool BaseModFound = false;
+        public static bool SpeedDiceColorModFound = false;
         public static MethodInfo DeckLayoutMethod;
         public static MethodInfo TextMeshAwake;
         public static MethodInfo TextMeshStart;
@@ -196,6 +198,14 @@ namespace BigDLL4221.Models
 
     public class CustomDiceColorOptions
     {
+        public CustomDiceColorOptions(string iconId = "", Color? textColor = null)
+        {
+            IconId = iconId;
+            TextColor = textColor;
+        }
+
+        public string IconId { get; set; }
+        public Color? TextColor { get; set; }
     }
 
     public class KeypageOptions
@@ -209,7 +219,8 @@ namespace BigDLL4221.Models
             bool isBaseGameKeypage = false, KeypageColorOptions keypageColorOptions = null,
             bool bannedEmotionCards = false, bool targetableBySpecialCards = true,
             CustomFloorOptions customFloorOptions = null, List<int> forceAggroSpeedDie = null,
-            bool forceAggroLastDie = false, bool redirectOnlyWithSlowerSpeed = false)
+            bool forceAggroLastDie = false, bool redirectOnlyWithSlowerSpeed = false,
+            CustomDiceColorOptions customDiceColorOptions = null)
         {
             KeypageId = keypageId;
             Editable = editable;
@@ -233,6 +244,7 @@ namespace BigDLL4221.Models
             ForceAggroSpeedDie = forceAggroSpeedDie ?? new List<int>();
             ForceAggroLastDie = forceAggroLastDie;
             RedirectOnlyWithSlowerSpeed = redirectOnlyWithSlowerSpeed;
+            CustomDiceColorOptions = customDiceColorOptions;
         }
 
         public int KeypageId { get; set; }
@@ -257,12 +269,14 @@ namespace BigDLL4221.Models
         public bool TargetableBySpecialCards { get; set; }
         public KeypageColorOptions KeypageColorOptions { get; set; }
         public CustomFloorOptions CustomFloorOptions { get; set; }
+        public CustomDiceColorOptions CustomDiceColorOptions { get; set; }
     }
 
     public class CustomFloorOptions
     {
         public CustomFloorOptions(string packageId = "", string floorCode = "", string iconId = "",
-            string floorName = "", string floorNameId = "", MapModel customFloorMap = null)
+            string floorName = "", string floorNameId = "", MapModel customFloorMap = null,
+            CustomDiceColorOptions customDiceColorOptions = null)
         {
             PackageId = packageId;
             FloorCode = floorCode;
@@ -270,6 +284,7 @@ namespace BigDLL4221.Models
             CustomFloorMap = customFloorMap;
             FloorName = floorName;
             FloorNameId = floorNameId;
+            CustomDiceColorOptions = customDiceColorOptions;
         }
 
         public string PackageId { get; set; }
@@ -281,6 +296,7 @@ namespace BigDLL4221.Models
         public List<EmotionCardXmlInfo> OriginalEmotionCards { get; set; }
         public List<EmotionEgoXmlInfo> OriginalEgoCards { get; set; }
         public MapModel CustomFloorMap { get; set; }
+        public CustomDiceColorOptions CustomDiceColorOptions { get; set; }
     }
 
     public class KeypageColorOptions
@@ -420,7 +436,7 @@ namespace BigDLL4221.Models
     {
         public StageOptions(int stageId, bool bannedEmotionLevel = false, RewardOptions stageRewardOptions = null,
             PreBattleOptions preBattleOptions = null, StageColorOptions stageColorOptions = null,
-            StageRequirements stageRequirements = null)
+            StageRequirements stageRequirements = null, CustomDiceColorOptions customDiceColorOptions = null)
         {
             StageId = stageId;
             BannedEmotionLevel = bannedEmotionLevel;
@@ -428,6 +444,7 @@ namespace BigDLL4221.Models
             PreBattleOptions = preBattleOptions;
             StageColorOptions = stageColorOptions;
             StageRequirements = stageRequirements;
+            CustomDiceColorOptions = customDiceColorOptions;
         }
 
         public int StageId { get; set; }
@@ -436,6 +453,7 @@ namespace BigDLL4221.Models
         public PreBattleOptions PreBattleOptions { get; set; }
         public StageColorOptions StageColorOptions { get; set; }
         public StageRequirements StageRequirements { get; set; }
+        public CustomDiceColorOptions CustomDiceColorOptions { get; set; }
     }
 
     public class StageRequirements

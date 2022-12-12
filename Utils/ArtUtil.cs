@@ -85,6 +85,25 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static void GetSpeedDieArtWorks(DirectoryInfo dir)
+        {
+            if (dir.GetDirectories().Length != 0)
+            {
+                var directories = dir.GetDirectories();
+                foreach (var t in directories) GetArtWorks(t);
+            }
+
+            foreach (var fileInfo in dir.GetFiles())
+            {
+                var texture2D = new Texture2D(2, 2);
+                texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
+                var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
+                    new Vector2(0f, 0f));
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+                ModParameters.SpeedDieArtWorks[fileNameWithoutExtension] = value;
+            }
+        }
+
         private static Sprite GetIcon(string customIconId, string baseIconId, string baseIcon)
         {
             return ModParameters.ArtWorks.TryGetValue(customIconId, out var customIcon)
@@ -1160,31 +1179,37 @@ namespace BigDLL4221.Utils
             component.enabled = true;
         }
 
-        public static void UI_ChangeSpeedDiceColor(string Name, string BaseChange, Color TextColor,
-            SpeedDiceUI __instance)
+        public static void ChangeSpeedDiceColor(SpeedDiceUI instance, CustomDiceColorOptions colorOptions)
         {
-            //if (__instance == null)
-            //{
-            //    return;
-            //}
-            //Sprite sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name];
-            //if (!string.IsNullOrWhiteSpace(BaseChange))
-            //{
-            //    sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name + "_" + BaseChange];
-            //}
-            //__instance.img_normalFrame.sprite = sprite;
-            //__instance.img_lightFrame.sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name + "_Glow"];
-            //__instance.img_highlightFrame.sprite = Patty_SpeedDiceColorChange_MOD_Initializer.LoadedSpeedDiceImage[Name + "_Hovered"];
-            //__instance._txtSpeedRange.color = TextColor;
-            //__instance._rouletteImg.color = TextColor;
-            //__instance._txtSpeedMax.color = TextColor;
-            //__instance.img_tensNum.color = TextColor;
-            //__instance.img_unitsNum.color = TextColor;
-            //TextColor.a -= 0.6f;
-            //__instance.img_breakedFrame.color = TextColor;
-            //__instance.img_breakedLinearDodge.color = TextColor;
-            //__instance.img_lockedFrame.color = TextColor;
-            //__instance.img_lockedIcon.color = TextColor;
+            if (instance == null) return;
+            if (!string.IsNullOrEmpty(colorOptions.IconId))
+            {
+                instance.img_normalFrame.sprite =
+                    ModParameters.SpeedDieArtWorks.TryGetValue(colorOptions.IconId, out var sprite)
+                        ? sprite
+                        : instance.img_normalFrame.sprite;
+                instance.img_lightFrame.sprite =
+                    ModParameters.SpeedDieArtWorks.TryGetValue(colorOptions.IconId + "_Glow", out var spriteGlow)
+                        ? spriteGlow
+                        : instance.img_lightFrame.sprite;
+                instance.img_highlightFrame.sprite =
+                    ModParameters.SpeedDieArtWorks.TryGetValue(colorOptions.IconId + "_Hovered", out var spriteHover)
+                        ? spriteHover
+                        : instance.img_highlightFrame.sprite;
+            }
+
+            if (colorOptions.TextColor == null) return;
+            instance._txtSpeedRange.color = colorOptions.TextColor.Value;
+            instance._rouletteImg.color = colorOptions.TextColor.Value;
+            instance._txtSpeedMax.color = colorOptions.TextColor.Value;
+            instance.img_tensNum.color = colorOptions.TextColor.Value;
+            instance.img_unitsNum.color = colorOptions.TextColor.Value;
+            var rootColor = colorOptions.TextColor.Value;
+            rootColor.a -= 0.6f;
+            instance.img_breakedFrame.color = rootColor;
+            instance.img_breakedLinearDodge.color = rootColor;
+            instance.img_lockedFrame.color = rootColor;
+            instance.img_lockedIcon.color = rootColor;
         }
     }
 }
