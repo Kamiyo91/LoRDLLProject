@@ -32,12 +32,12 @@ namespace BigDLL4221.Harmony
             [HarmonyPostfix]
             public static void LevelUpUI_Predicate_Patch(LevelUpUI __instance, BattleUnitModel x, ref bool __result)
             {
+                if (x?.Book == null) return;
                 if (StaticModsInfo.OnPlayEmotionCardUsedBy != null)
                 {
                     __result |= x.Book.BookId != StaticModsInfo.OnPlayEmotionCardUsedBy;
                     return;
                 }
-
                 if (ModParameters.EmotionEgoCards.Any())
                 {
                     var emotionCards = ModParameters.EmotionCards.SelectMany(y => y.Value);
@@ -52,7 +52,6 @@ namespace BigDLL4221.Harmony
                         }
                     }
                 }
-
                 __result |= MatchAddon(x);
             }
 
