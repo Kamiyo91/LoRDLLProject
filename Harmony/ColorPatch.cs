@@ -1021,16 +1021,17 @@ namespace BigDLL4221.Harmony
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
         [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
-        public static void EmotionPassiveCardUI_SetSprites(object __instance, object ___card)
+        public static void EmotionPassiveCardUI_SetSprites(object __instance)
         {
-            if (!(___card is EmotionCardXmlExtension cardExtension)) return;
             switch (__instance)
             {
                 case EmotionPassiveCardUI instance:
+                    if (!(instance.Card is EmotionCardXmlExtension cardExtension)) return;
                     ArtUtil.EmotionPassiveCardUISetSpritesPost(instance, cardExtension);
                     break;
                 case UIEmotionPassiveCardInven instance:
-                    ArtUtil.EmotionPassiveCardUISetSpritesPost(instance, cardExtension);
+                    if (!(instance.Card is EmotionCardXmlExtension cardExtension2)) return;
+                    ArtUtil.EmotionPassiveCardUISetSpritesPost(instance, cardExtension2);
                     break;
             }
         }
