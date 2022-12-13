@@ -75,7 +75,7 @@ namespace BigDLL4221.FarAreaEffects
             _beforeMotion = ActionDetail.Default;
         }
 
-        protected override void Update()
+        public override void Update()
         {
             switch (state)
             {
@@ -147,7 +147,7 @@ namespace BigDLL4221.FarAreaEffects
             }
         }
 
-        protected override void OnDisable()
+        public override void OnDisable()
         {
             base.OnDisable();
             if (_camFilter == null) return;

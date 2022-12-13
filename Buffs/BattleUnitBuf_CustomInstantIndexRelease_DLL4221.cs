@@ -13,8 +13,8 @@ namespace BigDLL4221.Buffs
         }
 
         public override KeywordBuf bufType => KeywordBuf.IndexRelease;
-        protected override string keywordId => "IndexRelease";
-        protected override string keywordIconId => "IndexRelease";
+        public override string keywordId => "IndexRelease";
+        public override string keywordIconId => "IndexRelease";
         public override int paramInBufDesc => 0;
 
         public override void BeforeRollDice(BattleDiceBehavior behavior)

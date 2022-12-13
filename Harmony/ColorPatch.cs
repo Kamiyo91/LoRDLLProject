@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
@@ -657,12 +656,8 @@ namespace BigDLL4221.Harmony
                 __instance.img_BookIconGlow.color = keypageItem.KeypageColorOptions.FrameColor.Value;
             }
 
-            if (StaticModsInfo.TextMeshAwake == null)
-                StaticModsInfo.TextMeshAwake = __instance.setter_bookname.GetType().GetMethod("Awake", AccessTools.all);
-            if (StaticModsInfo.TextMeshStart == null)
-                StaticModsInfo.TextMeshStart = __instance.setter_bookname.GetType().GetMethod("Start", AccessTools.all);
-            StaticModsInfo.TextMeshAwake?.Invoke(__instance.setter_bookname, Array.Empty<object>());
-            StaticModsInfo.TextMeshStart?.Invoke(__instance.setter_bookname, Array.Empty<object>());
+            __instance.setter_bookname.Awake();
+            __instance.setter_bookname.Start();
             if (!keypageItem.KeypageColorOptions.NameColor.HasValue) return;
             __instance.setter_bookname.underlayColor = keypageItem.KeypageColorOptions.NameColor.Value;
             __instance.setter_bookname.enabled = false;
@@ -995,11 +990,8 @@ namespace BigDLL4221.Harmony
             instance.IconGlow.sprite = sprite.iconGlow;
             if (!ModParameters.KeypageOptions.TryGetValue(workshopData.PackageId, out var keypageOptions)) return;
             var keypageOption = keypageOptions.FirstOrDefault(x => x.KeypageId == workshopData.RealKeypageId);
-            if (keypageOption?.KeypageColorOptions.FrameColor == null) return;
-            if (StaticModsInfo.SetGlowColorOrigin == null)
-                StaticModsInfo.SetGlowColorOrigin = instance.GetType().GetMethod("SetGlowColor", AccessTools.all);
-            StaticModsInfo.SetGlowColorOrigin?.Invoke(instance,
-                new object[] { keypageOption.KeypageColorOptions.FrameColor });
+            if (keypageOption?.KeypageColorOptions?.FrameColor == null) return;
+            instance.SetGlowColor(keypageOption.KeypageColorOptions.FrameColor.Value);
         }
 
         [HarmonyPrefix]

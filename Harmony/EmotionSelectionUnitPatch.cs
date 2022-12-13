@@ -16,9 +16,6 @@ namespace BigDLL4221.Harmony
     {
         private static FieldInfo _matchField;
 
-        private static readonly FieldInfo
-            NeedUnitSelection = AccessTools.Field(typeof(LevelUpUI), "_needUnitSelection");
-
         private static readonly Predicate<BattleUnitModel> MatchAddon = x =>
             ModParameters.PassiveOptions.Any(y => x.passiveDetail.PassiveList.Any(z =>
                 z.id.packageId == y.Key && y.Value.Any(v => v.PassiveId == z.id.id && v.BannedEmotionCardSelection))) ||
@@ -82,13 +79,13 @@ namespace BigDLL4221.Harmony
             public static void LevelUpUI_OnSelectRoutine_Post(object __instance, ref int __state)
             {
                 if (__state != 1 || (int)_state.GetValue(__instance) != -1 ||
-                    !(bool)NeedUnitSelection.GetValue(SingletonBehavior<BattleManagerUI>.Instance.ui_levelup)) return;
+                    !SingletonBehavior<BattleManagerUI>.Instance.ui_levelup._needUnitSelection) return;
                 var list = BattleObjectManager.instance.GetAliveList(Faction.Player);
                 list.RemoveAll((Predicate<BattleUnitModel>)_matchField.GetValue(null));
                 if (list.Count > 0) return;
                 StageController.Instance.GetCurrentStageFloorModel().team.egoSelectionPoint--;
                 StageController.Instance.GetCurrentStageFloorModel().team.currentSelectEmotionLevel++;
-                NeedUnitSelection.SetValue(SingletonBehavior<BattleManagerUI>.Instance.ui_levelup, false);
+                SingletonBehavior<BattleManagerUI>.Instance.ui_levelup._needUnitSelection = false;
                 foreach (var unit in BattleObjectManager.instance.GetAliveList(Faction.Player))
                     UnitUtil.BattleAbDialog(unit.view.dialogUI, new List<AbnormalityCardDialog>
                     {

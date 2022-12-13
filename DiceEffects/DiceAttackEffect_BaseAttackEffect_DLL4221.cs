@@ -45,7 +45,7 @@ namespace BigDLL4221.DiceEffects
         }
 
 
-        protected override void Update()
+        public override void Update()
         {
             base.Update();
             _duration -= Time.deltaTime;

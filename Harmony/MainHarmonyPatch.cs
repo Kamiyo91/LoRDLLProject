@@ -970,18 +970,7 @@ namespace BigDLL4221.Harmony
             {
                 UIOptions.ChangedMultiView = false;
                 ArtUtil.RevertMultiDeckUI(__instance.multiDeckLayout);
-                if (StaticModsInfo.DeckLayoutMethod == null)
-                {
-                    StaticModsInfo.DeckLayoutMethod = __instance.GetType()
-                        .GetMethod("SetDeckLayout", AccessTools.all);
-                    StaticModsInfo.DeckLayoutMethod?.Invoke(__instance.GetType(),
-                        Array.Empty<object>());
-                }
-                else
-                {
-                    StaticModsInfo.DeckLayoutMethod.Invoke(__instance.GetType(),
-                        Array.Empty<object>());
-                }
+                __instance.SetDeckLayout();
             }
         }
 
@@ -992,18 +981,7 @@ namespace BigDLL4221.Harmony
             if (__instance.CurrentBookModel == null) return;
             try
             {
-                if (StaticModsInfo.DeckLayoutMethod == null)
-                {
-                    StaticModsInfo.DeckLayoutMethod = SingletonBehavior<UIEquipDeckCardList>.Instance.GetType()
-                        .GetMethod("SetDeckLayout", AccessTools.all);
-                    StaticModsInfo.DeckLayoutMethod?.Invoke(SingletonBehavior<UIEquipDeckCardList>.Instance,
-                        Array.Empty<object>());
-                }
-                else
-                {
-                    StaticModsInfo.DeckLayoutMethod.Invoke(SingletonBehavior<UIEquipDeckCardList>.Instance,
-                        Array.Empty<object>());
-                }
+                SingletonBehavior<UIEquipDeckCardList>.Instance.SetDeckLayout();
             }
             catch (Exception)
             {

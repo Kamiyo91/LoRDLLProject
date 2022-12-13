@@ -67,7 +67,7 @@ namespace BigDLL4221.FarAreaEffects
             _effect.SetActive(true);
         }
 
-        protected override void Update()
+        public override void Update()
         {
             base.Update();
             _elapsed += Time.deltaTime;

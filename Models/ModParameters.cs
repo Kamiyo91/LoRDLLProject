@@ -102,10 +102,6 @@ namespace BigDLL4221.Models
         public static bool DaatFloorFound = false;
         public static bool BaseModFound = false;
         public static bool SpeedDiceColorModFound = false;
-        public static MethodInfo DeckLayoutMethod;
-        public static MethodInfo TextMeshAwake;
-        public static MethodInfo TextMeshStart;
-        public static MethodInfo SetGlowColorOrigin;
     }
 
     public static class LucasTiphEgoModInfo

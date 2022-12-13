@@ -33,7 +33,7 @@ namespace BigDLL4221.DiceEffects
             Duration = duration;
         }
 
-        protected override void Start()
+        public override void Start()
         {
             if (!ModParameters.AssetBundle.TryGetValue(PackageId, out var assets)) return;
             GameObject = Instantiate(assets.GetAsset(InternalPathEffect));

@@ -531,5 +531,15 @@ namespace BigDLL4221.Utils
                 ? null
                 : cards.Where(x => x.CardXml.LorId.id == cardId).Select(x => x.CardXml).FirstOrDefault();
         }
+
+        public static void ChangeCardColor(LorId cardId, CardColorOptions colorOptions)
+        {
+            if (!ModParameters.CardOptions.TryGetValue(cardId.packageId, out var cardOptions)) return;
+            var cardOption = cardOptions.FirstOrDefault(x => x.CardId == cardId.id);
+            if (cardOption == null) return;
+            cardOptions.Remove(cardOption);
+            cardOption.CardColorOptions = colorOptions;
+            cardOptions.Add(cardOption);
+        }
     }
 }

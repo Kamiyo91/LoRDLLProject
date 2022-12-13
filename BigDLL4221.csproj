@@ -30,7 +30,7 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;NOMP3</DefineConstants>
-    <PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies>
+    <PublicizerRuntimeStrategies>Unsafe;IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -171,7 +171,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Publicize Include="Assembly-CSharp" IncludeVirtualMembers="false" />
+    <Publicize Include="Assembly-CSharp"/>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
