@@ -733,10 +733,11 @@ namespace BigDLL4221.Harmony
                 try
                 {
                     ArtUtil.GetArtWorksTiphEgo(new DirectoryInfo(LucasTiphEgoModInfo.TiphEgoPath + "/ArtWork"));
-                    var method = typeof(EmotionPassiveCardUI).GetMethod("SetSprites", AccessTools.all);
-                    ModParameters.Harmony.Unpatch(method, HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
-                    method = typeof(UIEmotionPassiveCardInven).GetMethod("SetSprites", AccessTools.all);
-                    ModParameters.Harmony.Unpatch(method, HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
+                    ModParameters.Harmony.Unpatch(typeof(EmotionPassiveCardUI).GetMethod("SetSprites", AccessTools.all),
+                        HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
+                    ModParameters.Harmony.Unpatch(
+                        typeof(UIEmotionPassiveCardInven).GetMethod("SetSprites", AccessTools.all),
+                        HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
                 }
                 catch (Exception e)
                 {
