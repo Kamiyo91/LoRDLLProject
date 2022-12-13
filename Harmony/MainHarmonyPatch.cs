@@ -1403,20 +1403,11 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickPassiveCard")]
         [HarmonyPostfix]
-        public static void StageLibraryFloorModel_OnPickPassiveCard_Post(StageLibraryFloorModel __instance,
-            EmotionCardXmlInfo card)
+        public static void StageLibraryFloorModel_OnPickPassiveCard_Post(StageLibraryFloorModel __instance)
         {
             if (!StaticModsInfo.OnPlayCardEmotion) return;
             StaticModsInfo.OnPlayCardEmotion = false;
             __instance.team.currentSelectEmotionLevel--;
-        }
-
-        [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickEgoCard")]
-        [HarmonyPostfix]
-        public static void StageLibraryFloorModel_OnPickEgoCard_Post(EmotionEgoXmlInfo egoCard)
-        {
-            if (!StaticModsInfo.OnPlayCardEmotion) return;
-            StaticModsInfo.OnPlayCardEmotion = false;
         }
 
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]

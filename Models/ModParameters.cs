@@ -102,6 +102,7 @@ namespace BigDLL4221.Models
         public static bool DaatFloorFound = false;
         public static bool BaseModFound = false;
         public static bool SpeedDiceColorModFound = false;
+        public static FieldInfo MatchInfoEmotionSelection = null;
     }
 
     public static class LucasTiphEgoModInfo

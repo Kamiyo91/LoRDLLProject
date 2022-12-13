@@ -11,7 +11,6 @@ namespace BigDLL4221.CardAbility
         public override void OnUseInstance(BattleUnitModel unit, BattleDiceCardModel self, BattleUnitModel targetUnit)
         {
             StaticModsInfo.EgoCardPullCode = PoolName;
-            StaticModsInfo.OnPlayCardEmotion = true;
             Activate(unit);
             self.exhaust = true;
         }
@@ -21,12 +20,7 @@ namespace BigDLL4221.CardAbility
             var egoList = CardUtil.CustomCreateSelectableEgoList(StaticModsInfo.EgoCardPullCode);
             StaticModsInfo.EgoCardPullCode = string.Empty;
             Singleton<StageController>.Instance.GetCurrentStageFloorModel().team.egoSelectionPoint++;
-            if (egoList.Count <= 0)
-            {
-                StaticModsInfo.OnPlayCardEmotion = false;
-                return;
-            }
-
+            if (egoList.Count <= 0) return;
             if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
                 SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
             SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.InitEgo(

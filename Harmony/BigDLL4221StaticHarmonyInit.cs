@@ -18,6 +18,7 @@ namespace BigDLL4221.Harmony
             ModParameters.Harmony.CreateClassProcessor(typeof(MainHarmonyPatch)).Patch();
             ModParameters.Harmony.CreateClassProcessor(typeof(ColorPatch)).Patch();
             ModParameters.Harmony.CreateClassProcessor(typeof(EmotionSelectionUnitPatch)).Patch();
+            ModParameters.Harmony.CreateClassProcessor(typeof(BlockUiRepeat)).Patch();
             ModParameters.Harmony.CreateClassProcessor(typeof(UpdateEmotionCoinPatch)).Patch();
             if (!StaticModsInfo.BaseModFound)
                 ModParameters.Harmony.CreateClassProcessor(typeof(UnitLimitPatch)).Patch();
