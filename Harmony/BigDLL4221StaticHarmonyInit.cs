@@ -4,6 +4,7 @@ using System.Reflection;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BigDLL4221.Harmony
 {
@@ -45,6 +46,7 @@ namespace BigDLL4221.Harmony
 
             if (!LucasTiphEgoModInfo.TiphEgoModFound) return;
             ModParameters.Harmony.CreateClassProcessor(typeof(TiphEgoHarmonyPatchFix)).Patch();
+            SceneManager.sceneLoaded += GenericUtil.OnLoadingScreen;
         }
     }
 }

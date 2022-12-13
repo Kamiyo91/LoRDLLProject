@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Battle.DiceAttackEffect;
 using BigDLL4221.Buffs;
@@ -727,24 +726,6 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(DropBookInventoryModel), "LoadFromSaveData")]
         public static void DropBookInventoryModel_LoadFromSaveData(DropBookInventoryModel __instance)
         {
-            if (LucasTiphEgoModInfo.TiphEgoModFound && !LucasTiphEgoModInfo.TiphEgoPatchChanged)
-            {
-                LucasTiphEgoModInfo.TiphEgoPatchChanged = true;
-                try
-                {
-                    ArtUtil.GetArtWorksTiphEgo(new DirectoryInfo(LucasTiphEgoModInfo.TiphEgoPath + "/ArtWork"));
-                    ModParameters.Harmony.Unpatch(typeof(EmotionPassiveCardUI).GetMethod("SetSprites", AccessTools.all),
-                        HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
-                    ModParameters.Harmony.Unpatch(
-                        typeof(UIEmotionPassiveCardInven).GetMethod("SetSprites", AccessTools.all),
-                        HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e.Message);
-                }
-            }
-
             foreach (var book in ModParameters.StartUpRewardOptions.SelectMany(x => x.Books))
             {
                 var bookCount = __instance.GetBookCount(book.Key);
