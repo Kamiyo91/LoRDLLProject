@@ -12,8 +12,9 @@ namespace BigDLL4221.Harmony
         [HarmonyAfter("Mod.Luca1125.EgoTiphereth")]
         [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
         [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
-        public static void EmotionPassiveCardUI_SetSprites(object __instance)
+        public static async void EmotionPassiveCardUI_SetSprites(object __instance)
         {
+            await GenericUtil.PutTaskDelay(10);
             switch (__instance)
             {
                 case EmotionPassiveCardUI instance:
