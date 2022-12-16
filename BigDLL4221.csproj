@@ -117,9 +117,10 @@
     <Compile Include="Extensions\WorkshopSkinDataExtension.cs" />
     <Compile Include="FarAreaEffects\BehaviourAction_BaseMassAttackEffect_DLL4221.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
+    <Compile Include="Harmony\EmotionCardColorPatch.cs" />
     <Compile Include="Harmony\SpeedDiceColorPatch.cs" />
     <Compile Include="Harmony\SpeedDiceColorPatchWithPattyMod.cs" />
-    <Compile Include="Harmony\TiphEgoHarmonyPatchFix.cs" />
+    <Compile Include="Harmony\EmotionCardColorPatchWithTiphEgo.cs" />
     <Compile Include="Models\HSVColors.cs" />
     <Compile Include="Models\SummonedUnitStatModel.cs" />
     <Compile Include="Passives\PassiveAbility_CustomDialogSet_DLL4221.cs" />
@@ -171,7 +172,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Publicize Include="Assembly-CSharp"/>
+    <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

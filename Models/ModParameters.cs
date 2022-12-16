@@ -102,16 +102,8 @@ namespace BigDLL4221.Models
         public static bool DaatFloorFound = false;
         public static bool BaseModFound = false;
         public static bool SpeedDiceColorModFound = false;
-        public static FieldInfo MatchInfoEmotionSelection = null;
-    }
-
-    public static class LucasTiphEgoModInfo
-    {
-        public static string TiphEgoPath;
         public static bool TiphEgoModFound = false;
-        public static bool TiphEgoPatchChanged = false;
-        public static readonly string TiphEgoModId = "Mod.Luca1125.EgoTiphereth";
-        public static Dictionary<string, Sprite> TiphEgoArtWorks = new Dictionary<string, Sprite>();
+        public static FieldInfo MatchInfoEmotionSelection = null;
     }
 
     public class SavedFloorOptions

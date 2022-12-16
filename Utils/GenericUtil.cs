@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BigDLL4221.Models;
-using HarmonyLib;
 using Mod;
-using UI;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace BigDLL4221.Utils
 {
@@ -33,9 +28,7 @@ namespace BigDLL4221.Utils
                 StaticModsInfo.BaseModFound = true;
             var tiphAssembly = assemblies.FirstOrDefault(x => x.GetName().Name == "Luca1125_EgoTiphereth");
             if (tiphAssembly == null) return;
-            LucasTiphEgoModInfo.TiphEgoModFound = true;
-            LucasTiphEgoModInfo.TiphEgoPath =
-                Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(tiphAssembly.CodeBase).Path));
+            StaticModsInfo.TiphEgoModFound = true;
         }
 
         public static void PutUtilInTheFirstSlot()
@@ -50,24 +43,8 @@ namespace BigDLL4221.Utils
             modContentInfoList.Insert(index, modContentInfo);
         }
 
-        public static void OnLoadingScreen(Scene scene, LoadSceneMode _)
-        {
-            if (scene.name != "Stage_Hod_New" || !LucasTiphEgoModInfo.TiphEgoModFound ||
-                LucasTiphEgoModInfo.TiphEgoPatchChanged) return;
-            LucasTiphEgoModInfo.TiphEgoPatchChanged = true;
-            try
-            {
-                ArtUtil.GetArtWorksTiphEgo(new DirectoryInfo(LucasTiphEgoModInfo.TiphEgoPath + "/ArtWork"));
-                ModParameters.Harmony.Unpatch(typeof(EmotionPassiveCardUI).GetMethod("SetSprites", AccessTools.all),
-                    HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
-                ModParameters.Harmony.Unpatch(
-                    typeof(UIEmotionPassiveCardInven).GetMethod("SetSprites", AccessTools.all),
-                    HarmonyPatchType.Postfix, LucasTiphEgoModInfo.TiphEgoModId);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-            }
-        }
+        //public static void OnLoadingScreen(Scene scene, LoadSceneMode _)
+        //{
+        //}
     }
 }

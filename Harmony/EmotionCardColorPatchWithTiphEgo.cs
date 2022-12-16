@@ -6,23 +6,23 @@ using UI;
 namespace BigDLL4221.Harmony
 {
     [HarmonyPatch]
-    public class TiphEgoHarmonyPatchFix
+    public class EmotionCardColorPatchWithTiphEgo
     {
         [HarmonyPostfix]
+        [HarmonyAfter("Mod.Luca1125.EgoTiphereth")]
         [HarmonyPatch(typeof(EmotionPassiveCardUI), "SetSprites")]
         [HarmonyPatch(typeof(UIEmotionPassiveCardInven), "SetSprites")]
-        public static void EmotionPassiveCardUI_SetSprites(object __instance, MentalState state)
+        public static void EmotionPassiveCardUI_SetSprites(object __instance)
         {
-            if (state != (MentalState)1000000) return;
             switch (__instance)
             {
                 case EmotionPassiveCardUI instance:
-                    if (!(instance.Card is EmotionCardXmlExtension card1)) return;
-                    ArtUtil.SetSpritesEmotionTiphEgo(instance, card1);
+                    if (!(instance.Card is EmotionCardXmlExtension cardExtension)) return;
+                    ArtUtil.EmotionPassiveCardUISetSpritesPost(instance, cardExtension);
                     break;
                 case UIEmotionPassiveCardInven instance:
-                    if (!(instance.Card is EmotionCardXmlExtension card2)) return;
-                    ArtUtil.SetSpritesEmotionTiphEgo(instance, card2);
+                    if (!(instance.Card is EmotionCardXmlExtension cardExtension2)) return;
+                    ArtUtil.EmotionPassiveCardUISetSpritesPost(instance, cardExtension2);
                     break;
             }
         }

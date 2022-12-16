@@ -4,7 +4,6 @@ using System.Reflection;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace BigDLL4221.Harmony
 {
@@ -44,9 +43,10 @@ namespace BigDLL4221.Harmony
                 ModParameters.Harmony.CreateClassProcessor(typeof(SpeedDiceColorPatchWithPattyMod)).Patch();
             }
 
-            if (!LucasTiphEgoModInfo.TiphEgoModFound) return;
-            ModParameters.Harmony.CreateClassProcessor(typeof(TiphEgoHarmonyPatchFix)).Patch();
-            SceneManager.sceneLoaded += GenericUtil.OnLoadingScreen;
+            if (StaticModsInfo.TiphEgoModFound)
+                ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatchWithTiphEgo)).Patch();
+            else ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatch)).Patch();
+            //SceneManager.sceneLoaded += GenericUtil.OnLoadingScreen;
         }
     }
 }

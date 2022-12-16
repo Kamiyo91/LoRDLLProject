@@ -47,25 +47,6 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static void GetArtWorksTiphEgo(DirectoryInfo dir)
-        {
-            if (dir.GetDirectories().Length != 0)
-            {
-                var directories = dir.GetDirectories();
-                foreach (var t in directories) GetArtWorks(t);
-            }
-
-            foreach (var fileInfo in dir.GetFiles().Where(x => x.Name.Contains("EgoTiphereth_")))
-            {
-                var texture2D = new Texture2D(2, 2);
-                texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
-                var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
-                    new Vector2(0f, 0f));
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
-                LucasTiphEgoModInfo.TiphEgoArtWorks[fileNameWithoutExtension] = value;
-            }
-        }
-
         public static void GetCardArtWorks(DirectoryInfo dir)
         {
             if (dir.GetDirectories().Length != 0)
@@ -1119,64 +1100,6 @@ namespace BigDLL4221.Utils
                     dictionary[workshopSkinData.Key] = workshopSkinData.Value;
                 }
             }
-        }
-
-        public static void SetSpritesEmotionTiphEgo(EmotionPassiveCardUI __instance, EmotionCardXmlInfo card)
-        {
-            __instance._artwork.sprite = LucasTiphEgoModInfo.TiphEgoArtWorks.TryGetValue(card.Artwork, out var sprite)
-                ? sprite
-                : null;
-            __instance.img_LeftTotalFrame.sprite = UISpriteDataManager.instance.AbnormalityFrame.ElementAtOrDefault(0);
-            var orAddComponent = __instance.img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
-            ChangeEmotionCardColorTiphEgo(ref orAddComponent);
-            __instance._rightBg.sprite = __instance._positiveBgSprite.ElementAtOrDefault(1);
-            var orAddComponent2 = __instance._rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
-            ChangeEmotionCardColorTiphEgo(ref orAddComponent2);
-            __instance._rightFrame.sprite = __instance._positiveFrameSprite.ElementAtOrDefault(1);
-            var orAddComponent3 = __instance._rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
-            ChangeEmotionCardColorTiphEgo(ref orAddComponent3);
-            __instance._leftFrameTitleLineardodge.gameObject.SetActive(false);
-            __instance._flavorText.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
-            __instance._abilityDesc.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
-            __instance._hOverImg.color = Color.yellow;
-            var rootColor = Color.yellow;
-            rootColor.a = 0.25f;
-            __instance._rootImageBg.color = rootColor;
-            var component = __instance.txt_Level.GetComponent<TextMeshProMaterialSetter>();
-            if (component == null) return;
-            component.glowColor = Color.yellow;
-            component.underlayColor = Color.yellow;
-            component.enabled = false;
-            component.enabled = true;
-        }
-
-        public static void SetSpritesEmotionTiphEgo(UIEmotionPassiveCardInven __instance, EmotionCardXmlInfo card)
-        {
-            __instance._artwork.sprite = LucasTiphEgoModInfo.TiphEgoArtWorks.TryGetValue(card.Artwork, out var sprite)
-                ? sprite
-                : null;
-            __instance.img_LeftTotalFrame.sprite = UISpriteDataManager.instance.AbnormalityFrame.ElementAtOrDefault(0);
-            var orAddComponent = __instance.img_LeftTotalFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
-            ChangeEmotionCardColorTiphEgo(ref orAddComponent);
-            __instance._rightBg.sprite = __instance._positiveBgSprite.ElementAtOrDefault(1);
-            var orAddComponent2 = __instance._rightBg.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
-            ChangeEmotionCardColorTiphEgo(ref orAddComponent2);
-            __instance._rightFrame.sprite = __instance._positiveFrameSprite.ElementAtOrDefault(1);
-            var orAddComponent3 = __instance._rightFrame.gameObject.GetOrAddComponent<_2dxFX_ColorChange>();
-            ChangeEmotionCardColorTiphEgo(ref orAddComponent3);
-            __instance._leftFrameTitleLineardodge.gameObject.SetActive(false);
-            __instance._flavorText.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
-            __instance._abilityDesc.fontMaterial.SetColor("_UnderlayColor", Color.yellow);
-            __instance._hOverImg.color = Color.yellow;
-            var rootColor = Color.yellow;
-            rootColor.a = 0.25f;
-            __instance._rootImageBg.color = rootColor;
-            var component = __instance.txt_Level.GetComponent<TextMeshProMaterialSetter>();
-            if (component == null) return;
-            component.glowColor = Color.yellow;
-            component.underlayColor = Color.yellow;
-            component.enabled = false;
-            component.enabled = true;
         }
 
         public static void ChangeSpeedDiceColor(SpeedDiceUI instance, CustomDiceColorOptions colorOptions)
