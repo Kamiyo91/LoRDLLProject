@@ -448,7 +448,7 @@ namespace BigDLL4221.Extensions
         [XmlElement("CustomFloorOptions")] public CustomFloorOptionRoot CustomFloorOptions;
         [XmlElement("CustomDiceColorOptions")] public CustomDiceColorOptionRoot CustomDiceColorOptions;
 
-        [XmlElement("Editable")] public bool Editable;
+        [XmlElement("Editable")] public bool Editable = true;
         [XmlElement("ForceAggroLastDie")] public bool ForceAggroLastDie;
 
         [XmlElement("RedirectOnlyWithSlowerSpeed")]
