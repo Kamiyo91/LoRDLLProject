@@ -266,7 +266,7 @@ namespace BigDLL4221.Utils
 
                 public static void InitCustomMapFilesPath(string path)
                 {
-                    var curDir = new DirectoryInfo(path + "\\..\\..");
+                    var curDir = new DirectoryInfo(path + "\\..");
                     Debug.Log($"CustomMapUtility Version \"{version}\" in Local Mode at {curDir.FullName}");
                     _dirInfos = new[] { curDir };
                     GetStageRootPaths();

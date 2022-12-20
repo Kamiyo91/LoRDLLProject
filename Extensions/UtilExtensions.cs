@@ -387,9 +387,12 @@ namespace BigDLL4221.Extensions
         public static BookCustomOptions ToBookCustomOptions(this BookCustomOptionRoot bookCustomOption)
         {
             if (bookCustomOption == null) return null;
+            LorId lorId = null;
+            if (bookCustomOption.CustomDialogId != null)
+                lorId = new LorId(bookCustomOption.CustomDialogId.PackageId, bookCustomOption.CustomDialog.bookId);
             return new BookCustomOptions(bookCustomOption.Name, bookCustomOption.NameTextId,
                 bookCustomOption.CustomFaceData, bookCustomOption.OriginalSkin, bookCustomOption.EgoSkin,
-                bookCustomOption.CustomDialogId, bookCustomOption.CustomDialog, bookCustomOption.OriginalSkinIsBaseGame,
+                lorId, bookCustomOption.CustomDialog, bookCustomOption.OriginalSkinIsBaseGame,
                 bookCustomOption.XiaoTaotieAction);
         }
 

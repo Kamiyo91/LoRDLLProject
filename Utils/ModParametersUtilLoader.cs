@@ -35,6 +35,7 @@ namespace BigDLL4221.Utils
                     var assemblies = (from fileInfo in directoryInfo.GetFiles()
                         where fileInfo.Extension.ToLower() == ".dll" && !IgnoreDll.Contains(fileInfo.FullName)
                         select Assembly.LoadFile(fileInfo.FullName)).ToList();
+                    ModParameters.PackageIds.Add(modId);
                     ModParameters.Path.Add(modId, path);
                     LoadKeypageParameters(path, modId, assemblies);
                     LoadPassiveParameters(path, modId, assemblies);
@@ -46,7 +47,7 @@ namespace BigDLL4221.Utils
                     LoadCustomSkinOptions(path, modId);
                     LoadSkinOptions(path, modId);
                     LoadStartUpRewardOptions(path, modId);
-                    LoadSpriteOptions(path, modId);
+                    LoadDropBookOptions(path, modId);
                     try
                     {
                         ArtUtil.GetArtWorks(new DirectoryInfo(path + "/ArtWork"));
@@ -74,7 +75,8 @@ namespace BigDLL4221.Utils
                     LoadEmotionCardsExtraParameters(path, modId);
                     LoadEgoCardsExtraParameters(path, modId);
                     stopwatch.Stop();
-                    Debug.Log($"BigDLL4221 : Loading mod files {modId} at path {path} finished in {stopwatch.ElapsedMilliseconds} ms");
+                    Debug.Log(
+                        $"BigDLL4221 : Loading mod files {modId} at path {path} finished in {stopwatch.ElapsedMilliseconds} ms");
                 }
                 catch (Exception ex)
                 {
@@ -187,10 +189,11 @@ namespace BigDLL4221.Utils
                         foreach (var code in option.Code)
                             CardUtil.SetPullCodeCards(packageId, code,
                                 TypeCardEnum.Emotion, option.CardId);
-                        CardUtil.SetEmotionCardColors(packageId, option.CardId,
-                            new EmotionCardColorOptions(option.ColorOptions?.FrameColor.ConvertColor(),
-                                option.ColorOptions?.TextColor.ConvertColor(),
-                                option.ColorOptions?.FrameHSVColor.ConvertHsvColor()));
+                        if (option.ColorOptions != null)
+                            CardUtil.SetEmotionCardColors(packageId, option.CardId,
+                                new EmotionCardColorOptions(option.ColorOptions?.FrameColor.ConvertColor(),
+                                    option.ColorOptions?.TextColor.ConvertColor(),
+                                    option.ColorOptions?.FrameHSVColor.ConvertHsvColor()));
                     }
                 }
             }
@@ -421,6 +424,7 @@ namespace BigDLL4221.Utils
                                    ex.Message);
             }
         }
+
         private static void LoadDropBookOptions(string path, string packageId)
         {
             var error = false;

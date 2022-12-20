@@ -101,12 +101,13 @@ namespace BigDLL4221.Extensions
     public class LorIdRoot
     {
         [XmlAttribute("Id")] public int Id;
-        [XmlAttribute("PackageId")] public string PackageId;
+        [XmlAttribute("PackageId")] public string PackageId = "";
     }
 
     public class ForceAggroOptionsRoot
     {
         [XmlElement("ForceAggro")] public bool ForceAggro;
+
         [XmlElement("ForceAggroLastDie")] public bool ForceAggroLastDie;
         [XmlElement("ForceAggroSpeedDie")] public List<int> ForceAggroSpeedDie;
 
@@ -129,6 +130,8 @@ namespace BigDLL4221.Extensions
         [XmlElement("KeypageName")] public string KeypageName = "";
         [XmlElement("CharacterName")] public string CharacterName = "";
         [XmlElement("CharacterNameId")] public int? CharacterNameId;
+
+
         [XmlElement("SkinName")] public string SkinName = "";
 
 
@@ -161,7 +164,6 @@ namespace BigDLL4221.Extensions
 
         [XmlElement("Transferable")] public bool Transferable = true;
         [XmlElement("InnerTypeId")] public int InnerTypeId = -1;
-
         [XmlElement("IgnoreClashPassive")] public bool IgnoreClashPassive;
 
         [XmlElement("MultiDeckOptions")] public MultiDeckOptionsRoot MultiDeckOptions;
@@ -206,6 +208,7 @@ namespace BigDLL4221.Extensions
         [XmlElement("FrameHSVColor")] public HsvColorRoot FrameHSVColor;
         [XmlElement("FrameColor")] public ColorRoot FrameColor;
 
+
         [XmlElement("TextColor")] public ColorRoot TextColor;
     }
 
@@ -247,6 +250,7 @@ namespace BigDLL4221.Extensions
 
         [XmlElement("MotionSounds")]
         public List<MotionSoundOptionRoot> MotionSounds = new List<MotionSoundOptionRoot>();
+
 
         [XmlAttribute("SkinName")] public string SkinName = "";
     }
@@ -290,14 +294,14 @@ namespace BigDLL4221.Extensions
 
     public class SephiorahUnitsRoot
     {
-        [XmlElement("CustomUnits")] public SephirahType Floor;
-        [XmlElement("CustomUnits")] public List<SephirahType> SephirahUnit;
+        [XmlElement("Floor")] public SephirahType Floor;
+        [XmlElement("SephirahUnit")] public List<SephirahType> SephirahUnit;
     }
 
     public class CustomUnitsRoot
     {
-        [XmlElement("CustomUnits")] public SephirahType Floor;
-        [XmlElement("CustomUnits")] public List<UnitModelRoot> CustomUnit;
+        [XmlElement("Floor")] public SephirahType Floor;
+        [XmlElement("CustomUnit")] public List<UnitModelRoot> CustomUnit;
     }
 
     public class UnitModelRoot
@@ -312,15 +316,19 @@ namespace BigDLL4221.Extensions
         [XmlElement("LockedEmotion")] public bool LockedEmotion;
         [XmlElement("MaxEmotionLevel")] public int MaxEmotionLevel;
         [XmlElement("AutoPlay")] public bool AutoPlay;
-        [XmlElement("SummonedOnPlay")] public bool SummonedOnPlay;
+
 
         [XmlAttribute("Id")] public int Id;
 
+
+        [XmlElement("SummonedOnPlay")] public bool SummonedOnPlay;
         [XmlElement("Name")] public string Name = "";
-        [XmlElement("UnitNameId")] public int UnitNameId;
 
 
         [XmlAttribute("PackageId")] public string PackageId = "";
+
+
+        [XmlElement("UnitNameId")] public int UnitNameId;
     }
 
     public class CategoryOptionRoot
@@ -331,13 +339,17 @@ namespace BigDLL4221.Extensions
         [XmlElement("CategoryName")] public string CategoryName = "";
         [XmlElement("BookDataColor")] public ColorOptionsRoot BookDataColor;
         [XmlElement("BaseGameCategory")] public UIStoryLine? BaseGameCategory;
-        [XmlElement("CredenzaBooksId")] public List<int> CredenzaBooksId = new List<int>();
-        [XmlElement("CustomIconSpriteId")] public string CustomIconSpriteId = "";
+
 
         [XmlElement("CredenzaType")] public CredenzaEnum CredenzaType = CredenzaEnum.ModifiedCredenza;
         [XmlElement("PackageId")] public string PackageId = "";
         [XmlElement("Chapter")] public int Chapter = 7;
         [XmlElement("CategoryBooksId")] public List<int> CategoryBooksId = new List<int>();
+
+
+        [XmlElement("CredenzaBooksId")] public List<int> CredenzaBooksId = new List<int>();
+
+        [XmlElement("CustomIconSpriteId")] public string CustomIconSpriteId = "";
     }
 
     public class CredenzaOptionRoot
@@ -349,6 +361,8 @@ namespace BigDLL4221.Extensions
         [XmlElement("CredenzaName")] public string CredenzaName = "";
         [XmlElement("BookDataColor")] public ColorOptionsRoot BookDataColor;
         [XmlElement("Chapter")] public int Chapter = 7;
+
+
         [XmlElement("CredenzaOption")] public CredenzaEnum CredenzaOption = CredenzaEnum.ModifiedCredenza;
     }
 
@@ -361,6 +375,7 @@ namespace BigDLL4221.Extensions
         [XmlElement("CustomFloorMap")] public MapModelRoot CustomFloorMap;
         [XmlElement("CustomDiceColorOptions")] public CustomDiceColorOptionRoot CustomDiceColorOptions;
 
+
         [XmlElement("PackageId")] public string PackageId;
     }
 
@@ -368,14 +383,15 @@ namespace BigDLL4221.Extensions
     {
         [XmlElement("IsPlayer")] public bool IsPlayer;
         [XmlElement("OneTurnEgo")] public bool OneTurnEgo;
-        [XmlElement("Bgx")] public float Bgx;
-        [XmlElement("Bgy")] public float Bgy;
+        [XmlElement("Bgx")] public float Bgx = 0.5f;
+        [XmlElement("Bgy")] public float Bgy = 0.5f;
         [XmlElement("Component")] public string Component;
-        [XmlElement("Fx")] public float Fx;
-        [XmlElement("Fy")] public float Fy;
+        [XmlElement("Fx")] public float Fx = 0.5f;
+        [XmlElement("Fy")] public float Fy = 407.5f / 1080f;
         [XmlElement("InitBgm")] public bool InitBgm;
-        [XmlElement("Stage")] public string Stage;
 
+
+        [XmlElement("Stage")] public string Stage;
         [XmlElement("OriginalMapStageId")] public List<LorIdRoot> OriginalMapStageIds;
     }
 
@@ -402,8 +418,11 @@ namespace BigDLL4221.Extensions
         [XmlElement("CustomIcon")] public string CustomIcon = "";
         [XmlElement("CustomIconColor")] public ColorRoot CustomIconColor;
 
+
         [XmlElement("IconColor")] public HsvColorRoot IconColor;
-        [XmlElement("UseHSVFilter")] public bool UseHSVFilter;
+
+
+        [XmlElement("UseHSVFilter")] public bool UseHSVFilter = true;
     }
 
     public class KeypageOptionRoot
@@ -437,6 +456,7 @@ namespace BigDLL4221.Extensions
 
         [XmlElement("EditErrorMessageId")] public string EditErrorMessageId = "";
 
+
         [XmlElement("SephirahType")] public SephirahType SephirahType;
         [XmlElement("ForceAggroSpeedDie")] public List<int> ForceAggroSpeedDie;
 
@@ -449,8 +469,9 @@ namespace BigDLL4221.Extensions
         [XmlElement("CustomFaceData")] public bool CustomFaceData;
         [XmlElement("OriginalSkin")] public string OriginalSkin = "";
         [XmlElement("EgoSkin")] public List<string> EgoSkin;
-        [XmlElement("CustomDialogId")] public LorId CustomDialogId;
+        [XmlElement("CustomDialogId")] public LorIdRoot CustomDialogId;
         [XmlElement("CustomDialog")] public BattleDialogCharacter CustomDialog;
+
 
         [XmlElement("NameTextId")] public int NameTextId;
         [XmlElement("Name")] public string Name = "";
