@@ -1400,6 +1400,7 @@ namespace BigDLL4221.Harmony
             var stage = stageOptions.FirstOrDefault(x => x.StageId == __instance.id.id);
             if (stage?.StageRequirements == null) return;
             if (UnitUtil.IsLocked(stage.StageRequirements)) __result = StoryState.Close;
+            //__result = LibraryModel.Instance.ClearInfo.GetClearCount(__instance.id) > 0 ? __result = StoryState.Clear : LibraryModel.Instance.ClearInfo.IsUnlockedStage(__instance.id) ? StoryState.Open : StoryState.FirstOpen;
         }
 
         [HarmonyPatch(typeof(LevelUpUI), "Init")]

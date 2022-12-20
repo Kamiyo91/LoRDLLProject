@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BigDLL4221.Models;
 using Mod;
+using UnityEngine.SceneManagement;
 
 namespace BigDLL4221.Utils
 {
@@ -43,8 +44,11 @@ namespace BigDLL4221.Utils
             modContentInfoList.Insert(index, modContentInfo);
         }
 
-        //public static void OnLoadingScreen(Scene scene, LoadSceneMode _)
-        //{
-        //}
+        public static void OnLoadingScreen(Scene scene, LoadSceneMode _)
+        {
+            if (scene.name != "Stage_Hod_New" || StaticModsInfo.ModsLoaded) return;
+            StaticModsInfo.ModsLoaded = true;
+            ModParametersUtilLoader.LoadMods();
+        }
     }
 }

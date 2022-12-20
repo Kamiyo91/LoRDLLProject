@@ -115,6 +115,7 @@
     <Compile Include="Extensions\EmotionEgoCardXmlExtension.cs" />
     <Compile Include="Extensions\EtcRoot.cs" />
     <Compile Include="Extensions\WorkshopSkinDataExtension.cs" />
+    <Compile Include="Extensions\XmlParametersLoader.cs" />
     <Compile Include="FarAreaEffects\BehaviourAction_BaseMassAttackEffect_DLL4221.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
     <Compile Include="Harmony\EmotionCardColorPatch.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Utils\KeypageUtil.cs" />
     <Compile Include="Utils\LocalizeUtil.cs" />
     <Compile Include="Utils\MapUtil.cs" />
+    <Compile Include="Utils\ModParametersUtilLoader.cs" />
     <Compile Include="Utils\PassiveUtil.cs" />
     <Compile Include="Utils\SephiraUtil.cs" />
     <Compile Include="Utils\AssetBundleManager.cs" />

@@ -312,6 +312,91 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static void LoadEmotionAbilities(List<Assembly> assemblies)
+        {
+            foreach (var type in from assembly in assemblies
+                     from type in assembly.GetTypes()
+                     where type.Name.Contains("EmotionCardAbility_")
+                     select type)
+            {
+                if (StaticModsInfo.EmotionCardAbility.ContainsKey(type.Name))
+                {
+                    Debug.LogError("Emotion Script ability with this name already Exist, being overwritten.");
+                    StaticModsInfo.EmotionCardAbility.Remove(type.Name);
+                }
+
+                StaticModsInfo.EmotionCardAbility.Add(type.Name, type);
+            }
+        }
+
+        public static void LoadEmotionAndEgoCards(string packageId, string path)
+        {
+            var error = false;
+            try
+            {
+                var file = new DirectoryInfo(path).GetFiles().FirstOrDefault();
+                error = true;
+                var changedCardList = new List<EmotionCardOptions>();
+                if (file != null)
+                {
+                    var list = EmotionCardXmlList.Instance._list;
+                    using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
+                    {
+                        using (var enumerator =
+                               ((EmotionCardXmlRoot)new XmlSerializer(typeof(EmotionCardXmlRoot)).Deserialize(
+                                   stringReader)).emotionCardXmlList.GetEnumerator())
+                        {
+                            while (enumerator.MoveNext())
+                            {
+                                var a = enumerator.Current;
+                                if (a == null) continue;
+                                var card = CardXmlConverter(packageId, a);
+                                card.LorId = new LorId(packageId, card.id);
+                                card.id = -1;
+                                changedCardList.Add(new EmotionCardOptions(card));
+                                list.Add(card);
+                            }
+                        }
+                    }
+
+                    if (changedCardList.Any())
+                    {
+                        if (ModParameters.EmotionCards.ContainsKey(packageId))
+                            ModParameters.EmotionCards.Remove(packageId);
+                        ModParameters.EmotionCards.Add(packageId, changedCardList);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (error)
+                    Debug.LogError("Error loading Emotion Card packageId : " + packageId + " Error : " + ex.Message);
+            }
+
+            var changedEgoCardList = new List<EmotionEgoOptions>();
+            var cardList = ItemXmlDataList.instance._cardInfoList;
+            var egoList = EmotionEgoXmlList.Instance._list;
+            foreach (var emotionEgoXmlInfo in cardList.FindAll(x =>
+                         x.id.packageId == packageId && x.optionList.Contains(CardOption.EGO)).Select(diceCardXmlInfo =>
+                         new EmotionEgoCardXmlExtension
+                         {
+                             id = diceCardXmlInfo.id.id,
+                             _CardId = diceCardXmlInfo.id.id,
+                             Sephirah = SephirahType.ETC,
+                             isLock = false,
+                             PackageId = packageId
+                         }))
+            {
+                egoList?.Add(emotionEgoXmlInfo);
+                changedEgoCardList.Add(new EmotionEgoOptions(emotionEgoXmlInfo, packageId: packageId));
+            }
+
+            if (!changedEgoCardList.Any()) return;
+            if (ModParameters.EmotionEgoCards.ContainsKey(packageId))
+                ModParameters.EmotionEgoCards.Remove(packageId);
+            ModParameters.EmotionEgoCards.Add(packageId, changedEgoCardList);
+        }
+
         public static void SaveCardsBeforeChange(SephirahType sephirah)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;

@@ -103,6 +103,7 @@ namespace BigDLL4221.Models
         public static bool BaseModFound = false;
         public static bool SpeedDiceColorModFound = false;
         public static bool TiphEgoModFound = false;
+        public static bool ModsLoaded = false;
         public static FieldInfo MatchInfoEmotionSelection = null;
     }
 

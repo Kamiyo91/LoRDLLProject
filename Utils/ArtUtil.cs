@@ -36,6 +36,7 @@ namespace BigDLL4221.Utils
                 foreach (var t in directories) GetArtWorks(t);
             }
 
+            if (!dir.Exists || !dir.GetFiles().Any()) return;
             foreach (var fileInfo in dir.GetFiles())
             {
                 var texture2D = new Texture2D(2, 2);
@@ -55,6 +56,7 @@ namespace BigDLL4221.Utils
                 foreach (var t in directories) GetArtWorks(t);
             }
 
+            if (!dir.Exists || !dir.GetFiles().Any()) return;
             foreach (var fileInfo in dir.GetFiles())
             {
                 var texture2D = new Texture2D(2, 2);
@@ -74,6 +76,7 @@ namespace BigDLL4221.Utils
                 foreach (var t in directories) GetArtWorks(t);
             }
 
+            if (!dir.Exists || !dir.GetFiles().Any()) return;
             foreach (var fileInfo in dir.GetFiles())
             {
                 var texture2D = new Texture2D(2, 2);

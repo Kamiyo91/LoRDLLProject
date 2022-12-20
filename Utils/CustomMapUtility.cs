@@ -263,6 +263,38 @@ namespace BigDLL4221.Utils
 					Singleton<ModContentManager>.Instance.GetErrorLogs().RemoveAll(x => x.Contains("NAudio"));
 #endif
                 }
+
+                public static void InitCustomMapFilesPath(string path)
+                {
+                    var curDir = new DirectoryInfo(path + "\\..\\..");
+                    Debug.Log($"CustomMapUtility Version \"{version}\" in Local Mode at {curDir.FullName}");
+                    _dirInfos = new[] { curDir };
+                    GetStageRootPaths();
+                    GetStageBgmInfos();
+                    //if (_stagePaths != null && _stagePaths.Count != 0)
+                    //{
+                    //    string stagePathsDebug = "CustomMapUtility StageRootPaths: {";
+                    //    foreach (var dir in _stagePaths)
+                    //    {
+                    //        stagePathsDebug += $"{Environment.NewLine}	{dir.FullName}";
+                    //    }
+                    //    stagePathsDebug += Environment.NewLine + "}";
+                    //    Debug.Log(stagePathsDebug);
+                    //}
+                    //if (_bgms != null && _bgms.Count != 0)
+                    //{
+                    //    string bgmsDebug = "CustomMapUtility BgmPaths: {";
+                    //    foreach (var path in _bgms)
+                    //    {
+                    //        bgmsDebug += $"{Environment.NewLine}	{path.FullName}";
+                    //    }
+                    //    bgmsDebug += Environment.NewLine + "}";
+                    //    Debug.Log(bgmsDebug);
+                    //}
+#if !NOMP3
+					Singleton<ModContentManager>.Instance.GetErrorLogs().RemoveAll(x => x.Contains("NAudio"));
+#endif
+                }
             }
         }
 
