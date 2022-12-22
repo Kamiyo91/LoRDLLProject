@@ -6,8 +6,8 @@ namespace BigDLL4221.GameObjectUtils
 {
     public class ChangeDiceOrderGameObject : MonoBehaviour
     {
-        public Type DieAbilityType;
         private readonly StartBattleEffect effect = new StartBattleEffect();
+        public Type DieAbilityType;
         public bool IsFirst;
         public BattleUnitModel Owner;
 

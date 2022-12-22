@@ -48,17 +48,9 @@ namespace BigDLL4221.Utils
                     LoadSkinOptions(path, modId);
                     LoadStartUpRewardOptions(path, modId);
                     LoadDropBookOptions(path, modId);
-                    try
-                    {
-                        ArtUtil.GetArtWorks(new DirectoryInfo(path + "/ArtWork"));
-                        ArtUtil.GetSpeedDieArtWorks(new DirectoryInfo(path + "/CustomDiceArtWork"));
-                        ArtUtil.GetCardArtWorks(new DirectoryInfo(path + "/CardArtWork"));
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-
+                    ArtUtil.GetArtWorks(new DirectoryInfo(path + "/ArtWork"));
+                    ArtUtil.GetSpeedDieArtWorks(new DirectoryInfo(path + "/CustomDiceArtWork"));
+                    ArtUtil.GetCardArtWorks(new DirectoryInfo(path + "/CardArtWork"));
                     CardUtil.ChangeCardItem(ItemXmlDataList.instance, modId);
                     PassiveUtil.ChangePassiveItem(modId);
                     KeypageUtil.ChangeKeypageItem(BookXmlList.Instance, modId);

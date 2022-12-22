@@ -30,61 +30,81 @@ namespace BigDLL4221.Utils
 
         public static void GetArtWorks(DirectoryInfo dir)
         {
-            if (dir.GetDirectories().Length != 0)
+            try
             {
-                var directories = dir.GetDirectories();
-                foreach (var t in directories) GetArtWorks(t);
-            }
+                if (dir.GetDirectories().Length != 0)
+                {
+                    var directories = dir.GetDirectories();
+                    foreach (var t in directories) GetArtWorks(t);
+                }
 
-            if (!dir.Exists || !dir.GetFiles().Any()) return;
-            foreach (var fileInfo in dir.GetFiles())
+                foreach (var fileInfo in dir.GetFiles())
+                {
+                    var texture2D = new Texture2D(2, 2);
+                    texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
+                    var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
+                        new Vector2(0f, 0f));
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+                    ModParameters.ArtWorks[fileNameWithoutExtension] = value;
+                }
+            }
+            catch
             {
-                var texture2D = new Texture2D(2, 2);
-                texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
-                var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
-                    new Vector2(0f, 0f));
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
-                ModParameters.ArtWorks[fileNameWithoutExtension] = value;
+                // ignored
             }
         }
 
         public static void GetCardArtWorks(DirectoryInfo dir)
         {
-            if (dir.GetDirectories().Length != 0)
+            try
             {
-                var directories = dir.GetDirectories();
-                foreach (var t in directories) GetArtWorks(t);
-            }
+                if (dir.GetDirectories().Length != 0)
+                {
+                    var directories = dir.GetDirectories();
+                    foreach (var t in directories) GetArtWorks(t);
+                }
 
-            if (!dir.Exists || !dir.GetFiles().Any()) return;
-            foreach (var fileInfo in dir.GetFiles())
+                if (!dir.Exists || !dir.GetFiles().Any()) return;
+                foreach (var fileInfo in dir.GetFiles())
+                {
+                    var texture2D = new Texture2D(2, 2);
+                    texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
+                    var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
+                        new Vector2(0f, 0f));
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+                    ModParameters.CardArtWorks[fileNameWithoutExtension] = value;
+                }
+            }
+            catch
             {
-                var texture2D = new Texture2D(2, 2);
-                texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
-                var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
-                    new Vector2(0f, 0f));
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
-                ModParameters.CardArtWorks[fileNameWithoutExtension] = value;
+                // ignored
             }
         }
 
         public static void GetSpeedDieArtWorks(DirectoryInfo dir)
         {
-            if (dir.GetDirectories().Length != 0)
+            try
             {
-                var directories = dir.GetDirectories();
-                foreach (var t in directories) GetArtWorks(t);
-            }
+                if (dir.GetDirectories().Length != 0)
+                {
+                    var directories = dir.GetDirectories();
+                    foreach (var t in directories) GetArtWorks(t);
+                }
 
-            if (!dir.Exists || !dir.GetFiles().Any()) return;
-            foreach (var fileInfo in dir.GetFiles())
+                if (!dir.Exists || !dir.GetFiles().Any()) return;
+                foreach (var fileInfo in dir.GetFiles())
+                {
+                    var texture2D = new Texture2D(2, 2);
+                    texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
+                    var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
+                        new Vector2(0f, 0f));
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+                    ModParameters.SpeedDieArtWorks[fileNameWithoutExtension] = value;
+                }
+            }
+            catch
             {
-                var texture2D = new Texture2D(2, 2);
-                texture2D.LoadImage(File.ReadAllBytes(fileInfo.FullName));
-                var value = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height),
-                    new Vector2(0f, 0f));
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileInfo.FullName);
-                ModParameters.SpeedDieArtWorks[fileNameWithoutExtension] = value;
+                // ignored
             }
         }
 
