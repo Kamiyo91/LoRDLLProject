@@ -349,6 +349,7 @@ namespace BigDLL4221.Extensions
 
         [XmlElement("CredenzaBooksId")] public List<int> CredenzaBooksId = new List<int>();
 
+
         [XmlElement("CustomIconSpriteId")] public string CustomIconSpriteId = "";
     }
 
@@ -448,7 +449,9 @@ namespace BigDLL4221.Extensions
         [XmlElement("CustomFloorOptions")] public CustomFloorOptionRoot CustomFloorOptions;
         [XmlElement("CustomDiceColorOptions")] public CustomDiceColorOptionRoot CustomDiceColorOptions;
 
+
         [XmlElement("Editable")] public bool Editable = true;
+
         [XmlElement("ForceAggroLastDie")] public bool ForceAggroLastDie;
 
         [XmlElement("RedirectOnlyWithSlowerSpeed")]

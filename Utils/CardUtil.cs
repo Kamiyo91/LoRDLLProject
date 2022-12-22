@@ -6,10 +6,12 @@ using System.Reflection;
 using System.Xml.Serialization;
 using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
+using BigDLL4221.GameObjectUtils;
 using BigDLL4221.Models;
 using HarmonyLib;
 using LOR_DiceSystem;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BigDLL4221.Utils
 {
@@ -625,6 +627,31 @@ namespace BigDLL4221.Utils
             cardOptions.Remove(cardOption);
             cardOption.CardColorOptions = colorOptions;
             cardOptions.Add(cardOption);
+        }
+
+        public static void PutCounterDieAsFirst(BattleUnitModel owner, Type dieAbilityType)
+        {
+            var diceList = owner.cardSlotDetail.keepCard.cardBehaviorQueue.ToList();
+            owner.cardSlotDetail.keepCard.cardBehaviorQueue?.Clear();
+            foreach (var die in diceList.OrderBy(x => x.abilityList.Any(y => y.GetType() == dieAbilityType) ? 1 : 2))
+                owner.cardSlotDetail.keepCard.cardBehaviorQueue?.Enqueue(die);
+        }
+
+        public static void PutCounterDieAsLast(BattleUnitModel owner, Type dieAbilityType)
+        {
+            var diceList = owner.cardSlotDetail.keepCard.cardBehaviorQueue.ToList();
+            owner.cardSlotDetail.keepCard.cardBehaviorQueue?.Clear();
+            foreach (var die in diceList.OrderBy(x => x.abilityList.Any(y => y.GetType() == dieAbilityType) ? 2 : 1))
+                owner.cardSlotDetail.keepCard.cardBehaviorQueue?.Enqueue(die);
+        }
+
+        public static void PrepareCounterDieOrderGameObject(BattleUnitModel owner, Type dieAbilityType, bool isFirst)
+        {
+            var gameobj = new GameObject();
+            var mono = gameobj.AddComponent<ChangeDiceOrderGameObject>();
+            Object.Instantiate(gameobj);
+            mono.SetParameters(owner, dieAbilityType, isFirst);
+            mono.Init();
         }
     }
 }
