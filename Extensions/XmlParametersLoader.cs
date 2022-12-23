@@ -12,6 +12,17 @@ namespace BigDLL4221.Extensions
         [XmlElement("PassiveOption")] public List<PassiveOptionRoot> PassiveOptions;
     }
 
+    public class DefaultKeywordRoot
+    {
+        [XmlElement("DefaultKeyword")] public DefaultKeywordOption DefaultKeywordOption;
+    }
+
+    public class DefaultKeywordOption
+    {
+        [XmlAttribute("Keyword")] public string Keyword;
+        [XmlAttribute("PackageId")] public string PackageId;
+    }
+
     public class KeypageOptionsExtraRoot
     {
         [XmlElement("KeypageOptionExtra")] public List<KeypageOptionExtraRoot> PassiveOptions;

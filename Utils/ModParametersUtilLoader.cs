@@ -49,6 +49,7 @@ namespace BigDLL4221.Utils
                     LoadStartUpRewardOptions(path, modId);
                     LoadDropBookOptions(path, modId);
                     LoadKeypageExtraOptions(path, modId);
+                    LoadDefaultKeyword(path, modId);
                     ArtUtil.GetArtWorks(new DirectoryInfo(path + "/ArtWork"));
                     ArtUtil.GetSpeedDieArtWorks(new DirectoryInfo(path + "/CustomDiceArtWork"));
                     ArtUtil.GetCardArtWorks(new DirectoryInfo(path + "/CardArtWork"));
@@ -468,6 +469,31 @@ namespace BigDLL4221.Utils
             {
                 if (error)
                     Debug.LogError("Error loading Keypage Extra Options packageId : " + packageId + " Error : " +
+                                   ex.Message);
+            }
+        }
+
+        private static void LoadDefaultKeyword(string path, string packageId)
+        {
+            var error = false;
+            FileInfo file;
+            try
+            {
+                file = new DirectoryInfo(path + "/BigDllFolder/DefaultKeyword").GetFiles().FirstOrDefault();
+                error = true;
+                if (file == null) return;
+                using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
+                {
+                    var root =
+                        (DefaultKeywordRoot)new XmlSerializer(typeof(DefaultKeywordRoot))
+                            .Deserialize(stringReader);
+                    if (root.DefaultKeywordOption != null) root.AddDefaultKeyword();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (error)
+                    Debug.LogError("Error loading Default Keyword packageId : " + packageId + " Error : " +
                                    ex.Message);
             }
         }

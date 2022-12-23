@@ -174,6 +174,12 @@ namespace BigDLL4221.Extensions
             return new KeypageOptionsExtra(extraOption.KeypageId, extraOption.Condition.ToDictionaryExtraValue());
         }
 
+        public static void AddDefaultKeyword(this DefaultKeywordRoot defaultKeyword)
+        {
+            ModParameters.DefaultKeyword.Add(defaultKeyword.DefaultKeywordOption.PackageId,
+                defaultKeyword.DefaultKeywordOption.Keyword);
+        }
+
         public static Dictionary<string, bool> ToDictionaryExtraValue(this List<ExtraParameterRoot> extraValues)
         {
             return extraValues.Where(x => !string.IsNullOrEmpty(x.Name))
