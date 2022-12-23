@@ -12,6 +12,11 @@ namespace BigDLL4221.Extensions
         [XmlElement("PassiveOption")] public List<PassiveOptionRoot> PassiveOptions;
     }
 
+    public class KeypageOptionsExtraRoot
+    {
+        [XmlElement("KeypageOptionExtra")] public List<KeypageOptionExtraRoot> PassiveOptions;
+    }
+
     public class CardOptionsRoot
     {
         [XmlElement("CardOption")] public List<CardOptionRoot> CardOption;
@@ -136,6 +141,18 @@ namespace BigDLL4221.Extensions
 
 
         [XmlElement("UseLocalization")] public bool UseLocalization = true;
+    }
+
+    public class KeypageOptionExtraRoot
+    {
+        [XmlElement("Condition")] public List<ExtraParameterRoot> Condition;
+        [XmlAttribute("Id")] public int KeypageId;
+    }
+
+    public class ExtraParameterRoot
+    {
+        [XmlAttribute("Name")] public string Name;
+        [XmlAttribute("Value")] public bool Value;
     }
 
     public class PassiveOptionRoot

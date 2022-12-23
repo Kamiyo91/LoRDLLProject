@@ -1436,5 +1436,20 @@ namespace BigDLL4221.Harmony
                 else
                     yield return codes[i];
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIPassiveSuccessionBookSlot), "SetEquipedOtherBook")]
+        public static void UIPassiveSuccessionBookSlot_SetEquipedOtherBook(UIPassiveSuccessionBookSlot __instance)
+        {
+            if (!ModParameters.KeypageOptionsExtra.TryGetValue(__instance.CurrentBookModel.BookId.packageId,
+                    out var keypageOptions)) return;
+            var keypageOption =
+                keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.CurrentBookModel.BookId.id);
+            if (keypageOption == null ||
+                !keypageOption.ExtraConditions.TryGetValue("PassiveCanBeUsedMoreTimes", out var value) ||
+                !value) return;
+            __instance.isOtherEquiped = false;
+            __instance.ob_otherequiped.gameObject.SetActive(false);
+        }
     }
 }

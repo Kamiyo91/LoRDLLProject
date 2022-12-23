@@ -61,6 +61,9 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<CustomBookSkinsOption>> CustomBookSkinsOptions =
             new Dictionary<string, List<CustomBookSkinsOption>>();
 
+        public static Dictionary<string, List<KeypageOptionsExtra>> KeypageOptionsExtra =
+            new Dictionary<string, List<KeypageOptionsExtra>>();
+
         public static List<Assembly> Assemblies = new List<Assembly>();
 
         //Unity
@@ -747,5 +750,17 @@ namespace BigDLL4221.Models
             IsBaseSoundWin = isBaseSoundWin;
             IsBaseSoundLose = isBaseSoundLose;
         }
+    }
+
+    public class KeypageOptionsExtra
+    {
+        public KeypageOptionsExtra(int keypageId, Dictionary<string, bool> extraConditions = null)
+        {
+            KeypageId = keypageId;
+            ExtraConditions = extraConditions ?? new Dictionary<string, bool>();
+        }
+
+        public int KeypageId { get; set; }
+        public Dictionary<string, bool> ExtraConditions { get; set; }
     }
 }

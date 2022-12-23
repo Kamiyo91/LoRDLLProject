@@ -48,6 +48,7 @@ namespace BigDLL4221.Utils
                     LoadSkinOptions(path, modId);
                     LoadStartUpRewardOptions(path, modId);
                     LoadDropBookOptions(path, modId);
+                    LoadKeypageExtraOptions(path, modId);
                     ArtUtil.GetArtWorks(new DirectoryInfo(path + "/ArtWork"));
                     ArtUtil.GetSpeedDieArtWorks(new DirectoryInfo(path + "/CustomDiceArtWork"));
                     ArtUtil.GetCardArtWorks(new DirectoryInfo(path + "/CardArtWork"));
@@ -440,6 +441,33 @@ namespace BigDLL4221.Utils
             {
                 if (error)
                     Debug.LogError("Error loading Category Options packageId : " + packageId + " Error : " +
+                                   ex.Message);
+            }
+        }
+
+        private static void LoadKeypageExtraOptions(string path, string packageId)
+        {
+            var error = false;
+            FileInfo file;
+            try
+            {
+                file = new DirectoryInfo(path + "/BigDllFolder/KeypageExtraOptions").GetFiles().FirstOrDefault();
+                error = true;
+                if (file == null) return;
+                using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
+                {
+                    var root =
+                        (KeypageOptionsExtraRoot)new XmlSerializer(typeof(KeypageOptionsExtraRoot))
+                            .Deserialize(stringReader);
+                    if (root.PassiveOptions.Any())
+                        ModParameters.KeypageOptionsExtra.Add(packageId,
+                            root.PassiveOptions.Select(option => option.ToKeypageOptionsExtra()).ToList());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (error)
+                    Debug.LogError("Error loading Keypage Extra Options packageId : " + packageId + " Error : " +
                                    ex.Message);
             }
         }

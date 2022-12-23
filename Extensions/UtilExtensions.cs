@@ -169,6 +169,17 @@ namespace BigDLL4221.Extensions
                 Object.DestroyImmediate(component);
         }
 
+        public static KeypageOptionsExtra ToKeypageOptionsExtra(this KeypageOptionExtraRoot extraOption)
+        {
+            return new KeypageOptionsExtra(extraOption.KeypageId, extraOption.Condition.ToDictionaryExtraValue());
+        }
+
+        public static Dictionary<string, bool> ToDictionaryExtraValue(this List<ExtraParameterRoot> extraValues)
+        {
+            return extraValues.Where(x => !string.IsNullOrEmpty(x.Name))
+                .ToDictionary(value => value.Name, value => value.Value);
+        }
+
         public static StageOptions ToStageOptions(this StageOptionRoot stageOption, List<Assembly> assemblies)
         {
             return new StageOptions(stageOption.StageId, stageOption.BannedEmotionLevel,
