@@ -39,6 +39,7 @@ namespace BigDLL4221.Utils
                     ModParameters.Path.Add(modId, path);
                     LoadKeypageParameters(path, modId, assemblies);
                     LoadPassiveParameters(path, modId, assemblies);
+                    LoadBuffOptions(path, modId, assemblies);
                     LoadStageOptions(path, modId, assemblies);
                     LoadCardParameters(path, modId);
                     LoadSpriteOptions(path, modId);
@@ -77,6 +78,12 @@ namespace BigDLL4221.Utils
                     Debug.LogError(
                         $"Error while loading the mod {modContentInfo.invInfo.workshopInfo.uniqueId} - {ex.Message}");
                 }
+        }
+
+        public static void BattleUnitBuffsLoader(List<Assembly> assemblies)
+        {
+            foreach (var buffType in assemblies.SelectMany(assembly => assembly.GetTypes()))
+                StaticModsInfo.BuffDict.Add(buffType.Name.Substring("BattleUnitBuf_".Length), buffType);
         }
 
         private static void LoadPassiveParameters(string path, string packageId, List<Assembly> assemblies)
@@ -494,6 +501,34 @@ namespace BigDLL4221.Utils
             {
                 if (error)
                     Debug.LogError("Error loading Default Keyword packageId : " + packageId + " Error : " +
+                                   ex.Message);
+            }
+        }
+
+        private static void LoadBuffOptions(string path, string packageId, List<Assembly> assemblies)
+        {
+            var error = false;
+            FileInfo file;
+            try
+            {
+                file = new DirectoryInfo(path + "/BigDllFolder/BuffOptions").GetFiles().FirstOrDefault();
+                error = true;
+                if (file == null) return;
+                using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
+                {
+                    var root =
+                        (BuffOptionsRoot)new XmlSerializer(typeof(BuffOptionsRoot))
+                            .Deserialize(stringReader);
+                    if (!root.BuffOptionRoot.Any()) return;
+                    foreach (var buff in root.BuffOptionRoot.Select(x => x.ToBuffOption(assemblies)))
+                        if (buff.Value.Conditions.Any())
+                            ModParameters.BuffOptions.Add(buff.Key, buff.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (error)
+                    Debug.LogError("Error loading Buff Options packageId : " + packageId + " Error : " +
                                    ex.Message);
             }
         }

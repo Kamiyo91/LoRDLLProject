@@ -23,6 +23,7 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<CardOptions>> CardOptions = new Dictionary<string, List<CardOptions>>();
         public static Dictionary<string, string> DefaultKeyword = new Dictionary<string, string>();
         public static Dictionary<string, Type> CustomEffects = new Dictionary<string, Type>();
+        public static Dictionary<Type, BuffOptions> BuffOptions = new Dictionary<Type, BuffOptions>();
         public static HarmonyLib.Harmony Harmony = new HarmonyLib.Harmony("LOR.BigDLL4221HarmonyPatch_MOD");
 
         public static Dictionary<string, List<DropBookOptions>> DropBookOptions =
@@ -108,6 +109,9 @@ namespace BigDLL4221.Models
         public static bool TiphEgoModFound = false;
         public static bool ModsLoaded = false;
         public static FieldInfo MatchInfoEmotionSelection = null;
+
+        public static AssemblyManager.TypeDictionary<BattleUnitBuf> BuffDict =
+            new AssemblyManager.TypeDictionary<BattleUnitBuf>();
     }
 
     public class SavedFloorOptions
@@ -762,5 +766,21 @@ namespace BigDLL4221.Models
 
         public int KeypageId { get; set; }
         public Dictionary<string, bool> ExtraConditions { get; set; }
+    }
+
+    public class BuffOptions
+    {
+        public BuffOptions(Dictionary<string, bool> conditions)
+        {
+            Conditions = conditions;
+        }
+
+        public Dictionary<string, bool> Conditions { get; set; }
+    }
+
+    public static class Condition
+    {
+        public static string ForceAggro = "ForceAggro";
+        public static string MultiUsePassive = "PassiveCanBeUsedMoreTimes";
     }
 }

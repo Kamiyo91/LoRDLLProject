@@ -180,6 +180,18 @@ namespace BigDLL4221.Extensions
                 defaultKeyword.DefaultKeywordOption.Keyword);
         }
 
+        public static KeyValuePair<Type, BuffOptions> ToBuffOption(this BuffOptionRoot buffOption,
+            List<Assembly> assemblies)
+        {
+            var buffType = assemblies.SelectMany(assembly => assembly.GetTypes())
+                .FirstOrDefault(x => x.Name.Equals($"BattleUnitBuf_{buffOption.Name}"));
+            return buffType == null
+                ? new KeyValuePair<Type, BuffOptions>(typeof(BattleUnitBuf),
+                    new BuffOptions(new Dictionary<string, bool>()))
+                : new KeyValuePair<Type, BuffOptions>(buffType,
+                    new BuffOptions(buffOption.Condition.ToDictionaryExtraValue()));
+        }
+
         public static Dictionary<string, bool> ToDictionaryExtraValue(this List<ExtraParameterRoot> extraValues)
         {
             return extraValues.Where(x => !string.IsNullOrEmpty(x.Name))

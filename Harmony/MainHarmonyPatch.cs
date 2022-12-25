@@ -389,6 +389,27 @@ namespace BigDLL4221.Harmony
                 }
             }
 
+            if (ModParameters.KeypageOptionsExtra.TryGetValue(__instance.Book.BookId.packageId,
+                    out var keypageOptionsExtra))
+            {
+                var keypageOptionExtra =
+                    keypageOptionsExtra.FirstOrDefault(x => x.KeypageId == __instance.Book.BookId.id);
+                if (keypageOptionExtra != null &&
+                    keypageOptionExtra.ExtraConditions.TryGetValue(Condition.ForceAggro, out var result) && result)
+                {
+                    __result = true;
+                    return;
+                }
+            }
+
+            var customBuffList = ModParameters.BuffOptions.Where(x =>
+                __instance.bufListDetail.GetActivatedBufList().Exists(y => x.Key == y.GetType())).Select(x => x.Value);
+            if (customBuffList.Any(x => x.Conditions.TryGetValue(Condition.ForceAggro, out var result) && result))
+            {
+                __result = true;
+                return;
+            }
+
             var checkCard = false;
             BattleUnitModel targetedUnit = null;
             if (targetIndex < target.cardSlotDetail.cardAry.Count)
@@ -1446,7 +1467,7 @@ namespace BigDLL4221.Harmony
             var keypageOption =
                 keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.CurrentBookModel.BookId.id);
             if (keypageOption == null ||
-                !keypageOption.ExtraConditions.TryGetValue("PassiveCanBeUsedMoreTimes", out var value) ||
+                !keypageOption.ExtraConditions.TryGetValue(Condition.MultiUsePassive, out var value) ||
                 !value) return;
             __instance.isOtherEquiped = false;
             __instance.ob_otherequiped.gameObject.SetActive(false);

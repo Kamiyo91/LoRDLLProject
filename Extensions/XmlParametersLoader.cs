@@ -17,10 +17,21 @@ namespace BigDLL4221.Extensions
         [XmlElement("DefaultKeyword")] public DefaultKeywordOption DefaultKeywordOption;
     }
 
+    public class BuffOptionsRoot
+    {
+        [XmlElement("BuffOption")] public List<BuffOptionRoot> BuffOptionRoot;
+    }
+
     public class DefaultKeywordOption
     {
         [XmlAttribute("Keyword")] public string Keyword;
         [XmlAttribute("PackageId")] public string PackageId;
+    }
+
+    public class BuffOptionRoot
+    {
+        [XmlElement("Condition")] public List<ExtraParameterRoot> Condition;
+        [XmlAttribute("Name")] public string Name;
     }
 
     public class KeypageOptionsExtraRoot
