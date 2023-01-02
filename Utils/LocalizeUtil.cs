@@ -430,7 +430,8 @@ namespace BigDLL4221.Utils
                 "Mono.Cecil",
                 "MonoMod.RuntimeDetour",
                 "MonoMod.Utils",
-                "CustomMapUtility"
+                "CustomMapUtility",
+                "NAudio"
             }.Exists(y => x.Contains("The same assembly name already exists. : " + y)));
             Singleton<ModContentManager>.Instance.GetErrorLogs().RemoveAll(x => new List<string>
             {
