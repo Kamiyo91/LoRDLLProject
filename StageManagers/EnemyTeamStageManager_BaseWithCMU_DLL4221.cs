@@ -35,7 +35,7 @@ namespace BigDLL4221.StageManagers
             _sceneCount = 0;
             if (_mapPhase == -1) return;
             _cmh.EnforceMap(_mapPhase);
-            //Singleton<StageController>.Instance.CheckMapChange();
+            Singleton<StageController>.Instance.CheckMapChange();
         }
 
         public override void OnRoundEndTheLast()

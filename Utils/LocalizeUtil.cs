@@ -430,9 +430,7 @@ namespace BigDLL4221.Utils
                 "Mono.Cecil",
                 "MonoMod.RuntimeDetour",
                 "MonoMod.Utils",
-                "0KamiyoStaticHarmony",
-                "KamiyoStaticBLL",
-                "KamiyoStaticUtil"
+                "CustomMapUtility"
             }.Exists(y => x.Contains("The same assembly name already exists. : " + y)));
             Singleton<ModContentManager>.Instance.GetErrorLogs().RemoveAll(x => new List<string>
             {
