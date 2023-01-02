@@ -32,14 +32,14 @@ namespace BigDLL4221.CardAbility
         public void ChangeToEgoMap()
         {
             if (MapModel == null || SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
-            if (MapUtil.ChangeMap(CustomMapHandler.GetCMU(PackageId),MapModel)) MapActivated = true;
+            if (MapUtil.ChangeMap(CustomMapHandler.GetCMU(PackageId), MapModel)) MapActivated = true;
         }
 
         public virtual void ReturnFromEgoMap()
         {
             MapActivated = false;
             if (MapModel == null) return;
-            MapUtil.ReturnFromEgoMap(CustomMapHandler.GetCMU(PackageId),MapModel.Stage, MapModel.OriginalMapStageIds);
+            MapUtil.ReturnFromEgoMap(CustomMapHandler.GetCMU(PackageId), MapModel.Stage, MapModel.OriginalMapStageIds);
         }
 
         public override void OnRoundEnd(BattleUnitModel unit, BattleDiceCardModel self)

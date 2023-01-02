@@ -3,7 +3,6 @@ using System.Linq;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using CustomMapUtility;
-using UnityEngine;
 
 namespace BigDLL4221.Utils
 {
@@ -39,61 +38,55 @@ namespace BigDLL4221.Utils
 
         public static bool ChangeMap(CustomMapHandler cmh, MapModel model, Faction faction = Faction.Player)
         {
+            return (bool)typeof(MapUtil).GetMethod("ChangeMapGeneric").MakeGenericMethod(model.Component)
+                .Invoke(model, new object[] { cmh, model, faction });
+        }
+
+        public static bool ChangeMapGeneric<T>(CustomMapHandler cmh, MapModel model,
+            Faction faction = Faction.Player) where T : MapManager, ICMU, new()
+        {
             if (CheckStageMap(model.OriginalMapStageIds) || SingletonBehavior<BattleSceneRoot>
                     .Instance.currentMapObject.isEgo ||
                 Singleton<StageController>.Instance.GetStageModel().ClassInfo.stageType == StageType.Creature)
                 return false;
-            typeof(CustomMapHandler).GetMethods().FirstOrDefault(info =>
-                    info.Name == "InitCustomMap" && info.IsGenericMethod && info.GetParameters().Length > 8)
-                .MakeGenericMethod(model.Component).Invoke(cmh,
-                    new object[]
-                    {
-                        model.Stage, model.IsPlayer, model.InitBgm, model.Bgx,
-                        model.Bgy, model.Fx, model.Fy, model.UnderX, model.UnderY
-                    });
+            cmh.InitCustomMap<T>(model.Stage, model.IsPlayer, model.InitBgm, model.Bgx,
+                model.Bgy, model.Fx, model.Fy, model.UnderX, model.UnderY);
             if (model.IsPlayer && !model.OneTurnEgo)
             {
-                typeof(CustomMapHandler).GetMethod("ChangeToCustomEgoMapByAssimilation")
-                    .MakeGenericMethod(model.Component).Invoke(cmh, new object[]
-                    {
-                        model.Stage, faction
-                    });
+                cmh.ChangeToCustomEgoMapByAssimilation<T>(model.Stage, faction);
                 return true;
             }
 
-            typeof(CustomMapHandler).GetMethod("ChangeToCustomEgoMap").MakeGenericMethod(model.Component).Invoke(cmh,
-                new object[]
-                {
-                    model.Stage, faction, false
-                });
+            cmh.ChangeToCustomEgoMap<T>(model.Stage, faction);
             MapChangedValue(true);
             return true;
         }
 
         public static void InitSephirahMap(string packageId, MapModel model, SephirahType sephirah)
         {
-            var cmh = CustomMapHandler.GetCMU(packageId);
-            typeof(CMUExtensions).GetMethods()
-                .FirstOrDefault(info =>
-                    info.Name == "InitCustomSephirahMap" && info.IsGenericMethod && info.GetParameters().Length > 9)
-                .MakeGenericMethod(model.Component).Invoke(cmh,
-                    new object[]
-                    {
-                        cmh, sephirah, model.Stage, false, model.InitBgm, model.Bgx,
-                        model.Bgy, model.Fx, model.Fy, model.UnderX, model.UnderY
-                    });
+            typeof(MapUtil).GetMethod("InitSephirahMapGeneric").MakeGenericMethod(model.Component)
+                .Invoke(model, new object[] { packageId, model, sephirah });
         }
 
-        public static void ChangeToSephirahMap(string packageId, MapModel model, SephirahType sephirah)
+        public static void InitSephirahMapGeneric<T>(string packageId, MapModel model, SephirahType sephirah)
+            where T : MapManager, ICMU, new()
         {
-            Debug.LogError("Entry Changing Sephirah");
             var cmh = CustomMapHandler.GetCMU(packageId);
-            typeof(CMUExtensions).GetMethod("ChangeToCustomSephirahMap")
-                .MakeGenericMethod(model.Component).Invoke(cmh,
-                    new object[]
-                    {
-                        cmh, sephirah, model.Stage, Faction.Player, false
-                    });
+            cmh.InitCustomSephirahMap<T>(sephirah, model.Stage, false, model.InitBgm, model.Bgx,
+                model.Bgy, model.Fx, model.Fy, model.UnderX, model.UnderY);
+        }
+
+        public static void ChangeToSephirahMap(string packageId, MapModel model, SephirahType sephirah, bool playEffect)
+        {
+            typeof(MapUtil).GetMethod("ChangeToSephirahMapGeneric").MakeGenericMethod(model.Component)
+                .Invoke(model, new object[] { packageId, model, sephirah, playEffect });
+        }
+
+        public static void ChangeToSephirahMapGeneric<T>(string packageId, MapModel model,
+            SephirahType sephirah, bool playEffect) where T : MapManager, ICMU, new()
+        {
+            var cmh = CustomMapHandler.GetCMU(packageId);
+            cmh.ChangeToCustomSephirahMap<T>(sephirah, model.Stage, Faction.Player, false, playEffect);
         }
 
         public static void ReturnFromEgoMap(CustomMapHandler cmh, string mapName, List<LorId> ids,
@@ -118,11 +111,19 @@ namespace BigDLL4221.Utils
                 .Instance.currentMapObject.mapBgm);
             SingletonBehavior<BattleSoundManager>.Instance.CheckTheme();
         }
-        //Need to rework it
-        //public static void PrepareEnemyMaps(CustomMapHandler cmh, List<MapModel> mapModels)
-        //{
-        //    foreach (var mapModel in mapModels.Where(x => x != null))
-        //        mapModel.PrepareEnemyMap(cmh);
-        //}
+
+        public static void PrepareEnemyMaps(CustomMapHandler cmh, List<MapModel> mapModels)
+        {
+            foreach (var mapModel in mapModels.Where(x => x != null))
+                typeof(MapUtil).GetMethod("InitEnemyMap").MakeGenericMethod(mapModel.Component)
+                    .Invoke(mapModel, new object[] { cmh, mapModel });
+        }
+
+        public static void InitEnemyMap<T>(CustomMapHandler cmh, MapModel model)
+            where T : MapManager, ICMU, new()
+        {
+            cmh.InitCustomMap<T>(model.Stage, false, true, model.Bgx,
+                model.Bgy, model.Fx, model.Fy, model.UnderX, model.UnderY);
+        }
     }
 }

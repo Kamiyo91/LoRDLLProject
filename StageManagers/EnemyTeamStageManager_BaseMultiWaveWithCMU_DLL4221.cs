@@ -34,7 +34,7 @@ namespace BigDLL4221.StageManagers
         public override void OnWaveStart()
         {
             _cmh = CustomMapHandler.GetCMU(_packageId);
-            //MapUtil.PrepareEnemyMaps(_cmh, _mapModels);
+            MapUtil.PrepareEnemyMaps(_cmh, _mapModels);
             PrepareUtil();
             Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData(_util.Model.SaveDataId, out _phase);

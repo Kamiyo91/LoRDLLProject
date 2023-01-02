@@ -1356,13 +1356,13 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(BattleSceneRoot), "ChangeToSephirahMap")]
         [HarmonyPostfix]
-        public static void BattleSceneRoot_ChangeToSephirahMap(SephirahType sephirah)
+        public static void BattleSceneRoot_ChangeToSephirahMap(SephirahType sephirah, bool playEffect)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (savedOptions.FloorOptions.CustomFloorMap == null) return;
             MapUtil.ChangeToSephirahMap(savedOptions.FloorOptions.PackageId, savedOptions.FloorOptions.CustomFloorMap,
-                sephirah);
+                sephirah, playEffect);
         }
 
         [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickPassiveCard")]

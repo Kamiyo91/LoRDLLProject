@@ -44,7 +44,7 @@ namespace BigDLL4221.Extensions
         }
 
         public static void ChangeToCustomSephirahMap<T>(this CustomMapHandler cmh, SephirahType sephirah,
-            string mapName, Faction faction = Faction.Player, bool byAssimilationFlag = false)
+            string mapName, Faction faction = Faction.Player, bool byAssimilationFlag = false, bool playEffect = false)
             where T : MapManager, ICMU, new()
         {
             var instance = SingletonBehavior<BattleSceneRoot>.Instance;
@@ -64,7 +64,8 @@ namespace BigDLL4221.Extensions
                     mapManager = addedMapList?.Find(x => x.name.Contains(mapName));
                 }
 
-                mapChangeFilter.StartMapChangingEffect((Direction)faction);
+                if (playEffect)
+                    mapChangeFilter.StartMapChangingEffect((Direction)faction);
                 if (mapManager == instance.currentMapObject)
                     return;
                 instance.currentMapObject.EnableMap(false);

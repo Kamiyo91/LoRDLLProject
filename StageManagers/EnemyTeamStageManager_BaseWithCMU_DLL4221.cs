@@ -6,7 +6,6 @@ using BigDLL4221.Models;
 using BigDLL4221.Passives;
 using BigDLL4221.Utils;
 using CustomMapUtility;
-using UnityEngine;
 
 namespace BigDLL4221.StageManagers
 {
@@ -28,7 +27,7 @@ namespace BigDLL4221.StageManagers
 
         public override void OnWaveStart()
         {
-            //MapUtil.PrepareEnemyMaps(_cmh, _mapModels);
+            MapUtil.PrepareEnemyMaps(_cmh, _mapModels);
             PrepareUtil();
             Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData(_util.Model.SaveDataId, out _phase);
@@ -47,7 +46,6 @@ namespace BigDLL4221.StageManagers
         public override void OnRoundStart()
         {
             _mapPhase = GetMapPhase();
-            Debug.LogError(_mapPhase);
             if (_mapPhase == -1) return;
             _cmh.EnforceMap(_mapPhase);
         }
