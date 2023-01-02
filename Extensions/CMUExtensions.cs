@@ -64,7 +64,7 @@ namespace BigDLL4221.Extensions
                     mapManager = addedMapList?.Find(x => x.name.Contains(mapName));
                 }
 
-                if (playEffect)
+                if (playEffect && instance.currentMapObject != mapManager)
                     mapChangeFilter.StartMapChangingEffect((Direction)faction);
                 if (mapManager == instance.currentMapObject)
                     return;
