@@ -380,7 +380,8 @@ namespace BigDLL4221.Extensions
         {
             if (mapModel == null) return null;
             return new MapModel(GetTypeByName(mapModel.Component, assemblies), mapModel.Stage, mapModel.IsPlayer,
-                mapModel.OneTurnEgo, mapModel.Bgx, mapModel.Bgy, mapModel.Fx, mapModel.Fy, mapModel.InitBgm,
+                mapModel.OneTurnEgo, mapModel.Bgx, mapModel.Bgy, mapModel.Fx, mapModel.Fy, mapModel.UnderX,
+                mapModel.UnderY, mapModel.InitBgm,
                 mapModel.OriginalMapStageIds.ToListLorId());
         }
 

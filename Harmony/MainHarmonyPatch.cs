@@ -1148,7 +1148,7 @@ namespace BigDLL4221.Harmony
             var soundInfo = __result._soundInfo;
             var motionSounds = soundInfo._motionSounds;
             var dic = soundInfo._dic;
-            UnitUtil.PrepareSounds(motionSounds, dic, skin.MotionSounds);
+            UnitUtil.PrepareSounds(skin.PackageId, motionSounds, dic, skin.MotionSounds);
             __result.InitCustomData(customizeData, unit.defaultBook.GetBookClassInfoId());
             __result.InitGiftDataAll(giftInventory.GetEquippedList());
             __result.ChangeMotion(ActionDetail.Standing);
@@ -1179,7 +1179,7 @@ namespace BigDLL4221.Harmony
             var soundInfo = __instance.charAppearance._soundInfo;
             var motionSounds = soundInfo._motionSounds;
             var dic = soundInfo._dic;
-            UnitUtil.PrepareSounds(motionSounds, dic, skin.MotionSounds);
+            UnitUtil.PrepareSounds(skin.PackageId, motionSounds, dic, skin.MotionSounds);
             __instance.charAppearance.ChangeMotion(currentMotionDetail);
             __instance.charAppearance.ChangeLayer("Character");
             __instance.charAppearance.SetLibrarianOnlySprites(__instance.model.faction);
@@ -1350,52 +1350,19 @@ namespace BigDLL4221.Harmony
             }
 
             __instance.mapList.RemoveAll(x => x.sephirahType == sephirah);
-            __instance.mapList.Add(MapUtil.InitSephirahMap(savedOptions.FloorOptions.CustomFloorMap, sephirah));
+            MapUtil.InitSephirahMap(savedOptions.FloorOptions.PackageId, savedOptions.FloorOptions.CustomFloorMap,
+                sephirah);
         }
 
         [HarmonyPatch(typeof(BattleSceneRoot), "ChangeToSephirahMap")]
         [HarmonyPostfix]
-        public static void BattleSceneRoot_ChangeToSephirahMap(BattleSceneRoot __instance, SephirahType sephirah,
-            bool playEffect)
+        public static void BattleSceneRoot_ChangeToSephirahMap(SephirahType sephirah)
         {
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(sephirah, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (savedOptions.FloorOptions.CustomFloorMap == null) return;
-            var x2 = __instance.mapList.FirstOrDefault(x =>
-                x.name.Contains(savedOptions.FloorOptions.CustomFloorMap.Stage));
-            if (x2 == null)
-            {
-                foreach (var map in __instance.mapList.Where(x => x.sephirahType == sephirah))
-                {
-                    map.gameObject.SetActive(false);
-                    Object.Destroy(map.gameObject);
-                }
-
-                __instance.mapList.RemoveAll(x => x.sephirahType == sephirah);
-                x2 = MapUtil.InitSephirahMap(savedOptions.FloorOptions.CustomFloorMap, sephirah);
-                __instance.mapList.Add(x2);
-            }
-
-            if (x2 == __instance.currentMapObject)
-                return;
-            if (playEffect)
-                __instance._mapChangeFilter.StartMapChangingEffect(Direction.RIGHT);
-            if (__instance.currentMapObject.isCreature)
-                Object.Destroy(__instance.currentMapObject.gameObject);
-            else if (__instance.currentMapObject != null)
-                if (__instance.currentMapObject.isEgo)
-                    Object.Destroy(__instance.currentMapObject.gameObject);
-                else
-                    __instance.currentMapObject.EnableMap(false);
-            __instance.currentMapObject = x2;
-            if (!__instance.currentMapObject.IsMapInitialized)
-                __instance.currentMapObject.InitializeMap();
-            __instance.currentMapObject.EnableMap(true);
-            __instance.currentMapObject.PlayMapChangedSound();
-            SingletonBehavior<BattleCamManager>.Instance.SetVignetteColorBgCam(
-                __instance.currentMapObject.sephirahColor);
-            foreach (var battleUnitModel in BattleObjectManager.instance.GetList())
-                battleUnitModel.view.ChangeScale(__instance.currentMapObject.mapSize);
+            MapUtil.ChangeToSephirahMap(savedOptions.FloorOptions.PackageId, savedOptions.FloorOptions.CustomFloorMap,
+                sephirah);
         }
 
         [HarmonyPatch(typeof(StageLibraryFloorModel), "OnPickPassiveCard")]

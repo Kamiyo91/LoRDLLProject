@@ -1,5 +1,6 @@
 ﻿using BigDLL4221.Models;
 using BigDLL4221.Utils;
+using CustomMapUtility;
 
 namespace BigDLL4221.CardAbility
 {
@@ -8,6 +9,7 @@ namespace BigDLL4221.CardAbility
         public bool MapActivated;
         public virtual MapModel MapModel => null;
         public virtual string SkinName => "";
+        public virtual string PackageId => "";
 
         public override void OnUseCard()
         {
@@ -30,14 +32,14 @@ namespace BigDLL4221.CardAbility
         public void ChangeToEgoMap()
         {
             if (MapModel == null || SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
-            if (MapUtil.ChangeMap(MapModel)) MapActivated = true;
+            if (MapUtil.ChangeMap(CustomMapHandler.GetCMU(PackageId),MapModel)) MapActivated = true;
         }
 
         public virtual void ReturnFromEgoMap()
         {
             MapActivated = false;
             if (MapModel == null) return;
-            MapUtil.ReturnFromEgoMap(MapModel.Stage, MapModel.OriginalMapStageIds);
+            MapUtil.ReturnFromEgoMap(CustomMapHandler.GetCMU(PackageId),MapModel.Stage, MapModel.OriginalMapStageIds);
         }
 
         public override void OnRoundEnd(BattleUnitModel unit, BattleDiceCardModel self)

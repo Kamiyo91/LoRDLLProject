@@ -5,34 +5,38 @@ using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Passives;
 using BigDLL4221.Utils;
+using CustomMapUtility;
+using UnityEngine;
 
 namespace BigDLL4221.StageManagers
 {
     public class EnemyTeamStageManager_BaseWithCMU_DLL4221 : EnemyTeamStageManager
     {
+        private CustomMapHandler _cmh;
         private List<MapModel> _mapModels;
         private int _mapPhase;
         private int _phase;
         private int _sceneCount;
         private NpcMechUtilBase _util;
 
-        public void SetParameters(NpcMechUtilBase util, List<MapModel> mapModels = null)
+        public void SetParameters(CustomMapHandler cmh, NpcMechUtilBase util, List<MapModel> mapModels = null)
         {
             _mapModels = mapModels ?? new List<MapModel>();
             _util = util;
+            _cmh = cmh;
         }
 
         public override void OnWaveStart()
         {
-            MapUtil.PrepareEnemyMaps(_mapModels);
+            //MapUtil.PrepareEnemyMaps(_cmh, _mapModels);
             PrepareUtil();
             Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData(_util.Model.SaveDataId, out _phase);
             _mapPhase = GetMapPhase();
             _sceneCount = 0;
             if (_mapPhase == -1) return;
-            CustomMapHandler.EnforceMap(_mapPhase);
-            Singleton<StageController>.Instance.CheckMapChange();
+            _cmh.EnforceMap(_mapPhase);
+            //Singleton<StageController>.Instance.CheckMapChange();
         }
 
         public override void OnRoundEndTheLast()
@@ -43,8 +47,9 @@ namespace BigDLL4221.StageManagers
         public override void OnRoundStart()
         {
             _mapPhase = GetMapPhase();
+            Debug.LogError(_mapPhase);
             if (_mapPhase == -1) return;
-            CustomMapHandler.EnforceMap(_mapPhase);
+            _cmh.EnforceMap(_mapPhase);
         }
 
         private void CheckPhase()
@@ -94,10 +99,10 @@ namespace BigDLL4221.StageManagers
         {
             if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
             if (mechOptions.MusicOptions != null)
-                CustomMapHandler.SetMapBgm(mechOptions.MusicOptions.MusicFileName, true,
+                _cmh.SetMapBgm(mechOptions.MusicOptions.MusicFileName, true,
                     mechOptions.MusicOptions.MapName);
             if (!mechOptions.HasCustomMap) return;
-            CustomMapHandler.EnforceMap(mechOptions.MapOrderIndex);
+            _cmh.EnforceMap(mechOptions.MapOrderIndex);
             Singleton<StageController>.Instance.CheckMapChange();
             MapUtil.ActiveCreatureBattleCamFilterComponent(mechOptions.CreatureFilter);
         }

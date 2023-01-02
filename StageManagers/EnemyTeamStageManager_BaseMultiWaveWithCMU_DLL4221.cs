@@ -5,38 +5,43 @@ using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Passives;
 using BigDLL4221.Utils;
+using CustomMapUtility;
 
 namespace BigDLL4221.StageManagers
 {
     public class EnemyTeamStageManager_BaseMultiWaveWithCMU_DLL4221 : EnemyTeamStageManager
     {
+        private CustomMapHandler _cmh;
         private List<MapModel> _mapModels;
         private int _mapPhase;
+        private string _packageId;
         private int _phase;
         private int _sceneCount;
         private Dictionary<int, List<UnitModel>> _unitModels;
         private NpcMechUtilBase _util;
         private int _wave;
 
-        public void SetParameters(NpcMechUtilBase util, List<MapModel> mapModels = null,
+        public void SetParameters(string packageId, NpcMechUtilBase util, List<MapModel> mapModels = null,
             Dictionary<int, List<UnitModel>> unitModels = null)
         {
             _mapModels = mapModels ?? new List<MapModel>();
             _util = util;
             _unitModels = unitModels;
             _wave = 1;
+            _packageId = packageId;
         }
 
         public override void OnWaveStart()
         {
-            MapUtil.PrepareEnemyMaps(_mapModels);
+            _cmh = CustomMapHandler.GetCMU(_packageId);
+            //MapUtil.PrepareEnemyMaps(_cmh, _mapModels);
             PrepareUtil();
             Singleton<StageController>.Instance.GetStageModel()
                 .GetStageStorageData(_util.Model.SaveDataId, out _phase);
             _mapPhase = GetMapPhase();
             _sceneCount = 0;
             if (_mapPhase == -1) return;
-            CustomMapHandler.EnforceMap(_mapPhase);
+            _cmh.EnforceMap(_mapPhase);
             Singleton<StageController>.Instance.CheckMapChange();
         }
 
@@ -49,7 +54,7 @@ namespace BigDLL4221.StageManagers
         {
             _mapPhase = GetMapPhase();
             if (_mapPhase == -1) return;
-            CustomMapHandler.EnforceMap(_mapPhase);
+            _cmh.EnforceMap(_mapPhase);
         }
 
         private void CheckPhase()
@@ -119,10 +124,10 @@ namespace BigDLL4221.StageManagers
         {
             if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
             if (mechOptions.MusicOptions != null)
-                CustomMapHandler.SetMapBgm(mechOptions.MusicOptions.MusicFileName, true,
+                _cmh.SetMapBgm(mechOptions.MusicOptions.MusicFileName, true,
                     mechOptions.MusicOptions.MapName);
             if (!mechOptions.HasCustomMap) return;
-            CustomMapHandler.EnforceMap(mechOptions.MultiWaveMapOrderIndex);
+            _cmh.EnforceMap(mechOptions.MultiWaveMapOrderIndex);
             Singleton<StageController>.Instance.CheckMapChange();
             MapUtil.ActiveCreatureBattleCamFilterComponent(mechOptions.CreatureFilter);
         }

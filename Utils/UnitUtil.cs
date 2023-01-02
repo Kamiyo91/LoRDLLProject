@@ -7,6 +7,7 @@ using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Passives;
+using CustomMapUtility;
 using HarmonyLib;
 using LOR_DiceSystem;
 using LOR_XML;
@@ -630,16 +631,17 @@ namespace BigDLL4221.Utils
             if (buf2.LastOneScene) owner.bufListDetail.RemoveBuf(buf2);
         }
 
-        public static void PrepareSounds(List<CharacterSound.Sound> motionSounds,
+        public static void PrepareSounds(string packageId, List<CharacterSound.Sound> motionSounds,
             Dictionary<MotionDetail, CharacterSound.Sound> dicMotionSounds,
             Dictionary<MotionDetail, MotionSound> customMotionSounds)
         {
+            var cmh = CustomMapHandler.GetCMU(packageId);
             foreach (var customMotionSound in customMotionSounds)
                 try
                 {
-                    var audioClipWin = GetSound(customMotionSound.Value.FileNameWin,
+                    var audioClipWin = GetSound(cmh, customMotionSound.Value.FileNameWin,
                         customMotionSound.Value.IsBaseSoundWin);
-                    var audioClipLose = GetSound(customMotionSound.Value.FileNameLose,
+                    var audioClipLose = GetSound(cmh, customMotionSound.Value.FileNameLose,
                         customMotionSound.Value.IsBaseSoundLose);
                     var item = motionSounds.FirstOrDefault(x => x.motion == customMotionSound.Key);
                     var sound = new CharacterSound.Sound
@@ -661,11 +663,11 @@ namespace BigDLL4221.Utils
                 }
         }
 
-        public static AudioClip GetSound(string audioName, bool isBaseGame)
+        public static AudioClip GetSound(CustomMapHandler cmh, string audioName, bool isBaseGame)
         {
             if (string.IsNullOrEmpty(audioName)) return null;
             if (isBaseGame) return Resources.Load<AudioClip>("Sounds/MotionSound/" + audioName);
-            CustomMapHandler.LoadEnemyTheme(audioName, out var audioClip);
+            cmh.LoadEnemyTheme(audioName, out var audioClip);
             return audioClip;
         }
 

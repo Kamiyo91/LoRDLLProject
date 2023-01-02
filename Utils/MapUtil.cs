@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BigDLL4221.Extensions;
 using BigDLL4221.Models;
+using CustomMapUtility;
+using UnityEngine;
 
 namespace BigDLL4221.Utils
 {
@@ -34,37 +37,72 @@ namespace BigDLL4221.Utils
             Singleton<StageController>.Instance._mapChanged = value;
         }
 
-        public static bool ChangeMap(MapModel model, Faction faction = Faction.Player)
+        public static bool ChangeMap(CustomMapHandler cmh, MapModel model, Faction faction = Faction.Player)
         {
             if (CheckStageMap(model.OriginalMapStageIds) || SingletonBehavior<BattleSceneRoot>
                     .Instance.currentMapObject.isEgo ||
                 Singleton<StageController>.Instance.GetStageModel().ClassInfo.stageType == StageType.Creature)
                 return false;
-            CustomMapHandler.InitCustomMap(model.Stage, model.Component, model.IsPlayer, model.InitBgm, model.Bgx,
-                model.Bgy, model.Fx, model.Fy);
+            typeof(CustomMapHandler).GetMethods().FirstOrDefault(info =>
+                    info.Name == "InitCustomMap" && info.IsGenericMethod && info.GetParameters().Length > 8)
+                .MakeGenericMethod(model.Component).Invoke(cmh,
+                    new object[]
+                    {
+                        model.Stage, model.IsPlayer, model.InitBgm, model.Bgx,
+                        model.Bgy, model.Fx, model.Fy, model.UnderX, model.UnderY
+                    });
             if (model.IsPlayer && !model.OneTurnEgo)
             {
-                CustomMapHandler.ChangeToCustomEgoMapByAssimilation(model.Stage, faction);
+                typeof(CustomMapHandler).GetMethod("ChangeToCustomEgoMapByAssimilation")
+                    .MakeGenericMethod(model.Component).Invoke(cmh, new object[]
+                    {
+                        model.Stage, faction
+                    });
                 return true;
             }
 
-            CustomMapHandler.ChangeToCustomEgoMap(model.Stage, faction);
+            typeof(CustomMapHandler).GetMethod("ChangeToCustomEgoMap").MakeGenericMethod(model.Component).Invoke(cmh,
+                new object[]
+                {
+                    model.Stage, faction, false
+                });
             MapChangedValue(true);
             return true;
         }
 
-        public static MapManager InitSephirahMap(MapModel model, SephirahType sephirah)
+        public static void InitSephirahMap(string packageId, MapModel model, SephirahType sephirah)
         {
-            return CustomMapHandler.InitSephirahMap(model.Stage, model.Component, sephirah, model.InitBgm, model.Bgx,
-                model.Bgy, model.Fx, model.Fy);
+            var cmh = CustomMapHandler.GetCMU(packageId);
+            typeof(CMUExtensions).GetMethods()
+                .FirstOrDefault(info =>
+                    info.Name == "InitCustomSephirahMap" && info.IsGenericMethod && info.GetParameters().Length > 9)
+                .MakeGenericMethod(model.Component).Invoke(cmh,
+                    new object[]
+                    {
+                        cmh, sephirah, model.Stage, false, model.InitBgm, model.Bgx,
+                        model.Bgy, model.Fx, model.Fy, model.UnderX, model.UnderY
+                    });
         }
 
-        public static void ReturnFromEgoMap(string mapName, List<LorId> ids, bool isAssimilationMap = false)
+        public static void ChangeToSephirahMap(string packageId, MapModel model, SephirahType sephirah)
+        {
+            Debug.LogError("Entry Changing Sephirah");
+            var cmh = CustomMapHandler.GetCMU(packageId);
+            typeof(CMUExtensions).GetMethod("ChangeToCustomSephirahMap")
+                .MakeGenericMethod(model.Component).Invoke(cmh,
+                    new object[]
+                    {
+                        cmh, sephirah, model.Stage, Faction.Player, false
+                    });
+        }
+
+        public static void ReturnFromEgoMap(CustomMapHandler cmh, string mapName, List<LorId> ids,
+            bool isAssimilationMap = false)
         {
             if (CheckStageMap(ids) ||
                 Singleton<StageController>.Instance.GetStageModel().ClassInfo.stageType ==
                 StageType.Creature) return;
-            CustomMapHandler.RemoveCustomEgoMapByAssimilation(mapName);
+            cmh.RemoveCustomEgoMapByAssimilation(mapName);
             RemoveValueInAddedMap(mapName);
             if (!isAssimilationMap)
             {
@@ -74,18 +112,17 @@ namespace BigDLL4221.Utils
 
             MapChangedValue(true);
             if (!string.IsNullOrEmpty(Singleton<StageController>.Instance.GetStageModel().GetCurrentMapInfo()))
-                CustomMapHandler.EnforceTheme();
+                cmh.EnforceTheme();
             Singleton<StageController>.Instance.CheckMapChange();
             SingletonBehavior<BattleSoundManager>.Instance.SetEnemyTheme(SingletonBehavior<BattleSceneRoot>
                 .Instance.currentMapObject.mapBgm);
             SingletonBehavior<BattleSoundManager>.Instance.CheckTheme();
         }
-
-        public static void PrepareEnemyMaps(List<MapModel> mapModels)
-        {
-            foreach (var mapModel in mapModels.Where(x => x != null))
-                CustomMapHandler.InitCustomMap(mapModel.Stage, mapModel.Component, false, true, mapModel.Bgx,
-                    mapModel.Bgy, mapModel.Fx, mapModel.Fy);
-        }
+        //Need to rework it
+        //public static void PrepareEnemyMaps(CustomMapHandler cmh, List<MapModel> mapModels)
+        //{
+        //    foreach (var mapModel in mapModels.Where(x => x != null))
+        //        mapModel.PrepareEnemyMap(cmh);
+        //}
     }
 }

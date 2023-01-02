@@ -110,6 +110,7 @@ namespace BigDLL4221.Models
         public static bool ModsLoaded = false;
         public static FieldInfo MatchInfoEmotionSelection = null;
 
+        //Not Used
         public static AssemblyManager.TypeDictionary<BattleUnitBuf> BuffDict =
             new AssemblyManager.TypeDictionary<BattleUnitBuf>();
     }

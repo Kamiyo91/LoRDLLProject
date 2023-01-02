@@ -6,17 +6,20 @@ using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
+using CustomMapUtility;
 using LOR_XML;
 
 namespace BigDLL4221.BaseClass
 {
     public class MechUtilBase
     {
+        public CustomMapHandler Cmh;
         public MechUtilBaseModel Model;
 
-        public MechUtilBase(MechUtilBaseModel model)
+        public MechUtilBase(MechUtilBaseModel model, string packageId)
         {
             Model = model;
+            Cmh = CustomMapHandler.GetCMU(packageId);
         }
 
         public virtual void SurviveCheck(int dmg)
@@ -291,7 +294,7 @@ namespace BigDLL4221.BaseClass
         {
             if (Model.ActivatedMap == null) return;
             if (!Model.ActivatedMap.OneTurnEgo && !Model.Owner.IsDead()) return;
-            MapUtil.ReturnFromEgoMap(Model.ActivatedMap.Stage,
+            MapUtil.ReturnFromEgoMap(Cmh, Model.ActivatedMap.Stage,
                 Model.ActivatedMap.OriginalMapStageIds);
             Model.ActivatedMap = null;
         }
@@ -299,7 +302,8 @@ namespace BigDLL4221.BaseClass
         public virtual void ReturnFromEgoAssimilationMap()
         {
             if (Model.ActivatedMap == null) return;
-            MapUtil.ReturnFromEgoMap(Model.ActivatedMap.Stage,
+            MapUtil.ReturnFromEgoMap(CustomMapHandler.GetCMU(Model.Owner.Book.BookId.packageId),
+                Model.ActivatedMap.Stage,
                 Model.ActivatedMap.OriginalMapStageIds, true);
             Model.ActivatedMap = null;
         }
@@ -308,7 +312,7 @@ namespace BigDLL4221.BaseClass
         {
             if (!Model.EgoMaps.TryGetValue(cardId, out var mapModel) ||
                 SingletonBehavior<BattleSceneRoot>.Instance.currentMapObject.isEgo) return;
-            if (MapUtil.ChangeMap(mapModel)) Model.ActivatedMap = mapModel;
+            if (MapUtil.ChangeMap(Cmh, mapModel)) Model.ActivatedMap = mapModel;
         }
 
         public virtual void PermanentBuffs()

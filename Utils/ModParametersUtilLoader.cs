@@ -66,7 +66,7 @@ namespace BigDLL4221.Utils
                     CardUtil.InitKeywordsList(assemblies);
                     ArtUtil.InitCustomEffects(assemblies);
                     CardUtil.LoadEmotionAbilities(assemblies);
-                    CustomMapHandler.ModResources.CacheInit.InitCustomMapFilesPath(path);
+                    //CustomMapHandler.ModResources.CacheInit.InitCustomMapFilesPath(path);
                     LoadEmotionCardsExtraParameters(path, modId);
                     LoadEgoCardsExtraParameters(path, modId);
                     stopwatch.Stop();

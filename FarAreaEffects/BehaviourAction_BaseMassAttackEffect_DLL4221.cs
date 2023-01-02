@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Battle.DiceAttackEffect;
 using BigDLL4221.Utils;
+using CustomMapUtility;
 using Sound;
 using UnityEngine;
 
@@ -42,10 +43,12 @@ namespace BigDLL4221.FarAreaEffects
         private float _elapsed;
         private bool _followUnits;
         private bool _isBaseGameAudio;
+        private string _packageId;
         private bool _slowMotion;
         private bool _zoom;
 
-        public void SetParameters(ActionDetail attackMotion, string audioFileName, string attackEffect,
+        public void SetParameters(string packageId, ActionDetail attackMotion, string audioFileName,
+            string attackEffect,
             float attackEffectScale = 1f, bool isBaseGameAudio = false, bool slowMotion = true, bool zoom = true,
             bool characterMove = true, bool followUnits = true)
         {
@@ -58,6 +61,7 @@ namespace BigDLL4221.FarAreaEffects
             _zoom = zoom;
             _characterMove = characterMove;
             _followUnits = followUnits;
+            _packageId = packageId;
         }
 
         public override void Init(BattleUnitModel self, params object[] args)
@@ -103,7 +107,8 @@ namespace BigDLL4221.FarAreaEffects
                         }
 
                         if (_slowMotion) TimeManager.Instance.SlowMotion(0.25f, 0.125f, true);
-                        var audioClip = UnitUtil.GetSound(_audioFileName, _isBaseGameAudio);
+                        var audioClip = UnitUtil.GetSound(CustomMapHandler.GetCMU(_packageId), _audioFileName,
+                            _isBaseGameAudio);
                         SingletonBehavior<SoundEffectManager>.Instance.PlayClip(audioClip);
                         SingletonBehavior<DiceEffectManager>.Instance.CreateBehaviourEffect(_attackEffect,
                             _attackEffectScale, _self.view, null);

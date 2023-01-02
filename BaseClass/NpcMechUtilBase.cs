@@ -12,7 +12,7 @@ namespace BigDLL4221.BaseClass
     {
         public new NpcMechUtilBaseModel Model;
 
-        public NpcMechUtilBase(NpcMechUtilBaseModel model) : base(model)
+        public NpcMechUtilBase(NpcMechUtilBaseModel model, string packageId) : base(model, packageId)
         {
             Model = model;
         }

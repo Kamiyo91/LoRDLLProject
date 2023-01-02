@@ -428,6 +428,8 @@ namespace BigDLL4221.Extensions
         [XmlElement("Component")] public string Component;
         [XmlElement("Fx")] public float Fx = 0.5f;
         [XmlElement("Fy")] public float Fy = 407.5f / 1080f;
+        [XmlElement("UnderX")] public float UnderX = 0.5f;
+        [XmlElement("UnderY")] public float UnderY = 0.2777778f;
         [XmlElement("InitBgm")] public bool InitBgm;
 
 

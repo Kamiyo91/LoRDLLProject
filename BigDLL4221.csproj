@@ -48,6 +48,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Library Of Ruina\LibraryOfRuina_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="CustomMapUtility">
+      <HintPath>..\CommonDLL\CustomMapUtility.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -111,6 +114,7 @@
     <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
     <Compile Include="Enum\TypeCardEnum.cs" />
+    <Compile Include="Extensions\CMUExtensions.cs" />
     <Compile Include="Extensions\EmotionCardXmlExtension.cs" />
     <Compile Include="Extensions\EmotionEgoCardXmlExtension.cs" />
     <Compile Include="Extensions\EtcRoot.cs" />
@@ -158,7 +162,6 @@
     <Compile Include="Extensions\UtilExtensions.cs" />
     <Compile Include="Utils\Assets.cs" />
     <Compile Include="Utils\CardUtil.cs" />
-    <Compile Include="Utils\CustomMapUtility.cs" />
     <Compile Include="Utils\GenericUtil.cs" />
     <Compile Include="Utils\KeypageUtil.cs" />
     <Compile Include="Utils\LocalizeUtil.cs" />
@@ -176,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <Publicize Include="Assembly-CSharp" />
+    <Publicize Include="CustomMapUtility" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -6,7 +6,8 @@ namespace BigDLL4221.Models
     public class MapModel
     {
         public MapModel(Type component = null, string stage = null, bool isPlayer = true, bool oneTurnEgo = true,
-            float bgx = 0.5f, float bgy = 0.5f, float fx = 0.5f, float fy = 407.5f / 1080f, bool initBgm = true,
+            float bgx = 0.5f, float bgy = 0.5f, float fx = 0.5f, float fy = 407.5f / 1080f, float underx = 0.5f,
+            float undery = 0.2777778f, bool initBgm = true,
             List<LorId> originalMapStageIds = null)
         {
             Component = component;
@@ -17,6 +18,8 @@ namespace BigDLL4221.Models
             Bgy = bgy;
             Fx = fx;
             Fy = fy;
+            UnderX = underx;
+            UnderY = undery;
             InitBgm = initBgm;
             OriginalMapStageIds = originalMapStageIds ?? new List<LorId>();
         }
@@ -29,6 +32,8 @@ namespace BigDLL4221.Models
         public float Bgy { get; set; }
         public float Fx { get; set; }
         public float Fy { get; set; }
+        public float UnderX { get; set; }
+        public float UnderY { get; set; }
         public bool InitBgm { get; set; }
         public List<LorId> OriginalMapStageIds { get; set; }
     }
