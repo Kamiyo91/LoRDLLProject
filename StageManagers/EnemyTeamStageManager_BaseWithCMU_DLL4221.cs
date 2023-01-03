@@ -35,6 +35,7 @@ namespace BigDLL4221.StageManagers
             _sceneCount = 0;
             if (_mapPhase == -1) return;
             _cmh.EnforceMap(_mapPhase);
+            MapUtil.MapChangedValue(false);
             Singleton<StageController>.Instance.CheckMapChange();
         }
 
@@ -48,6 +49,7 @@ namespace BigDLL4221.StageManagers
             _mapPhase = GetMapPhase();
             if (_mapPhase == -1) return;
             _cmh.EnforceMap(_mapPhase);
+            MapUtil.MapChangedValue(false);
         }
 
         private void CheckPhase()
@@ -101,6 +103,7 @@ namespace BigDLL4221.StageManagers
                     mechOptions.MusicOptions.MapName);
             if (!mechOptions.HasCustomMap) return;
             _cmh.EnforceMap(mechOptions.MapOrderIndex);
+            MapUtil.MapChangedValue(false);
             Singleton<StageController>.Instance.CheckMapChange();
             MapUtil.ActiveCreatureBattleCamFilterComponent(mechOptions.CreatureFilter);
         }

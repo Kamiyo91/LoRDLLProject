@@ -137,6 +137,7 @@
     <Compile Include="Passives\PassiveAbility_UnitSummonedLinkedToMainChar_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_UnitSummonedWithCustomData_DLL4221.cs" />
     <Compile Include="StageManagers\EnemyTeamStageManager_BaseMultiWaveWithCMU_DLL4221.cs" />
+    <Compile Include="StageManagers\EnemyTeamStageManager_BaseWithCMUOnly_DLL4221.cs" />
     <Compile Include="StageManagers\EnemyTeamStageManager_BaseWithCMU_DLL4221.cs" />
     <Compile Include="Enum\AbColorType.cs" />
     <Compile Include="Enum\CredenzaEnum.cs" />
