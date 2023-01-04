@@ -113,6 +113,7 @@
     <Compile Include="CardAbility\DiceCardSelfAbility_EmotionScreenUI_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseAttackEffect_DLL4221.cs" />
     <Compile Include="DiceEffects\DiceAttackEffect_BaseUnityEffect_DLL4221.cs" />
+    <Compile Include="Enum\ParameterTypeEnum.cs" />
     <Compile Include="Enum\TypeCardEnum.cs" />
     <Compile Include="Extensions\CMUExtensions.cs" />
     <Compile Include="Extensions\EmotionCardXmlExtension.cs" />
@@ -159,6 +160,7 @@
     <Compile Include="Passives\PassiveAbility_NpcMechBase_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_PlayerMechBase_DLL4221.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StageManagers\EnemyTeamStageManager_RushBattleWithCMUOnly_DLL4221.cs" />
     <Compile Include="Utils\ArtUtil.cs" />
     <Compile Include="Extensions\UtilExtensions.cs" />
     <Compile Include="Utils\Assets.cs" />

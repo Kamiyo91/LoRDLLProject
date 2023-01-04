@@ -23,7 +23,6 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<CardOptions>> CardOptions = new Dictionary<string, List<CardOptions>>();
         public static Dictionary<string, string> DefaultKeyword = new Dictionary<string, string>();
         public static Dictionary<string, Type> CustomEffects = new Dictionary<string, Type>();
-        public static Dictionary<Type, BuffOptions> BuffOptions = new Dictionary<Type, BuffOptions>();
         public static HarmonyLib.Harmony Harmony = new HarmonyLib.Harmony("LOR.BigDLL4221HarmonyPatch_MOD");
 
         public static Dictionary<string, List<DropBookOptions>> DropBookOptions =
@@ -62,8 +61,8 @@ namespace BigDLL4221.Models
         public static Dictionary<string, List<CustomBookSkinsOption>> CustomBookSkinsOptions =
             new Dictionary<string, List<CustomBookSkinsOption>>();
 
-        public static Dictionary<string, List<KeypageOptionsExtra>> KeypageOptionsExtra =
-            new Dictionary<string, List<KeypageOptionsExtra>>();
+        public static Dictionary<string, List<ExtraOptions>> ExtraOptions =
+            new Dictionary<string, List<ExtraOptions>>();
 
         public static List<Assembly> Assemblies = new List<Assembly>();
 
@@ -478,6 +477,18 @@ namespace BigDLL4221.Models
         public Color? TextColor { get; set; }
     }
 
+    public class BaseColorOptions
+    {
+        public BaseColorOptions(Color? frameColor = null, Color? textColor = null)
+        {
+            FrameColor = frameColor;
+            TextColor = textColor;
+        }
+
+        public Color? FrameColor { get; set; }
+        public Color? TextColor { get; set; }
+    }
+
     public class PreBattleOptions
     {
         public PreBattleOptions(Dictionary<SephirahType, List<UnitModel>> customUnits = null,
@@ -757,31 +768,39 @@ namespace BigDLL4221.Models
         }
     }
 
-    public class KeypageOptionsExtra
+    public class ExtraOptions
     {
-        public KeypageOptionsExtra(int keypageId, Dictionary<string, bool> extraConditions = null)
+        public ExtraOptions(int? id = null, Type buff = null, ParameterTypeEnum optionType = ParameterTypeEnum.Passive,
+            Dictionary<string, bool> bools = null, Dictionary<string, List<int>> ints = null,
+            Dictionary<string, List<LorId>> lorIds = null, Dictionary<string, List<UnitModel>> unitModels = null,
+            Dictionary<string, BaseColorOptions> colors = null, Dictionary<string, List<Type>> buffs = null)
         {
-            KeypageId = keypageId;
-            ExtraConditions = extraConditions ?? new Dictionary<string, bool>();
+            Id = id;
+            Buff = buff;
+            OptionType = optionType;
+            Bools = bools ?? new Dictionary<string, bool>();
+            Ints = ints ?? new Dictionary<string, List<int>>();
+            LorIds = lorIds ?? new Dictionary<string, List<LorId>>();
+            UnitModels = unitModels ?? new Dictionary<string, List<UnitModel>>();
+            Colors = colors ?? new Dictionary<string, BaseColorOptions>();
+            Buffs = buffs ?? new Dictionary<string, List<Type>>();
         }
 
-        public int KeypageId { get; set; }
-        public Dictionary<string, bool> ExtraConditions { get; set; }
-    }
-
-    public class BuffOptions
-    {
-        public BuffOptions(Dictionary<string, bool> conditions)
-        {
-            Conditions = conditions;
-        }
-
-        public Dictionary<string, bool> Conditions { get; set; }
+        public int? Id { get; set; }
+        public Type Buff { get; set; }
+        public ParameterTypeEnum OptionType { get; set; }
+        public Dictionary<string, bool> Bools { get; set; }
+        public Dictionary<string, List<int>> Ints { get; set; }
+        public Dictionary<string, List<LorId>> LorIds { get; set; }
+        public Dictionary<string, List<UnitModel>> UnitModels { get; set; }
+        public Dictionary<string, BaseColorOptions> Colors { get; set; }
+        public Dictionary<string, List<Type>> Buffs { get; set; }
     }
 
     public static class Condition
     {
         public static string ForceAggro = "ForceAggro";
         public static string MultiUsePassive = "PassiveCanBeUsedMoreTimes";
+        public static string IgnoreClashOnlyForAlly = "IgnoreClashAlly";
     }
 }

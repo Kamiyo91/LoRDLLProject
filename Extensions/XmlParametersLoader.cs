@@ -17,26 +17,73 @@ namespace BigDLL4221.Extensions
         [XmlElement("DefaultKeyword")] public DefaultKeywordOption DefaultKeywordOption;
     }
 
-    public class BuffOptionsRoot
+    public class ExtraOptionsRoot
     {
-        [XmlElement("BuffOption")] public List<BuffOptionRoot> BuffOptionRoot;
+        [XmlElement("ExtraOption")] public List<ExtraOptionRoot> ExtraOption;
+    }
+
+    public class ExtraOptionRoot
+    {
+        [XmlAttribute("Buff")] public string Buff = "";
+        [XmlElement("ExtraBool")] public List<ExtraBool> ExtraBools;
+
+        [XmlElement("ExtraLorId")] public List<ExtraLorIdRoot> ExtraLorIds;
+
+        [XmlElement("ExtraModelOption")]
+        public List<ExtraUnitModelRoot> ExtraUnitModelOptions = new List<ExtraUnitModelRoot>();
+
+        [XmlElement("ExtraColorOption")]
+        public List<ExtraColorOptionsRoot> ExtraColorOptions = new List<ExtraColorOptionsRoot>();
+
+        [XmlElement("ExtraBuffOption")] public List<ExtraBuffsRoot> ExtraBuffOptions = new List<ExtraBuffsRoot>();
+
+
+        [XmlElement("ExtraInt")] public List<ExtraOptionInts> ExtraInts;
+
+
+        [XmlAttribute("Id")] public int Id;
+        [XmlAttribute("OptionType")] public ParameterTypeEnum OptionType;
+    }
+
+    public class ExtraOptionBase
+    {
+        [XmlAttribute("Condition")] public string Condition = "";
+    }
+
+    public class ExtraBool : ExtraOptionBase
+    {
+        [XmlAttribute("Value")] public bool BoolValue;
+    }
+
+    public class ExtraUnitModelRoot : ExtraOptionBase
+    {
+        [XmlElement("ExtraUnitModel")] public List<UnitModelRoot> UnitModel = new List<UnitModelRoot>();
+    }
+
+    public class ExtraBuffsRoot : ExtraOptionBase
+    {
+        [XmlElement("Buff")] public List<string> Buff = new List<string>();
+    }
+
+    public class ExtraColorOptionsRoot : ExtraOptionBase
+    {
+        [XmlElement("Color")] public ColorOptionsRoot Color;
+    }
+
+    public class ExtraOptionInts : ExtraOptionBase
+    {
+        [XmlElement("IntValue")] public List<int> IntValue = new List<int>();
+    }
+
+    public class ExtraLorIdRoot : ExtraOptionBase
+    {
+        [XmlElement("LorId")] public List<LorIdRoot> LorId = new List<LorIdRoot>();
     }
 
     public class DefaultKeywordOption
     {
         [XmlAttribute("Keyword")] public string Keyword;
         [XmlAttribute("PackageId")] public string PackageId;
-    }
-
-    public class BuffOptionRoot
-    {
-        [XmlElement("Condition")] public List<ExtraParameterRoot> Condition;
-        [XmlAttribute("Name")] public string Name;
-    }
-
-    public class KeypageOptionsExtraRoot
-    {
-        [XmlElement("KeypageOptionExtra")] public List<KeypageOptionExtraRoot> PassiveOptions;
     }
 
     public class CardOptionsRoot
@@ -163,18 +210,6 @@ namespace BigDLL4221.Extensions
 
 
         [XmlElement("UseLocalization")] public bool UseLocalization = true;
-    }
-
-    public class KeypageOptionExtraRoot
-    {
-        [XmlElement("Condition")] public List<ExtraParameterRoot> Condition;
-        [XmlAttribute("Id")] public int KeypageId;
-    }
-
-    public class ExtraParameterRoot
-    {
-        [XmlAttribute("Name")] public string Name;
-        [XmlAttribute("Value")] public bool Value;
     }
 
     public class PassiveOptionRoot

@@ -39,7 +39,7 @@ namespace BigDLL4221.Utils
                     ModParameters.Path.Add(modId, path);
                     LoadKeypageParameters(path, modId, assemblies);
                     LoadPassiveParameters(path, modId, assemblies);
-                    LoadBuffOptions(path, modId, assemblies);
+                    LoadExtraOptions(path, modId, assemblies);
                     LoadStageOptions(path, modId, assemblies);
                     LoadCardParameters(path, modId);
                     LoadSpriteOptions(path, modId);
@@ -49,7 +49,6 @@ namespace BigDLL4221.Utils
                     LoadSkinOptions(path, modId);
                     LoadStartUpRewardOptions(path, modId);
                     LoadDropBookOptions(path, modId);
-                    LoadKeypageExtraOptions(path, modId);
                     LoadDefaultKeyword(path, modId);
                     ArtUtil.GetArtWorks(new DirectoryInfo(path + "/ArtWork"));
                     ArtUtil.GetSpeedDieArtWorks(new DirectoryInfo(path + "/CustomDiceArtWork"));
@@ -452,30 +451,30 @@ namespace BigDLL4221.Utils
             }
         }
 
-        private static void LoadKeypageExtraOptions(string path, string packageId)
+        private static void LoadExtraOptions(string path, string packageId, List<Assembly> assemblies)
         {
             var error = false;
             FileInfo file;
             try
             {
-                file = new DirectoryInfo(path + "/BigDllFolder/KeypageExtraOptions").GetFiles().FirstOrDefault();
+                file = new DirectoryInfo(path + "/BigDllFolder/ExtraOptions").GetFiles().FirstOrDefault();
                 error = true;
                 if (file == null) return;
                 using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
                 {
                     var root =
-                        (KeypageOptionsExtraRoot)new XmlSerializer(typeof(KeypageOptionsExtraRoot))
+                        (ExtraOptionsRoot)new XmlSerializer(typeof(ExtraOptionsRoot))
                             .Deserialize(stringReader);
-                    if (root.PassiveOptions.Any())
-                        ModParameters.KeypageOptionsExtra.Add(packageId,
-                            root.PassiveOptions.Select(option => option.ToKeypageOptionsExtra()).ToList());
+                    if (root.ExtraOption.Any())
+                        ModParameters.ExtraOptions.Add(packageId,
+                            root.ExtraOption.Select(option => option.ToExtraOptions(assemblies)).ToList());
                 }
             }
             catch (Exception ex)
             {
                 if (error)
-                    Debug.LogError("Error loading Keypage Extra Options packageId : " + packageId + " Error : " +
-                                   ex.Message);
+                    Debug.LogError("Error loading Extra Options packageId : " + packageId + " Error : " +
+                                   ex.Message + " " + ex.InnerException);
             }
         }
 
@@ -500,34 +499,6 @@ namespace BigDLL4221.Utils
             {
                 if (error)
                     Debug.LogError("Error loading Default Keyword packageId : " + packageId + " Error : " +
-                                   ex.Message);
-            }
-        }
-
-        private static void LoadBuffOptions(string path, string packageId, List<Assembly> assemblies)
-        {
-            var error = false;
-            FileInfo file;
-            try
-            {
-                file = new DirectoryInfo(path + "/BigDllFolder/BuffOptions").GetFiles().FirstOrDefault();
-                error = true;
-                if (file == null) return;
-                using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
-                {
-                    var root =
-                        (BuffOptionsRoot)new XmlSerializer(typeof(BuffOptionsRoot))
-                            .Deserialize(stringReader);
-                    if (!root.BuffOptionRoot.Any()) return;
-                    foreach (var buff in root.BuffOptionRoot.Select(x => x.ToBuffOption(assemblies)))
-                        if (buff.Value.Conditions.Any())
-                            ModParameters.BuffOptions.Add(buff.Key, buff.Value);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (error)
-                    Debug.LogError("Error loading Buff Options packageId : " + packageId + " Error : " +
                                    ex.Message);
             }
         }

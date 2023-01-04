@@ -389,25 +389,28 @@ namespace BigDLL4221.Harmony
                 }
             }
 
-            if (ModParameters.KeypageOptionsExtra.TryGetValue(__instance.Book.BookId.packageId,
-                    out var keypageOptionsExtra))
+            if (ModParameters.ExtraOptions.TryGetValue(__instance.Book.BookId.packageId,
+                    out var extraOptions))
             {
                 var keypageOptionExtra =
-                    keypageOptionsExtra.FirstOrDefault(x => x.KeypageId == __instance.Book.BookId.id);
+                    extraOptions.FirstOrDefault(x =>
+                        x.Id != null && x.OptionType == ParameterTypeEnum.Keypage && x.Id == __instance.Book.BookId.id);
                 if (keypageOptionExtra != null &&
-                    keypageOptionExtra.ExtraConditions.TryGetValue(Condition.ForceAggro, out var result) && result)
+                    keypageOptionExtra.Bools.TryGetValue(Condition.ForceAggro, out var result) && result)
                 {
                     __result = true;
                     return;
                 }
-            }
 
-            var customBuffList = ModParameters.BuffOptions.Where(x =>
-                __instance.bufListDetail.GetActivatedBufList().Exists(y => x.Key == y.GetType())).Select(x => x.Value);
-            if (customBuffList.Any(x => x.Conditions.TryGetValue(Condition.ForceAggro, out var result) && result))
-            {
-                __result = true;
-                return;
+                var buffOptionExtra = extraOptions.Where(x =>
+                    x.Buff != null && x.OptionType == ParameterTypeEnum.Buff && __instance.bufListDetail
+                        .GetActivatedBufList().Exists(y => x.Buff == y.GetType()));
+                if (buffOptionExtra.Any(
+                        x => x.Bools.TryGetValue(Condition.ForceAggro, out var resultBuff) && resultBuff))
+                {
+                    __result = true;
+                    return;
+                }
             }
 
             var checkCard = false;
@@ -1027,6 +1030,16 @@ namespace BigDLL4221.Harmony
                         x.Key == cardA.card.GetID().packageId &&
                         x.Value.Any(y => y.CardId == cardA.card.GetID().id && y.OneSideOnlyCard)))
                 {
+                    if (cardB.owner.faction != cardA.owner.faction &&
+                        ModParameters.ExtraOptions.TryGetValue(cardA.card.GetID().packageId, out var extraOptions))
+                    {
+                        var clashOptions = extraOptions.FirstOrDefault(x =>
+                            x.Id != null && x.OptionType == ParameterTypeEnum.Card && x.Id == cardA.card.GetID().id);
+                        if (clashOptions != null &&
+                            clashOptions.Bools.TryGetValue(Condition.IgnoreClashOnlyForAlly, out var result) && result)
+                            return true;
+                    }
+
                     __instance._phase = StageController.StagePhase.ExecuteOneSideAction;
                     cardA.owner.turnState = BattleUnitTurnState.DOING_ACTION;
                     cardA.target.turnState = BattleUnitTurnState.DOING_ACTION;
@@ -1429,12 +1442,14 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(UIPassiveSuccessionBookSlot), "SetEquipedOtherBook")]
         public static void UIPassiveSuccessionBookSlot_SetEquipedOtherBook(UIPassiveSuccessionBookSlot __instance)
         {
-            if (!ModParameters.KeypageOptionsExtra.TryGetValue(__instance.CurrentBookModel.BookId.packageId,
-                    out var keypageOptions)) return;
+            if (!ModParameters.ExtraOptions.TryGetValue(__instance.CurrentBookModel.BookId.packageId,
+                    out var extraOptions)) return;
             var keypageOption =
-                keypageOptions.FirstOrDefault(x => x.KeypageId == __instance.CurrentBookModel.BookId.id);
+                extraOptions.FirstOrDefault(x =>
+                    x.Id != null && x.OptionType == ParameterTypeEnum.Keypage &&
+                    x.Id == __instance.CurrentBookModel.BookId.id);
             if (keypageOption == null ||
-                !keypageOption.ExtraConditions.TryGetValue(Condition.MultiUsePassive, out var value) ||
+                !keypageOption.Bools.TryGetValue(Condition.MultiUsePassive, out var value) ||
                 !value) return;
             __instance.isOtherEquiped = false;
             __instance.ob_otherequiped.gameObject.SetActive(false);

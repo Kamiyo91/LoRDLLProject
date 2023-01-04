@@ -169,9 +169,16 @@ namespace BigDLL4221.Extensions
                 Object.DestroyImmediate(component);
         }
 
-        public static KeypageOptionsExtra ToKeypageOptionsExtra(this KeypageOptionExtraRoot extraOption)
+        public static ExtraOptions ToExtraOptions(this ExtraOptionRoot extraOption, List<Assembly> assemblies)
         {
-            return new KeypageOptionsExtra(extraOption.KeypageId, extraOption.Condition.ToDictionaryExtraValue());
+            int? id = null;
+            if (extraOption.Id != 0) id = extraOption.Id;
+            return new ExtraOptions(id, TrasformBuffNameInType(extraOption.Buff, assemblies),
+                extraOption.OptionType, extraOption.ExtraBools.ToDictionaryExtraValue(),
+                extraOption.ExtraInts.ToDictionaryExtraValue(), extraOption.ExtraLorIds.ToDictionaryExtraValue(),
+                extraOption.ExtraUnitModelOptions.ToDictionaryExtraValue(assemblies),
+                extraOption.ExtraColorOptions.ToDictionaryExtraValue(),
+                extraOption.ExtraBuffOptions.ToDictionaryExtraValue(assemblies));
         }
 
         public static void AddDefaultKeyword(this DefaultKeywordRoot defaultKeyword)
@@ -180,22 +187,69 @@ namespace BigDLL4221.Extensions
                 defaultKeyword.DefaultKeywordOption.Keyword);
         }
 
-        public static KeyValuePair<Type, BuffOptions> ToBuffOption(this BuffOptionRoot buffOption,
-            List<Assembly> assemblies)
+        public static Type TrasformBuffNameInType(string name, List<Assembly> assemblies)
         {
-            var buffType = assemblies.SelectMany(assembly => assembly.GetTypes())
-                .FirstOrDefault(x => x.Name.Equals($"BattleUnitBuf_{buffOption.Name}"));
-            return buffType == null
-                ? new KeyValuePair<Type, BuffOptions>(typeof(BattleUnitBuf),
-                    new BuffOptions(new Dictionary<string, bool>()))
-                : new KeyValuePair<Type, BuffOptions>(buffType,
-                    new BuffOptions(buffOption.Condition.ToDictionaryExtraValue()));
+            if (string.IsNullOrEmpty(name)) return null;
+            return assemblies.SelectMany(assembly => assembly.GetTypes())
+                .FirstOrDefault(x => x.Name.Equals($"BattleUnitBuf_{name}"));
         }
 
-        public static Dictionary<string, bool> ToDictionaryExtraValue(this List<ExtraParameterRoot> extraValues)
+        public static Dictionary<string, List<Type>> ToDictionaryExtraValue(this List<ExtraBuffsRoot> extraValues,
+            List<Assembly> assemblies)
         {
-            return extraValues.Where(x => !string.IsNullOrEmpty(x.Name))
-                .ToDictionary(value => value.Name, value => value.Value);
+            return extraValues.Where(x => !string.IsNullOrEmpty(x.Condition))
+                .ToDictionary(item => item.Condition,
+                    item => item.Buff.Select(x => TrasformBuffNameInType(x, assemblies)).ToList());
+        }
+
+        public static Dictionary<string, BaseColorOptions> ToDictionaryExtraValue(
+            this List<ExtraColorOptionsRoot> extraValues)
+        {
+            return extraValues.Where(x => !string.IsNullOrEmpty(x.Condition))
+                .ToDictionary(value => value.Condition,
+                    value => new BaseColorOptions(value.Color.FrameColor?.ConvertColor(),
+                        value.Color.TextColor?.ConvertColor()));
+        }
+
+        public static Dictionary<string, bool> ToDictionaryExtraValue(this List<ExtraBool> extraValues)
+        {
+            return extraValues.Where(x => !string.IsNullOrEmpty(x.Condition))
+                .ToDictionary(value => value.Condition, value => value.BoolValue);
+        }
+
+        public static Dictionary<string, List<int>> ToDictionaryExtraValue(this List<ExtraOptionInts> extraValues)
+        {
+            return extraValues.Where(x => !string.IsNullOrEmpty(x.Condition))
+                .ToDictionary(value => value.Condition, value => value.IntValue);
+        }
+
+        public static Dictionary<string, List<LorId>> ToDictionaryExtraValue(this List<ExtraLorIdRoot> extraValues)
+        {
+            return extraValues.Where(x => !string.IsNullOrEmpty(x.Condition))
+                .ToDictionary(value => value.Condition, value => value.LorId.ToListLorId());
+        }
+
+        public static Dictionary<string, List<UnitModel>> ToDictionaryExtraValue(
+            this List<ExtraUnitModelRoot> extraValues, List<Assembly> assemblies)
+        {
+            var dic = new Dictionary<string, List<UnitModel>>();
+            foreach (var item in extraValues.Where(x => !string.IsNullOrEmpty(x.Condition)))
+            {
+                var list = (from customUnit in item.UnitModel
+                    let buffList =
+                        (from buffName in customUnit.AdditionalBuffs
+                            select GetTypeByName($"BattleUnitBuf_{buffName}", assemblies)
+                            into buff
+                            where buff != null
+                            select (BattleUnitBuf)Activator.CreateInstance(buff)).ToList()
+                    select new UnitModel(customUnit.Id, customUnit.PackageId, customUnit.UnitNameId, customUnit.Name,
+                        customUnit.LockedEmotion, customUnit.MaxEmotionLevel, customUnit.AutoPlay,
+                        customUnit.SummonedOnPlay, customUnit.CustomPos, customUnit.SkinName, customUnit.IsMainEnemy,
+                        customUnit.AdditionalPassiveIds.ToListLorId(), customUnit.ForcedEgoOnStart, buffList)).ToList();
+                dic.Add(item.Condition, list);
+            }
+
+            return dic;
         }
 
         public static StageOptions ToStageOptions(this StageOptionRoot stageOption, List<Assembly> assemblies)

@@ -132,7 +132,9 @@ namespace BigDLL4221.Extensions
             {
                 asyncMapInit = null;
                 Debug.LogWarning($"CustomMapUtility: {typeof(T)} does not implement IAsyncMapInit");
+#pragma warning disable CS0618
                 ImageInit();
+#pragma warning restore CS0618
             }
 
             if (initBGMs)
