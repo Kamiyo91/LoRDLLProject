@@ -109,6 +109,7 @@ namespace BigDLL4221.Models
         public static bool ModsLoaded = false;
         public static FieldInfo MatchInfoEmotionSelection = null;
         public static int RandomWaveStart = 0;
+        public static bool ChangingAct = false;
 
         //Not Used
         public static AssemblyManager.TypeDictionary<BattleUnitBuf> BuffDict =

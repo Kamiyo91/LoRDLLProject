@@ -1470,16 +1470,19 @@ namespace BigDLL4221.Harmony
         public static void StageWaveModel_Init(StageWaveModel __instance, StageModel stage)
         {
             StaticModsInfo.RandomWaveStart = 0;
+            if (StaticModsInfo.ChangingAct)
+            {
+                StaticModsInfo.ChangingAct = false;
+                return;
+            }
+
+            StaticModsInfo.ChangingAct = false;
             if (!ModParameters.ExtraOptions.TryGetValue(stage.ClassInfo.id.packageId, out var extraOptions)) return;
             var stageOptions = extraOptions.FirstOrDefault(x =>
                 x.OptionType == ParameterTypeEnum.Stage && x.Id != null && x.Id == stage.ClassInfo.id.id);
             if (stageOptions == null) return;
             if (stageOptions.Strings.TryGetValue(Condition.ManagerScriptName, out var script) &&
                 !string.IsNullOrEmpty(script)) __instance._managerScript = script;
-            if (stageOptions.Ints.TryGetValue(Condition.UsableUnits, out var ints))
-                __instance._stageWaveInfo.availableNumber = ints.FirstOrDefault();
-            if (stageOptions.Ints.TryGetValue(Condition.FormationId, out var formationIds))
-                __instance._stageWaveInfo.formationId = formationIds.FirstOrDefault();
             if (!stageOptions.UnitModels.Any()) return;
             List<UnitModel> list;
             if (stageOptions.Bools.TryGetValue(Condition.RandomWave, out var result) && result)
@@ -1494,8 +1497,17 @@ namespace BigDLL4221.Harmony
                 list = stageOptions.UnitModels.FirstOrDefault().Value;
             }
 
+            if (stageOptions.Ints.TryGetValue($"{Condition.UsableUnits}{StaticModsInfo.RandomWaveStart}", out var ints))
+                __instance._availableUnitNumber = ints.FirstOrDefault();
+            if (stageOptions.Ints.TryGetValue($"{Condition.FormationId}{StaticModsInfo.RandomWaveStart}",
+                    out var formationIds))
+                __instance._formation =
+                    new FormationModel(Singleton<FormationXmlList>.Instance.GetData(formationIds.FirstOrDefault()));
+
+
             __instance._unitList.Clear();
             UnitUtil.PreparePreBattleEnemyUnits(list, stage, __instance._unitList);
+            __instance.team.Init(__instance._unitList, Faction.Enemy, stage.ClassInfo);
         }
     }
 }

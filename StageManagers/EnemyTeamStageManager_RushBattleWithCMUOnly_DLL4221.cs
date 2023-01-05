@@ -176,6 +176,7 @@ namespace BigDLL4221.StageManagers
             var stageWaveInfo = Singleton<StageController>.Instance.GetCurrentWaveModel()._stageWaveInfo;
             stageWaveInfo.formationId = Mathf.Clamp(ActualPhase.FormationId, 1, 41);
             stageWaveInfo.availableNumber = ActualPhase.UnitAllowed;
+            StaticModsInfo.ChangingAct = true;
             stageModel._waveList.ElementAt(stageModel._waveList.Count - 1).Init(stageModel, stageWaveInfo);
             var list = new List<UnitBattleDataModel>();
             UnitUtil.PreparePreBattleEnemyUnits(ActualPhase.UnitModels, stageModel, list);
