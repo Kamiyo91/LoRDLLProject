@@ -1476,6 +1476,10 @@ namespace BigDLL4221.Harmony
             if (stageOptions == null) return;
             if (stageOptions.Strings.TryGetValue(Condition.ManagerScriptName, out var script) &&
                 !string.IsNullOrEmpty(script)) __instance._managerScript = script;
+            if (stageOptions.Ints.TryGetValue(Condition.UsableUnits, out var ints))
+                __instance._stageWaveInfo.availableNumber = ints.FirstOrDefault();
+            if (stageOptions.Ints.TryGetValue(Condition.FormationId, out var formationIds))
+                __instance._stageWaveInfo.formationId = formationIds.FirstOrDefault();
             if (!stageOptions.UnitModels.Any()) return;
             List<UnitModel> list;
             if (stageOptions.Bools.TryGetValue(Condition.RandomWave, out var result) && result)

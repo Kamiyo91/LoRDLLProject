@@ -416,6 +416,35 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static void PreparePreBattleAllyUnits(StageLibraryFloorModel instance, List<UnitModel> unitModels,
+            StageModel stage,
+            List<UnitBattleDataModel> unitList)
+        {
+            foreach (var unitParameters in unitModels)
+            {
+                var localizedTryGet =
+                    ModParameters.LocalizedItems.TryGetValue(unitParameters.PackageId, out var localizedItem);
+                var unitDataModel = new UnitDataModel(new LorId(unitParameters.PackageId, unitParameters.Id),
+                    instance.Sephirah, true);
+                unitDataModel.SetTemporaryPlayerUnitByBook(new LorId(unitParameters.PackageId,
+                    unitParameters.Id));
+                unitDataModel.bookItem.ClassInfo.categoryList.Add(BookCategory.DeckFixed);
+                unitDataModel.isSephirah = false;
+                unitDataModel.SetCustomName(localizedTryGet
+                    ? localizedItem.EnemyNames.TryGetValue(unitParameters.UnitNameId, out var name)
+                        ? name
+                        : unitParameters.Name
+                    : unitParameters.Name);
+                unitDataModel.CreateDeckByDeckInfo();
+                unitDataModel.forceItemChangeLock = true;
+                if (!string.IsNullOrEmpty(unitParameters.SkinName))
+                    unitDataModel.bookItem.ClassInfo.CharacterSkin = new List<string> { unitParameters.SkinName };
+                var unitBattleDataModel = new UnitBattleDataModel(stage, unitDataModel);
+                unitBattleDataModel.Init();
+                unitList.Add(unitBattleDataModel);
+            }
+        }
+
         public static void PreparePreBattleEnemyUnits(List<UnitModel> unitModels, StageModel stage,
             List<UnitBattleDataModel> unitList)
         {

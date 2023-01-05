@@ -24,7 +24,8 @@ namespace BigDLL4221.StageManagers
         public int MapPhase;
         public Dictionary<int, RushBattlePhaseOptions> Phases = new Dictionary<int, RushBattlePhaseOptions>();
 
-        public void SetParameter(List<RushBattlePhaseOptions> phases, bool isInfinite = false, bool isRandom = false)
+        public void SetParameter(List<RushBattlePhaseOptions> phases, bool isInfinite = false, bool isRandom = false,
+            bool clearData = false)
         {
             try
             {
@@ -41,7 +42,7 @@ namespace BigDLL4221.StageManagers
                     ActualPhaseInt = StaticModsInfo.RandomWaveStart;
                 ActualPhase = Phases[ActualPhaseInt];
                 MapPhase = ActualPhase.StarterMapPhase;
-                if (!Singleton<StageController>.Instance.GetStageModel()
+                if (clearData || !Singleton<StageController>.Instance.GetStageModel()
                         .GetStageStorageData("FoughtPhaseSave4221", out FoughtWaves)) FoughtWaves = new List<int>();
                 if (FoughtWaves != null && FoughtWaves.Any())
                     foreach (var key in FoughtWaves)
@@ -55,8 +56,6 @@ namespace BigDLL4221.StageManagers
                 _isLastWave = Phases.Count < 2;
                 if (!IsInfinite && _isLastWave) return;
                 stageModel._waveList.Add(new StageWaveModel());
-                stageModel._waveList.ElementAt(stageModel._waveList.Count - 1).Init(stageModel,
-                    Singleton<StageController>.Instance.GetCurrentWaveModel()._stageWaveInfo);
             }
             catch (Exception ex)
             {
@@ -174,9 +173,27 @@ namespace BigDLL4221.StageManagers
                 }
             }
 
+            var stageWaveInfo = Singleton<StageController>.Instance.GetCurrentWaveModel()._stageWaveInfo;
+            stageWaveInfo.formationId = Mathf.Clamp(ActualPhase.FormationId, 1, 41);
+            stageWaveInfo.availableNumber = ActualPhase.UnitAllowed;
+            stageModel._waveList.ElementAt(stageModel._waveList.Count - 1).Init(stageModel, stageWaveInfo);
             var list = new List<UnitBattleDataModel>();
             UnitUtil.PreparePreBattleEnemyUnits(ActualPhase.UnitModels, stageModel, list);
             nextWaveModel.ResetUnitBattleDataList(list);
+            if (!ActualPhase.PlayerUnitModels.Any() && !ActualPhase.ReloadOriginalPlayerUnits.Any()) return;
+            foreach (var stageFloor in stageModel.GetAvailableFloorList())
+            {
+                if (ActualPhase.PlayerUnitModels.TryGetValue(stageFloor.Sephirah, out var customUnits))
+                {
+                    stageFloor._unitList.Clear();
+                    UnitUtil.PreparePreBattleAllyUnits(stageFloor, customUnits, stageModel, stageFloor._unitList);
+                }
+
+                if (!ActualPhase.ReloadOriginalPlayerUnits.ContainsKey(stageFloor.Sephirah)) continue;
+                foreach (var unitDataModel in stageFloor._floorModel.GetUnitDataList())
+                    if (stageFloor._unitList.Count < 5)
+                        stageFloor._unitList.Add(UnitUtil.InitUnitDefault(stageModel, unitDataModel));
+            }
         }
     }
 
@@ -184,7 +201,10 @@ namespace BigDLL4221.StageManagers
     {
         public RushBattlePhaseOptions(List<UnitModel> unitModels, Dictionary<string, List<MapModel>> maps = null,
             Dictionary<int, List<UnitModel>> innerPhases = null, bool recoverPlayerUnits = true,
-            int actualInnerPhase = 0, int starterMapPhase = 0, int startEmotionLevel = 0, string cmhPackageId = "")
+            int actualInnerPhase = 0, int starterMapPhase = 0, int startEmotionLevel = 0, string cmhPackageId = "",
+            Dictionary<SephirahType, List<UnitModel>> playerUnitModels = null,
+            Dictionary<SephirahType, bool> reloadOriginalPlayerUnits = null,
+            int formationId = 1, int unitAllowed = 5)
         {
             Maps = maps ?? new Dictionary<string, List<MapModel>>();
             UnitModels = unitModels;
@@ -194,15 +214,23 @@ namespace BigDLL4221.StageManagers
             StarterMapPhase = starterMapPhase;
             StartEmotionLevel = startEmotionLevel;
             CmhPackageId = cmhPackageId;
+            PlayerUnitModels = playerUnitModels ?? new Dictionary<SephirahType, List<UnitModel>>();
+            ReloadOriginalPlayerUnits = reloadOriginalPlayerUnits ?? new Dictionary<SephirahType, bool>();
+            FormationId = formationId;
+            UnitAllowed = unitAllowed;
         }
 
         public Dictionary<string, List<MapModel>> Maps { get; set; }
         public List<UnitModel> UnitModels { get; set; }
+        public Dictionary<SephirahType, List<UnitModel>> PlayerUnitModels { get; set; }
         public Dictionary<int, List<UnitModel>> InnerPhases { get; set; }
         public bool RecoverPlayerUnits { get; set; }
+        public Dictionary<SephirahType, bool> ReloadOriginalPlayerUnits { get; set; }
         public int ActualInnerPhase { get; set; }
         public int StarterMapPhase { get; set; }
         public int StartEmotionLevel { get; set; }
+        public int FormationId { get; set; }
+        public int UnitAllowed { get; set; }
         public string CmhPackageId { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using BigDLL4221.Buffs;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
+using BigDLL4221.StageManagers;
 using BigDLL4221.Utils;
 using Sound;
 
@@ -237,6 +238,11 @@ namespace BigDLL4221.BaseClass
 
         public virtual void InitMechRoundEnd(MechPhaseOptions mechOptions)
         {
+            if (Singleton<StageController>.Instance.EnemyStageManager is
+                EnemyTeamStageManager_RushBattleWithCMUOnly_DLL4221 manager)
+                if (mechOptions.MusicOptions != null)
+                    manager.ChangeMusic(Model.Owner.Book.BookId.packageId, mechOptions.MusicOptions.MusicFileName,
+                        mechOptions.MusicOptions.MapName);
             if (mechOptions.MechOnDeath) UnitUtil.UnitReviveAndRecovery(Model.Owner, 1, true);
             if (mechOptions.ForcedRetreatOnDeath) Model.Owner.forceRetreat = true;
             if (mechOptions.SetEmotionLevel != 0)
@@ -516,6 +522,19 @@ namespace BigDLL4221.BaseClass
             if (Model.ForceRetreatOnRevive) Model.Owner.forceRetreat = true;
             if (!Model.EgoOptions.TryGetValue(Model.EgoPhase, out var egoOptions)) return;
             if (egoOptions.ActiveEgoOnDeath) EgoActive();
+        }
+
+        public int GetMapPhase(int phase)
+        {
+            if (Model.MechOptions == null ||
+                !Model.MechOptions.TryGetValue(phase, out var mechPhaseOptions)) return -1;
+            if (phase == 0 && !mechPhaseOptions.HasCustomMap) return -1;
+            if (mechPhaseOptions.HasCustomMap) return mechPhaseOptions.MapOrderIndex;
+            var subPhase = Model.MechOptions.Where(x => x.Key < phase).Reverse().Any(x => x.Value.HasCustomMap);
+            if (!subPhase) return -1;
+            return (from phaseOption in Model.MechOptions.Where(x => x.Key < phase).Reverse()
+                where phaseOption.Value.HasCustomMap
+                select phaseOption.Value.MapOrderIndex).FirstOrDefault();
         }
     }
 }

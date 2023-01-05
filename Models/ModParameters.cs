@@ -786,7 +786,7 @@ namespace BigDLL4221.Models
             UnitModels = unitModels ?? new Dictionary<string, List<UnitModel>>();
             Colors = colors ?? new Dictionary<string, BaseColorOptions>();
             Buffs = buffs ?? new Dictionary<string, List<Type>>();
-            Strings = strings;
+            Strings = strings ?? new Dictionary<string, string>();
         }
 
         public int? Id { get; set; }
@@ -811,5 +811,7 @@ namespace BigDLL4221.Models
         public static string RandomWave = "RandomWave";
         public static string HidePreview = "HidePreview";
         public static string ManagerScriptName = "ManagerScript";
+        public static string UsableUnits = "UsableUnits";
+        public static string FormationId = "FormationId";
     }
 }

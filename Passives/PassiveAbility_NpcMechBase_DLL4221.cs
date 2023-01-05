@@ -3,6 +3,7 @@ using System.Linq;
 using BigDLL4221.BaseClass;
 using BigDLL4221.Buffs;
 using BigDLL4221.Extensions;
+using BigDLL4221.StageManagers;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
 
@@ -47,6 +48,11 @@ namespace BigDLL4221.Passives
             Util.SceneCounter();
             Util.ChangePhaseForSceneCounter();
             Util.UseSpecialBuffCard();
+            if (!(Singleton<StageController>.Instance.EnemyStageManager is
+                    EnemyTeamStageManager_RushBattleWithCMUOnly_DLL4221 manager)) return;
+            var phase = Util.GetMapPhase(Util.Model.Phase);
+            if (phase != -1) manager.SetMapPhase(phase);
+            manager.OnRoundStart();
         }
 
         public override void OnKill(BattleUnitModel target)
