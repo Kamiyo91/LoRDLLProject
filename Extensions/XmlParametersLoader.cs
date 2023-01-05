@@ -41,6 +41,9 @@ namespace BigDLL4221.Extensions
         [XmlElement("ExtraInt")] public List<ExtraOptionInts> ExtraInts;
 
 
+        [XmlElement("ExtraString")] public List<ExtraString> ExtraString;
+
+
         [XmlAttribute("Id")] public int Id;
         [XmlAttribute("OptionType")] public ParameterTypeEnum OptionType;
     }
@@ -53,6 +56,11 @@ namespace BigDLL4221.Extensions
     public class ExtraBool : ExtraOptionBase
     {
         [XmlAttribute("Value")] public bool BoolValue;
+    }
+
+    public class ExtraString : ExtraOptionBase
+    {
+        [XmlAttribute("Value")] public string StringValue;
     }
 
     public class ExtraUnitModelRoot : ExtraOptionBase

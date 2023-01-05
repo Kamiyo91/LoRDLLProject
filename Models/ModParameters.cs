@@ -108,6 +108,7 @@ namespace BigDLL4221.Models
         public static bool TiphEgoModFound = false;
         public static bool ModsLoaded = false;
         public static FieldInfo MatchInfoEmotionSelection = null;
+        public static int RandomWaveStart = 0;
 
         //Not Used
         public static AssemblyManager.TypeDictionary<BattleUnitBuf> BuffDict =
@@ -773,7 +774,8 @@ namespace BigDLL4221.Models
         public ExtraOptions(int? id = null, Type buff = null, ParameterTypeEnum optionType = ParameterTypeEnum.Passive,
             Dictionary<string, bool> bools = null, Dictionary<string, List<int>> ints = null,
             Dictionary<string, List<LorId>> lorIds = null, Dictionary<string, List<UnitModel>> unitModels = null,
-            Dictionary<string, BaseColorOptions> colors = null, Dictionary<string, List<Type>> buffs = null)
+            Dictionary<string, BaseColorOptions> colors = null,
+            Dictionary<string, List<Type>> buffs = null, Dictionary<string, string> strings = null)
         {
             Id = id;
             Buff = buff;
@@ -784,11 +786,15 @@ namespace BigDLL4221.Models
             UnitModels = unitModels ?? new Dictionary<string, List<UnitModel>>();
             Colors = colors ?? new Dictionary<string, BaseColorOptions>();
             Buffs = buffs ?? new Dictionary<string, List<Type>>();
+            Strings = strings;
         }
 
         public int? Id { get; set; }
         public Type Buff { get; set; }
+
         public ParameterTypeEnum OptionType { get; set; }
+
+        public Dictionary<string, string> Strings { get; set; }
         public Dictionary<string, bool> Bools { get; set; }
         public Dictionary<string, List<int>> Ints { get; set; }
         public Dictionary<string, List<LorId>> LorIds { get; set; }
@@ -802,5 +808,8 @@ namespace BigDLL4221.Models
         public static string ForceAggro = "ForceAggro";
         public static string MultiUsePassive = "PassiveCanBeUsedMoreTimes";
         public static string IgnoreClashOnlyForAlly = "IgnoreClashAlly";
+        public static string RandomWave = "RandomWave";
+        public static string HidePreview = "HidePreview";
+        public static string ManagerScriptName = "ManagerScript";
     }
 }

@@ -58,6 +58,11 @@ namespace BigDLL4221.StageManagers
             ChangeMap();
         }
 
+        public void ChangeMusic(string musicFileName, string mapName)
+        {
+            _cmh.SetMapBgm(musicFileName, true, mapName);
+        }
+
         public override void OnEndBattle()
         {
             Singleton<StageController>.Instance.GetStageModel()

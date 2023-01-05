@@ -13,6 +13,21 @@ namespace BigDLL4221.Harmony
     [HarmonyPatch]
     public class UnitLimitPatch
     {
+        [HarmonyPatch(typeof(UIBattleSettingWaveList), "SetData")]
+        [HarmonyPrefix]
+        public static void UIBattleSettingWaveList_SetData(UIBattleSettingWaveList __instance, StageModel stage)
+        {
+            try
+            {
+                while (stage.waveList.Count > __instance.waveSlots.Count)
+                    __instance.waveSlots.Add(__instance.waveSlots[__instance.waveSlots.Count - 1]);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex.Message);
+            }
+        }
+
         [HarmonyPatch(typeof(LibraryFloorModel), "Init")]
         [HarmonyPostfix]
         private static void LibraryFloorModel_Init_Post(LibraryFloorModel __instance)

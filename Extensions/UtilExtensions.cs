@@ -178,7 +178,8 @@ namespace BigDLL4221.Extensions
                 extraOption.ExtraInts.ToDictionaryExtraValue(), extraOption.ExtraLorIds.ToDictionaryExtraValue(),
                 extraOption.ExtraUnitModelOptions.ToDictionaryExtraValue(assemblies),
                 extraOption.ExtraColorOptions.ToDictionaryExtraValue(),
-                extraOption.ExtraBuffOptions.ToDictionaryExtraValue(assemblies));
+                extraOption.ExtraBuffOptions.ToDictionaryExtraValue(assemblies),
+                extraOption.ExtraString.ToDictionaryExtraValue());
         }
 
         public static void AddDefaultKeyword(this DefaultKeywordRoot defaultKeyword)
@@ -215,6 +216,12 @@ namespace BigDLL4221.Extensions
         {
             return extraValues.Where(x => !string.IsNullOrEmpty(x.Condition))
                 .ToDictionary(value => value.Condition, value => value.BoolValue);
+        }
+
+        public static Dictionary<string, string> ToDictionaryExtraValue(this List<ExtraString> extraValues)
+        {
+            return extraValues.Where(x => !string.IsNullOrEmpty(x.Condition))
+                .ToDictionary(value => value.Condition, value => value.StringValue);
         }
 
         public static Dictionary<string, List<int>> ToDictionaryExtraValue(this List<ExtraOptionInts> extraValues)

@@ -1396,8 +1396,18 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(StageClassInfo), "currentState", MethodType.Getter)]
         [HarmonyPostfix]
-        public static void StageClassInfo_OnClickTargetUnit(StageClassInfo __instance, ref StoryState __result)
+        public static void StageClassInfo_Get(StageClassInfo __instance, ref StoryState __result)
         {
+            if (!ModParameters.ExtraOptions.TryGetValue(__instance.id.packageId, out var extraOptions)) return;
+            var stageOptionsExtra = extraOptions.FirstOrDefault(x =>
+                x.OptionType == ParameterTypeEnum.Stage && x.Id != null && x.Id == __instance.id.id);
+            if (stageOptionsExtra != null &&
+                stageOptionsExtra.Bools.TryGetValue(Condition.HidePreview, out var result) && result)
+            {
+                __result = StoryState.FirstOpen;
+                return;
+            }
+
             if (!ModParameters.StageOptions.TryGetValue(__instance.id.packageId, out var stageOptions)) return;
             var stage = stageOptions.FirstOrDefault(x => x.StageId == __instance.id.id);
             if (stage?.StageRequirements == null) return;
@@ -1453,6 +1463,35 @@ namespace BigDLL4221.Harmony
                 !value) return;
             __instance.isOtherEquiped = false;
             __instance.ob_otherequiped.gameObject.SetActive(false);
+        }
+
+        [HarmonyPatch(typeof(StageWaveModel), "Init")]
+        [HarmonyPostfix]
+        public static void StageWaveModel_Init(StageWaveModel __instance, StageModel stage)
+        {
+            StaticModsInfo.RandomWaveStart = 0;
+            if (!ModParameters.ExtraOptions.TryGetValue(stage.ClassInfo.id.packageId, out var extraOptions)) return;
+            var stageOptions = extraOptions.FirstOrDefault(x =>
+                x.OptionType == ParameterTypeEnum.Stage && x.Id != null && x.Id == stage.ClassInfo.id.id);
+            if (stageOptions == null) return;
+            if (stageOptions.Strings.TryGetValue(Condition.ManagerScriptName, out var script) &&
+                !string.IsNullOrEmpty(script)) __instance._managerScript = script;
+            if (!stageOptions.UnitModels.Any()) return;
+            List<UnitModel> list;
+            if (stageOptions.Bools.TryGetValue(Condition.RandomWave, out var result) && result)
+            {
+                var items = stageOptions.UnitModels.ElementAtOrDefault(RandomUtil.Range(0,
+                    stageOptions.UnitModels.Count - 1));
+                StaticModsInfo.RandomWaveStart = int.Parse(items.Key);
+                list = items.Value;
+            }
+            else
+            {
+                list = stageOptions.UnitModels.FirstOrDefault().Value;
+            }
+
+            __instance._unitList.Clear();
+            UnitUtil.PreparePreBattleEnemyUnits(list, stage, __instance._unitList);
         }
     }
 }

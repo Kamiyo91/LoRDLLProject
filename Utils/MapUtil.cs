@@ -119,6 +119,17 @@ namespace BigDLL4221.Utils
                     .Invoke(mapModel, new object[] { cmh, mapModel });
         }
 
+        public static void PrepareEnemyMapsMultiCmu(Dictionary<string, List<MapModel>> mapModels)
+        {
+            foreach (var item in mapModels.Where(x => !string.IsNullOrEmpty(x.Key)))
+            {
+                var cmh = CustomMapHandler.GetCMU(item.Key);
+                foreach (var mapModel in item.Value)
+                    typeof(MapUtil).GetMethod("InitEnemyMap").MakeGenericMethod(mapModel.Component)
+                        .Invoke(mapModel, new object[] { cmh, mapModel });
+            }
+        }
+
         public static void InitEnemyMap<T>(CustomMapHandler cmh, MapModel model)
             where T : MapManager, ICMU, new()
         {

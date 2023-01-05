@@ -108,6 +108,7 @@ namespace BigDLL4221.Utils
             owner.bufListDetail.RemoveBufAll(BufPositiveType.Negative);
             owner.bufListDetail.RemoveBufAll(typeof(BattleUnitBuf_sealTemp));
             owner.breakDetail.ResetGauge();
+            owner.breakDetail.GetDefaultBreakGauge();
             owner.breakDetail.nextTurnBreak = false;
             owner.breakDetail.RecoverBreakLife(1, true);
             if (recoverLight) owner.cardSlotDetail.RecoverPlayPoint(owner.cardSlotDetail.GetMaxPlayPoint());
