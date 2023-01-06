@@ -153,7 +153,6 @@ namespace BigDLL4221.StageManagers
                 Phases.Remove(ActualPhaseInt);
                 stageModel.SetStageStorgeData("FoughtPhaseSave4221", FoughtWaves);
             }
-
             ActualPhaseInt = !IsRandom
                 ? ActualPhaseInt++
                 : Phases.Any()
@@ -162,6 +161,7 @@ namespace BigDLL4221.StageManagers
             stageModel.SetStageStorgeData("RushBattlePhaseSave4221", ActualPhaseInt);
             if (!Phases.TryGetValue(ActualPhaseInt, out ActualPhase))
             {
+                Debug.LogError($"Entry no more phases - Infinite ? {IsInfinite}");
                 if (!IsInfinite) return;
                 stageModel.SetStageStorgeData("FoughtPhaseSave4221", new List<int>());
                 ActualPhaseInt = !IsRandom ? 0 : _clonedPhases.Keys.ElementAt(RandomUtil.Range(0, Phases.Count - 1));
