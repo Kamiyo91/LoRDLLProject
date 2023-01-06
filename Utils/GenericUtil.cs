@@ -51,6 +51,7 @@ namespace BigDLL4221.Utils
             if (modContentInfo == null) return;
             var index = modContentInfoList.Count - 1;
             if (modContentInfoList[index] == modContentInfo) return;
+            modContentInfoList.Remove(modContentInfo);
             modContentInfoList.Insert(modContentInfoList.Count-1, modContentInfo);
         }
         public static void OnLoadingScreen(Scene scene, LoadSceneMode _)
