@@ -502,5 +502,31 @@ namespace BigDLL4221.Utils
                                    ex.Message);
             }
         }
+
+        public static void LoadDllUtilOptions(string path)
+        {
+            var error = false;
+            FileInfo file;
+            try
+            {
+                file = new DirectoryInfo(path + "/BigDllOptions/").GetFiles().FirstOrDefault();
+                error = true;
+                if (file == null) return;
+                using (var stringReader = new StringReader(File.ReadAllText(file.FullName)))
+                {
+                    var root =
+                        (DllUtilOptionsRoot)new XmlSerializer(typeof(DllUtilOptionsRoot))
+                            .Deserialize(stringReader);
+                    if (root == null) return;
+                    StaticModsInfo.CustomColors = root.CustomColors;
+                    StaticModsInfo.CustomSpeedDice = root.CustomSpeedDice;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (error)
+                    Debug.LogError("Error loading Dll Options Error : " + ex.Message);
+            }
+        }
     }
 }

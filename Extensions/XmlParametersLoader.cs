@@ -22,6 +22,12 @@ namespace BigDLL4221.Extensions
         [XmlElement("ExtraOption")] public List<ExtraOptionRoot> ExtraOption;
     }
 
+    public class DllUtilOptionsRoot
+    {
+        [XmlElement("CustomColors")] public bool CustomColors = true;
+        [XmlElement("CustomSpeedDice")] public bool CustomSpeedDice = true;
+    }
+
     public class ExtraOptionRoot
     {
         [XmlAttribute("Buff")] public string Buff = "";

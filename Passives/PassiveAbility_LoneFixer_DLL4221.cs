@@ -16,5 +16,10 @@ namespace BigDLL4221.Passives
             if (UnitUtil.SupportCharCheck(owner) < 2)
                 owner.bufListDetail.AddKeywordBufByEtc(KeywordBuf.Strength, 3);
         }
+
+        public override bool CanAddBuf(BattleUnitBuf buf)
+        {
+            return buf.positiveType != BufPositiveType.Negative;
+        }
     }
 }

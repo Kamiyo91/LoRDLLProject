@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using BigDLL4221.Buffs;
 using BigDLL4221.Models;
 using BigDLL4221.Passives;
 using LOR_DiceSystem;
@@ -12,6 +13,20 @@ namespace BigDLL4221.Extensions
 {
     public static class UtilExtensions
     {
+        public static BattleUnitBuf_BaseBufChanged_DLL4221 AddBuff<T>(this BattleUnitModel owner, int stack)
+            where T : BattleUnitBuf_BaseBufChanged_DLL4221, new()
+        {
+            var buff = owner.GetActiveBuff<T>();
+            if (buff == null)
+            {
+                buff = new T();
+                owner.bufListDetail.AddBuf(buff);
+            }
+
+            buff.OnAddBuf(stack);
+            return buff;
+        }
+
         public static T GetActivePassive<T>(this BattleUnitModel owner) where T : PassiveAbilityBase
         {
             return (T)owner.passiveDetail.PassiveList.FirstOrDefault(x => x is T && !x.destroyed);

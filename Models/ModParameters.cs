@@ -110,6 +110,8 @@ namespace BigDLL4221.Models
         public static FieldInfo MatchInfoEmotionSelection = null;
         public static int RandomWaveStart = 0;
         public static bool ChangingAct = false;
+        public static bool CustomColors = true;
+        public static bool CustomSpeedDice = true;
 
         //Not Used
         public static AssemblyManager.TypeDictionary<BattleUnitBuf> BuffDict =
