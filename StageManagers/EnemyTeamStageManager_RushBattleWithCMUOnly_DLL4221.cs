@@ -153,6 +153,7 @@ namespace BigDLL4221.StageManagers
                 Phases.Remove(ActualPhaseInt);
                 stageModel.SetStageStorgeData("FoughtPhaseSave4221", FoughtWaves);
             }
+
             ActualPhaseInt = !IsRandom
                 ? ActualPhaseInt++
                 : Phases.Any()
