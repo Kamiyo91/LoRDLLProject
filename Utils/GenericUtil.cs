@@ -43,7 +43,14 @@ namespace BigDLL4221.Utils
             modContentInfoList.Remove(modContentInfo);
             modContentInfoList.Insert(index, modContentInfo);
         }
-
+        public static void PutModInTheLastSlot(string packageId)
+        {
+            var modContentInfoList = Singleton<ModContentManager>.Instance._allMods;
+            var modContentInfo =
+                modContentInfoList?.FirstOrDefault(x => x.invInfo.workshopInfo.uniqueId == packageId);
+            if (modContentInfo == null) return;
+            modContentInfoList.Insert(modContentInfoList.Count-1, modContentInfo);
+        }
         public static void OnLoadingScreen(Scene scene, LoadSceneMode _)
         {
             if (scene.name != "Stage_Hod_New" || StaticModsInfo.ModsLoaded) return;
