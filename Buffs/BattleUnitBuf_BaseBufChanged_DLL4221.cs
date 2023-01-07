@@ -10,6 +10,7 @@ namespace BigDLL4221.Buffs
         public readonly bool LastOneScene;
         private bool _motionChanged;
         private int _sceneCount;
+        public GameObject Aura;
 
         public BattleUnitBuf_BaseBufChanged_DLL4221(ActionDetail actionDetail = ActionDetail.NONE,
             bool infinite = false, bool lastOneScene = true, int lastForXScenes = 0)
@@ -27,7 +28,6 @@ namespace BigDLL4221.Buffs
         public virtual int MaxStack => 25;
         public virtual int AdderStackEachScene => 0;
         public virtual bool DestroyedAt0Stack => false;
-        public GameObject Aura;
 
         public override void Init(BattleUnitModel owner)
         {
@@ -67,7 +67,7 @@ namespace BigDLL4221.Buffs
 
         private void RemoveBuff()
         {
-            if(Aura != null) Object.Destroy(Aura);
+            if (Aura != null) Object.Destroy(Aura);
             _owner.bufListDetail.RemoveBuf(this);
         }
     }

@@ -466,7 +466,8 @@ namespace BigDLL4221.BaseClass
             if (!Model.MechOptions.TryGetValue(Model.Phase, out var mechOptions)) return false;
             if (mechOptions.SingletonBufMech == null) return false;
             if (!mechOptions.SingletonBufMech.MassAttackCards.Exists(x => x.CardId == card.card.GetID())) return false;
-            mechOptions.SingletonBufMech.Buff.OnAddBuf(-9999);
+            //mechOptions.SingletonBufMech.Buff.OnAddBuf(-9999);
+            mechOptions.SingletonBufMech.Buff.stack = 0;
             return true;
         }
 

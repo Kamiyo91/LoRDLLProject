@@ -533,7 +533,7 @@ namespace BigDLL4221.Extensions
         [XmlElement("IsBaseGameKeypage")] public bool IsBaseGameKeypage;
 
         [XmlElement("TargetableBySpecialCards")]
-        public bool TargetableBySpecialCards;
+        public bool TargetableBySpecialCards = true;
 
         [XmlElement("KeypageColorOptions")] public ColorOptionsRoot KeypageColorOptions;
         [XmlElement("CustomFloorOptions")] public CustomFloorOptionRoot CustomFloorOptions;
