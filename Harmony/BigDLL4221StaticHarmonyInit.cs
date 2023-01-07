@@ -14,8 +14,7 @@ namespace BigDLL4221.Harmony
         {
             var assembly = Assembly.GetExecutingAssembly();
             Debug.Log($"BigDLL4221: Using Version {assembly.GetName().Version}");
-            ModParametersUtilLoader.LoadDllUtilOptions(
-                Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(assembly.CodeBase).Path)));
+            ModParametersUtilLoader.LoadDllUtilOptions(Path.Combine(Application.dataPath, "Mods"));
             GenericUtil.PutUtilInTheFirstSlot();
             GenericUtil.OtherModCheck();
             CardUtil.FillDictionary();
@@ -49,12 +48,17 @@ namespace BigDLL4221.Harmony
                 }
             }
 
-            if (!StaticModsInfo.CustomColors) return;
+            SceneManager.sceneLoaded += GenericUtil.OnLoadingScreen;
+            if (!StaticModsInfo.CustomColors)
+            {
+                ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardSpritePatch)).Patch();
+                return;
+            }
+
             ModParameters.Harmony.CreateClassProcessor(typeof(ColorPatch)).Patch();
             if (StaticModsInfo.TiphEgoModFound)
                 ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatchWithTiphEgo)).Patch();
             else ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatch)).Patch();
-            SceneManager.sceneLoaded += GenericUtil.OnLoadingScreen;
         }
     }
 }

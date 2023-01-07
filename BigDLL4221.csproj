@@ -125,6 +125,7 @@
     <Compile Include="GameObjectUtils\ChangeDiceOrderGameObject.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
     <Compile Include="Harmony\EmotionCardColorPatch.cs" />
+    <Compile Include="Harmony\EmotionCardSpritePatch.cs" />
     <Compile Include="Harmony\SpeedDiceColorPatch.cs" />
     <Compile Include="Harmony\SpeedDiceColorPatchWithPattyMod.cs" />
     <Compile Include="Harmony\EmotionCardColorPatchWithTiphEgo.cs" />

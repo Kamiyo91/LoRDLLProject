@@ -182,7 +182,7 @@ namespace BigDLL4221.Utils
             instance.img_Icon.sprite = icon;
             instance.txt_StoryName.text = CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
                 storyKey.workshopId);
-            if (credenzaOptions.BookDataColor == null) return;
+            if (!StaticModsInfo.CustomColors || credenzaOptions.BookDataColor == null) return;
             if (credenzaOptions.BookDataColor.FrameColor.HasValue)
                 SetBooksDataFrameColor(credenzaOptions.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
                     instance.img_LineFrame,
@@ -211,7 +211,7 @@ namespace BigDLL4221.Utils
             instance.img_Icon.sprite = icon;
             instance.txt_StoryName.text = CredenzaName(credenzaOptions.CredenzaNameId, credenzaOptions.CredenzaName,
                 storyKey.workshopId);
-            if (credenzaOptions.BookDataColor == null) return;
+            if (!StaticModsInfo.CustomColors || credenzaOptions.BookDataColor == null) return;
             if (credenzaOptions.BookDataColor.FrameColor.HasValue)
                 SetBooksDataFrameColor(credenzaOptions.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
                     instance.img_LineFrame,
@@ -246,7 +246,7 @@ namespace BigDLL4221.Utils
             instance.img_IconGlow.sprite = icon;
             instance.txt_StoryName.text = CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
                 categoryOption.PackageId);
-            if (categoryOption.BookDataColor == null) return;
+            if (!StaticModsInfo.CustomColors || categoryOption.BookDataColor == null) return;
             if (categoryOption.BookDataColor.FrameColor.HasValue)
                 SetBooksDataFrameColor(categoryOption.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
                     instance.img_LineFrame,
@@ -281,7 +281,7 @@ namespace BigDLL4221.Utils
             instance.img_IconGlow.sprite = icon;
             instance.txt_StoryName.text = CredenzaName(categoryOption.CategoryNameId, categoryOption.CategoryName,
                 categoryOption.PackageId);
-            if (categoryOption.BookDataColor == null) return;
+            if (!StaticModsInfo.CustomColors || categoryOption.BookDataColor == null) return;
             if (categoryOption.BookDataColor.FrameColor.HasValue)
                 SetBooksDataFrameColor(categoryOption.BookDataColor.FrameColor.Value, instance.img_EdgeFrame,
                     instance.img_LineFrame,
@@ -367,6 +367,22 @@ namespace BigDLL4221.Utils
             component.underlayColor = cardOptions.ColorOptions.FrameColor.Value;
             component.enabled = false;
             component.enabled = true;
+        }
+
+        public static void EmotionPassiveCardUISetSpritesPostNoColor(EmotionPassiveCardUI instance,
+            EmotionCardXmlExtension cardExtension)
+        {
+            instance._artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
+        }
+
+        public static void EmotionPassiveCardUISetSpritesPostNoColor(UIEmotionPassiveCardInven instance,
+            EmotionCardXmlExtension cardExtension)
+        {
+            instance._artwork.sprite =
+                Singleton<CustomizingCardArtworkLoader>.Instance.GetSpecificArtworkSprite(cardExtension.LorId.packageId,
+                    cardExtension.Artwork);
         }
 
         public static void EmotionPassiveCardUISetSpritesPost(UIEmotionPassiveCardInven instance,

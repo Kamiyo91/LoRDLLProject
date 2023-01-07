@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using System.Xml.Serialization;
 using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
@@ -223,10 +224,10 @@ namespace BigDLL4221.Utils
                     {
                         foreach (var code in option.FloorCode)
                             CardUtil.SetFloorPullCodeCards(packageId, code,
-                                TypeCardEnum.Emotion, option.CardId);
+                                TypeCardEnum.Ego, option.CardId);
                         foreach (var code in option.Code)
                             CardUtil.SetPullCodeCards(packageId, code,
-                                TypeCardEnum.Emotion, option.CardId);
+                                TypeCardEnum.Ego, option.CardId);
                     }
                 }
             }
@@ -525,7 +526,40 @@ namespace BigDLL4221.Utils
             catch (Exception ex)
             {
                 if (error)
-                    Debug.LogError("Error loading Dll Options Error : " + ex.Message);
+                    Debug.LogError("Error loading Dll Options - Error : " + ex.Message);
+                else
+                    CreateXmlFile(path);
+            }
+        }
+
+        private static void CreateXmlFile(string path)
+        {
+            try
+            {
+                Directory.CreateDirectory(path + "/BigDllOptions");
+                var doc = new XmlDocument();
+                var xmlDeclaration = doc.CreateXmlDeclaration("1.0",
+                    "UTF-8", string.Empty);
+                doc.AppendChild(xmlDeclaration);
+                var root = doc.CreateElement("DllUtilOptionsRoot");
+                doc.AppendChild(root);
+                var e1 = doc.CreateAttribute("xmlns:xsd");
+                e1.Value = "http://www.w3.org/2001/XMLSchema";
+                root.Attributes.Append(e1);
+                var e2 = doc.CreateAttribute("xmlns:xsi");
+                e2.Value = "http://www.w3.org/2001/XMLSchema-instance";
+                root.Attributes.Append(e2);
+                var customColors = doc.CreateElement("CustomColors");
+                customColors.InnerText = "true";
+                root.AppendChild(customColors);
+                var customSpeedDice = doc.CreateElement("CustomSpeedDice");
+                customSpeedDice.InnerText = "true";
+                root.AppendChild(customSpeedDice);
+                doc.Save(path + "/BigDllOptions" + "/DLLOptions.xml");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Error writing Dll Options - Error : " + ex.Message);
             }
         }
     }

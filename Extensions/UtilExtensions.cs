@@ -21,6 +21,7 @@ namespace BigDLL4221.Extensions
             {
                 buff = new T();
                 owner.bufListDetail.AddBuf(buff);
+                stack--;
             }
 
             buff.OnAddBuf(stack);
