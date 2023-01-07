@@ -27,6 +27,7 @@ namespace BigDLL4221.Buffs
         public virtual int MaxStack => 25;
         public virtual int AdderStackEachScene => 0;
         public virtual bool DestroyedAt0Stack => false;
+        public GameObject Aura;
 
         public override void Init(BattleUnitModel owner)
         {
@@ -40,7 +41,7 @@ namespace BigDLL4221.Buffs
         {
             stack += addedStack;
             stack = Mathf.Clamp(stack, MinStack, MaxStack);
-            if (DestroyedAt0Stack && stack == 0) _owner.bufListDetail.RemoveBuf(this);
+            if (DestroyedAt0Stack && stack == 0) RemoveBuff();
         }
 
         public override void OnRoundEnd()
@@ -52,7 +53,7 @@ namespace BigDLL4221.Buffs
                 if (_lastForXScenes == _sceneCount)
                 {
                     if (_motionChanged) _owner.view.charAppearance.ChangeMotion(ActionDetail.Default);
-                    _owner.bufListDetail.RemoveBuf(this);
+                    RemoveBuff();
                     return;
                 }
 
@@ -61,6 +62,12 @@ namespace BigDLL4221.Buffs
 
             if (!LastOneScene) return;
             if (_motionChanged) _owner.view.charAppearance.ChangeMotion(ActionDetail.Default);
+            RemoveBuff();
+        }
+
+        private void RemoveBuff()
+        {
+            if(Aura != null) Object.Destroy(Aura);
             _owner.bufListDetail.RemoveBuf(this);
         }
     }
