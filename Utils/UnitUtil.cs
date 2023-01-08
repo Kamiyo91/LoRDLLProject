@@ -787,5 +787,16 @@ namespace BigDLL4221.Utils
                 return true;
             return stageExtra.RequiredStageIds.Any(num => LibraryModel.Instance.ClearInfo.GetClearCount(num) <= 0);
         }
+
+        public static bool CheckTargetSpeedByCard(BattlePlayingCardDataInUnitModel card, int value)
+        {
+            var speedDiceResultValue = card.speedDiceResultValue;
+            var target = card.target;
+            var targetSlotOrder = card.targetSlotOrder;
+            if (targetSlotOrder < 0 || targetSlotOrder >= target.speedDiceResult.Count) return false;
+            var speedDice = target.speedDiceResult[targetSlotOrder];
+            var targetDiceBroken = target.speedDiceResult[targetSlotOrder].breaked;
+            return speedDiceResultValue - speedDice.value > value || targetDiceBroken;
+        }
     }
 }

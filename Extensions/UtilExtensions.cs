@@ -21,11 +21,32 @@ namespace BigDLL4221.Extensions
             {
                 buff = new T();
                 owner.bufListDetail.AddBuf(buff);
-                stack--;
+                buff.stack = 0;
             }
 
             buff.OnAddBuf(stack);
             return buff;
+        }
+
+        public static void ChangeSameCardsCost(this BattleUnitModel owner, BattlePlayingCardDataInUnitModel card,
+            int value)
+        {
+            foreach (var battleDiceCardModel in owner.allyCardDetail.GetAllDeck()
+                         .FindAll(x => x != card.card && x.GetID() == card.card.GetID()))
+            {
+                battleDiceCardModel.GetBufList();
+                battleDiceCardModel.AddCost(value);
+            }
+        }
+
+        public static void ChangeAllCardCostByCardId(this BattleUnitModel owner, LorId cardId, int value)
+        {
+            foreach (var battleDiceCardModel in owner.allyCardDetail.GetAllDeck()
+                         .FindAll(x => x.GetID() == cardId))
+            {
+                battleDiceCardModel.GetBufList();
+                battleDiceCardModel.AddCost(value);
+            }
         }
 
         public static T GetActivePassive<T>(this BattleUnitModel owner) where T : PassiveAbilityBase
