@@ -124,6 +124,7 @@
     <Compile Include="FarAreaEffects\BehaviourAction_BaseMassAttackEffect_DLL4221.cs" />
     <Compile Include="GameObjectUtils\ChangeDiceOrderGameObject.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
+    <Compile Include="Harmony\HotfixTranspilers.cs" />
     <Compile Include="Harmony\EmotionCardColorPatch.cs" />
     <Compile Include="Harmony\EmotionCardSpritePatch.cs" />
     <Compile Include="Harmony\SpeedDiceColorPatch.cs" />

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using Battle.DiceAttackEffect;
 using BigDLL4221.Buffs;
 using BigDLL4221.Enum;
@@ -1429,23 +1428,6 @@ namespace BigDLL4221.Harmony
         {
             if (count >= __instance._emotionLevels.Length)
                 count = __instance._emotionLevels.Length - 1;
-        }
-
-        //Cya Hotfix for UI Limits
-        [HarmonyPatch(typeof(BattleUnitInformationUI_BuffList), nameof(BattleUnitInformationUI_BuffList.SetData))]
-        [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> BattleUnitInformationUI_BuffList__SetData__Transpiler(
-            IEnumerable<CodeInstruction> instructions)
-        {
-            var method = AccessTools.PropertyGetter(typeof(List<BattleUnitInformationUI_BuffSlot>),
-                nameof(List<BattleUnitInformationUI_BuffSlot>.Count));
-            var codes = instructions.ToList();
-            for (var i = 0; i < codes.Count; i++)
-                if ((codes[i].opcode == OpCodes.Ble_S || codes[i].opcode == OpCodes.Ble) &&
-                    codes[i - 1].Is(OpCodes.Callvirt, method))
-                    yield return new CodeInstruction(OpCodes.Blt, codes[i].operand);
-                else
-                    yield return codes[i];
         }
 
         [HarmonyPostfix]
