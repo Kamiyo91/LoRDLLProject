@@ -1017,8 +1017,9 @@ namespace BigDLL4221.Harmony
         [HarmonyPatch(typeof(StageController), "StartParrying")]
         public static bool StageController_StartParrying_Pre(StageController __instance,
             BattlePlayingCardDataInUnitModel cardA,
-            BattlePlayingCardDataInUnitModel cardB)
+            BattlePlayingCardDataInUnitModel cardB, bool __runOriginal)
         {
+            if (!__runOriginal) return true;
             try
             {
                 if (ModParameters.PassiveOptions.Any(
