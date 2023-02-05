@@ -26,6 +26,7 @@ namespace BigDLL4221.GameObjectUtils
 
         private void FixedUpdate()
         {
+            if (Owner == null || DieAbilityType == null) return;
             if (Singleton<StageController>.Instance.Phase != StageController.StagePhase.WaitStartBattleEffect) return;
             if (IsFirst) CardUtil.PutCounterDieAsFirst(Owner, DieAbilityType);
             else CardUtil.PutCounterDieAsLast(Owner, DieAbilityType);

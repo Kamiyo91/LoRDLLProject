@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using BigDLL4221.Models;
+using System.Linq;
+using System.Reflection.Emit;
+using BattleCharacterProfile;
 using BigDLL4221.Utils;
 using HarmonyLib;
 using UI;
@@ -13,8 +15,12 @@ namespace BigDLL4221.Harmony
     [HarmonyPatch]
     public class UnitLimitPatch
     {
+        private const int MIN_EMOTION_SLOTS = 9;
+        private const float Y_SHIFT = 64f;
+
         [HarmonyPatch(typeof(UIBattleSettingWaveList), "SetData")]
         [HarmonyPrefix]
+        [HarmonyPriority(Priority.Last)]
         public static void UIBattleSettingWaveList_SetData(UIBattleSettingWaveList __instance, StageModel stage)
         {
             try
@@ -90,87 +96,6 @@ namespace BigDLL4221.Harmony
             return true;
         }
 
-        [HarmonyPatch(typeof(BattleUnitInfoManagerUI), "Initialize")]
-        [HarmonyPrefix]
-        private static bool BattleUnitInfoManagerUI_Initialize_Pre(BattleUnitInfoManagerUI __instance,
-            IList<BattleUnitModel> unitList)
-        {
-            try
-            {
-                if (UnitLimitParameters.AllyProfileArray2.Count < 9)
-                {
-                    UnitLimitParameters.AllyProfileArray2.Clear();
-                    for (var i = 0; i < 9; i++)
-                        if (__instance.allyProfileArray.Length > i)
-                        {
-                            UnitLimitParameters.AllyProfileArray2.Add(__instance.allyProfileArray[i]);
-                        }
-                        else
-                        {
-                            UnitLimitParameters.AllyProfileArray2.Add(Object.Instantiate(
-                                UnitLimitParameters.AllyProfileArray2[4],
-                                UnitLimitParameters.AllyProfileArray2[4].transform.parent));
-                            UnitLimitParameters.AllyProfileArray2[i].gameObject.transform.localPosition +=
-                                new Vector3(0f, (i - 4) * 64f, 0f);
-                        }
-                }
-
-                if (UnitLimitParameters.EnemyProfileArray2.Count < 9)
-                {
-                    UnitLimitParameters.EnemyProfileArray2.Clear();
-                    for (var j = 0; j < 9; j++)
-                        if (__instance.enemyProfileArray.Length > j)
-                        {
-                            UnitLimitParameters.EnemyProfileArray2.Add(__instance.enemyProfileArray[j]);
-                        }
-                        else
-                        {
-                            UnitLimitParameters.EnemyProfileArray2.Add(Object.Instantiate(
-                                UnitLimitParameters.EnemyProfileArray2[4],
-                                UnitLimitParameters.EnemyProfileArray2[4].transform.parent));
-                            UnitLimitParameters.EnemyProfileArray2[j].gameObject.transform.localPosition +=
-                                new Vector3(0f, (j - 4) * 64f, 0f);
-                        }
-                }
-
-                __instance.allyDirection = Singleton<StageController>.Instance.AllyFormationDirection;
-                foreach (var t in __instance.allyProfileArray) t.gameObject.SetActive(false);
-                foreach (var t in __instance.enemyProfileArray) t.gameObject.SetActive(false);
-                foreach (var t in UnitLimitParameters.AllyProfileArray2) t.gameObject.SetActive(false);
-                foreach (var t in UnitLimitParameters.EnemyProfileArray2) t.gameObject.SetActive(false);
-                __instance.enemyarray = __instance.allyDirection == Direction.RIGHT
-                    ? UnitLimitParameters.EnemyProfileArray2.ToArray()
-                    : UnitLimitParameters.AllyProfileArray2.ToArray();
-                __instance.allyarray = __instance.allyDirection == Direction.RIGHT
-                    ? UnitLimitParameters.AllyProfileArray2.ToArray()
-                    : UnitLimitParameters.EnemyProfileArray2.ToArray();
-                foreach (var battleUnitModel in unitList)
-                {
-                    var index = battleUnitModel.index;
-                    if (index >= 9) continue;
-                    if (battleUnitModel.faction == Faction.Enemy)
-                    {
-                        __instance.enemyarray[index].gameObject.SetActive(true);
-                        __instance.enemyarray[index].Initialize();
-                        __instance.enemyarray[index].SetUnitModel(battleUnitModel);
-                    }
-                    else
-                    {
-                        __instance.allyarray[index].gameObject.SetActive(true);
-                        __instance.allyarray[index].Initialize();
-                        __instance.allyarray[index].SetUnitModel(battleUnitModel);
-                    }
-                }
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex.Message);
-            }
-
-            return true;
-        }
 
         [HarmonyPatch(typeof(BattleUnitInfoManagerUI), "UpdateCharacterProfile")]
         [HarmonyPostfix]
@@ -187,107 +112,9 @@ namespace BigDLL4221.Harmony
             }
         }
 
-        [HarmonyPatch(typeof(BattleEmotionCoinUI), "Init")]
-        [HarmonyPrefix]
-        private static bool BattleEmotionCoinUI_Init_Pre(BattleEmotionCoinUI __instance)
-        {
-            try
-            {
-                __instance._librarian_lib.Clear();
-                __instance._enemy_lib.Clear();
-                __instance._lib_queue.Clear();
-                __instance._ene_queue.Clear();
-                var aliveList = BattleObjectManager.instance.GetAliveList();
-                var num = 0;
-                var num2 = 0;
-                var allyFormationDirection = Singleton<StageController>.Instance.AllyFormationDirection;
-                if (UnitLimitParameters.Librarian2.Count < 9)
-                {
-                    UnitLimitParameters.Librarian2.Clear();
-                    for (var i = 0; i < 9; i++)
-                        if (__instance.librarian.Length > i)
-                        {
-                            UnitLimitParameters.Librarian2.Add(__instance.librarian[i]);
-                        }
-                        else
-                        {
-                            UnitLimitParameters.Librarian2.Add(new BattleEmotionCoinUI.BattleEmotionCoinData
-                            {
-                                cosFactor = 1f,
-                                sinFactor = 1f,
-                                target = Object.Instantiate(__instance.librarian[4].target,
-                                    __instance.librarian[4].target)
-                            });
-                            UnitLimitParameters.Librarian2[i].target.localPosition +=
-                                new Vector3(0f, (i - 4) * 64f, 0f);
-                        }
-                }
-
-                if (UnitLimitParameters.Enemy2.Count < 9)
-                {
-                    UnitLimitParameters.Enemy2.Clear();
-                    for (var j = 0; j < 9; j++)
-                        if (__instance.enermy.Length > j)
-                        {
-                            UnitLimitParameters.Enemy2.Add(__instance.enermy[j]);
-                        }
-                        else
-                        {
-                            UnitLimitParameters.Enemy2.Add(new BattleEmotionCoinUI.BattleEmotionCoinData
-                            {
-                                cosFactor = 1f,
-                                sinFactor = 1f,
-                                target = Object.Instantiate(__instance.enermy[4].target, __instance.enermy[4].target)
-                            });
-                            UnitLimitParameters.Enemy2[j].target.localPosition += new Vector3(0f, (j - 4) * 64f, 0f);
-                        }
-                }
-
-                __instance.librarian = UnitLimitParameters.Librarian2.ToArray();
-                __instance.enermy = UnitLimitParameters.Enemy2.ToArray();
-                var array = allyFormationDirection == Direction.RIGHT ? __instance.librarian : __instance.enermy;
-                var array2 = allyFormationDirection == Direction.RIGHT ? __instance.enermy : __instance.librarian;
-                foreach (var battleUnitModel in aliveList)
-                    if (battleUnitModel.faction == Faction.Enemy)
-                    {
-                        if (num2 <= 8) __instance._enemy_lib.Add(battleUnitModel.id, array2[num2++]);
-                    }
-                    else
-                    {
-                        if (num <= 8) __instance._librarian_lib.Add(battleUnitModel.id, array[num++]);
-                    }
-
-                __instance._init = true;
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex.Message);
-            }
-
-            return true;
-        }
-
-        [HarmonyPatch(typeof(BattleEmotionCoinUI), "Acquisition")]
-        [HarmonyPrefix]
-        private static bool BattleEmotionCoinUI_Acquisition_Pre(BattleUnitModel unit)
-        {
-            try
-            {
-                if (SingletonBehavior<BattleManagerUI>.Instance.ui_unitListInfoSummary.GetProfileUI(unit) == null)
-                    return false;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex.Message);
-            }
-
-            return true;
-        }
-
         [HarmonyPatch(typeof(UICharacterRenderer), "SetCharacter")]
-        [HarmonyPrefix]
-        private static bool UICharacterRenderer_SetCharacter_Pre(UICharacterRenderer __instance, UnitDataModel unit,
+        [HarmonyPostfix]
+        private static void UICharacterRenderer_SetCharacter(UICharacterRenderer __instance, UnitDataModel unit,
             int index, bool forcelyReload = false)
         {
             if (__instance.characterList.Capacity < 199)
@@ -308,7 +135,7 @@ namespace BigDLL4221.Harmony
                 __instance.cameraList.Add(camera);
             }
 
-            if (index < 11) return true;
+            if (index < 11) return;
             unit.textureIndex = index;
             if (Singleton<StageController>.Instance.State == StageController.StageState.Battle &&
                 GameSceneManager.Instance.battleScene.gameObject.activeSelf) unit.textureIndex++;
@@ -332,7 +159,7 @@ namespace BigDLL4221.Harmony
                 uicharacter.resName = "";
             }
 
-            if (uicharacter.unitAppearance != null) return true;
+            if (uicharacter.unitAppearance != null) return;
             var num = 10 * index;
             var characterName = customBookItem.GetCharacterName();
             try
@@ -422,27 +249,16 @@ namespace BigDLL4221.Harmony
                 }
 
                 var unitAppearance = uicharacter.unitAppearance;
-                if (unitAppearance != null) unitAppearance.Initialize("");
-
-
+                unitAppearance?.Initialize("");
                 var unitAppearance2 = uicharacter.unitAppearance;
-                if (unitAppearance2 != null)
-                    unitAppearance2.InitCustomData(unit.customizeData, unit.defaultBook.GetBookClassInfoId());
-
-
+                unitAppearance2?.InitCustomData(unit.customizeData, unit.defaultBook.GetBookClassInfoId());
                 var unitAppearance3 = uicharacter.unitAppearance;
-                if (unitAppearance3 != null) unitAppearance3.InitGiftDataAll(unit.giftInventory.GetEquippedList());
-
-
+                unitAppearance3?.InitGiftDataAll(unit.giftInventory.GetEquippedList());
                 var unitAppearance4 = uicharacter.unitAppearance;
-                if (unitAppearance4 != null) unitAppearance4.ChangeMotion(ActionDetail.Standing);
-
-
+                unitAppearance4?.ChangeMotion(ActionDetail.Standing);
                 var unitAppearance5 = uicharacter.unitAppearance;
-                if (unitAppearance5 != null) unitAppearance5.ChangeLayer("CharacterAppearance_UI");
-
+                unitAppearance5?.ChangeLayer("CharacterAppearance_UI");
                 if (isWorkshopSkin) uicharacter.unitAppearance.GetComponent<WorkshopSkinDataSetter>().LateInit();
-
                 if (unit.EnemyUnitId != -1)
                     if (uicharacter.unitAppearance != null)
                     {
@@ -460,47 +276,13 @@ namespace BigDLL4221.Harmony
                     }
 
                 __instance.StartCoroutine(UnitLimitUtil.RenderCam_2(unit.textureIndex, __instance));
-                return false;
             }
             catch (Exception ex)
             {
                 Debug.LogError(ex.Message);
             }
-
-            return true;
         }
 
-        [HarmonyPatch(typeof(BattleEmotionRewardInfoUI), "SetData")]
-        [HarmonyPrefix]
-        private static bool BattleEmotionRewardInfoUI_SetData_Pre(BattleEmotionRewardInfoUI __instance,
-            List<UnitBattleDataModel> units, Faction faction)
-        {
-            try
-            {
-                while (units.Count > __instance.slots.Count && __instance.slots.Count < 9)
-                {
-                    var item = Object.Instantiate(__instance.slots[0]);
-                    __instance.slots.Add(item);
-                }
-
-                foreach (var battleEmotionRewardSlotUI in __instance.slots)
-                    battleEmotionRewardSlotUI.gameObject.SetActive(false);
-                for (var i = 0; i < units.Count; i++)
-                {
-                    if (i > 8) break;
-                    __instance.slots[i].gameObject.SetActive(true);
-                    __instance.slots[i].SetData(units[i], faction);
-                }
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex.Message);
-            }
-
-            return true;
-        }
 
         [HarmonyPatch(typeof(UICharacterRenderer), "GetRenderTextureByIndexAndSize")]
         [HarmonyPrefix]
@@ -554,6 +336,180 @@ namespace BigDLL4221.Harmony
             }
 
             return true;
+        }
+
+        [HarmonyPatch(typeof(BattleUnitInfoManagerUI), nameof(BattleUnitInfoManagerUI.Initialize))]
+        [HarmonyPrefix]
+        private static void BattleUnitInfoManagerUI_Initialize_Pre(BattleUnitInfoManagerUI __instance)
+        {
+            var lastAlly = __instance.allyProfileArray.Length - 1;
+            if (lastAlly < MIN_EMOTION_SLOTS - 1)
+            {
+                var allyProfileArray2 = new List<BattleCharacterProfileUI>(__instance.allyProfileArray);
+                for (var i = lastAlly + 1; i < MIN_EMOTION_SLOTS; i++)
+                {
+                    allyProfileArray2.Add(Object.Instantiate(allyProfileArray2[lastAlly],
+                        allyProfileArray2[lastAlly].transform.parent));
+                    allyProfileArray2[i].transform.localPosition = allyProfileArray2[lastAlly].transform.localPosition +
+                                                                   new Vector3(0f, (i - lastAlly) * Y_SHIFT, 0f);
+                }
+
+                __instance.allyProfileArray = allyProfileArray2.ToArray();
+            }
+
+            var lastEnemy = __instance.enemyProfileArray.Length - 1;
+            if (lastEnemy >= MIN_EMOTION_SLOTS - 1) return;
+            var enemyProfileArray2 = new List<BattleCharacterProfileUI>(__instance.enemyProfileArray);
+            for (var i = lastEnemy + 1; i < MIN_EMOTION_SLOTS; i++)
+            {
+                enemyProfileArray2.Add(Object.Instantiate(enemyProfileArray2[lastEnemy],
+                    enemyProfileArray2[lastEnemy].transform.parent));
+                enemyProfileArray2[i].transform.localPosition = enemyProfileArray2[lastEnemy].transform.localPosition +
+                                                                new Vector3(0f, (i - lastEnemy) * Y_SHIFT, 0f);
+            }
+
+            __instance.enemyProfileArray = enemyProfileArray2.ToArray();
+        }
+
+        [HarmonyPatch(typeof(BattleUnitInfoManagerUI), nameof(BattleUnitInfoManagerUI.Initialize))]
+        [HarmonyPrefix]
+        [HarmonyPriority(Priority.Last)]
+        private static void BattleUnitInfoManagerUI_Initialize_Pre2(BattleUnitInfoManagerUI __instance,
+            ref IList<BattleUnitModel> unitList)
+        {
+            var allyDirection = StageController.Instance.AllyFormationDirection;
+            var enemyProfilesCount = allyDirection == Direction.RIGHT
+                ? __instance.enemyProfileArray.Length
+                : __instance.allyProfileArray.Length;
+            var allyProfilesCount = allyDirection == Direction.RIGHT
+                ? __instance.allyProfileArray.Length
+                : __instance.enemyProfileArray.Length;
+            unitList = unitList.Where(model =>
+                    model.faction == Faction.Enemy ? model.index < enemyProfilesCount : model.index < allyProfilesCount)
+                .ToList();
+        }
+
+        [HarmonyPatch(typeof(BattleEmotionCoinUI), nameof(BattleEmotionCoinUI.Init))]
+        [HarmonyPrefix]
+        private static void BattleEmotionCoinUI_Init_Pre(BattleEmotionCoinUI __instance)
+        {
+            var unitList = BattleManagerUI.Instance.ui_unitListInfoSummary;
+            var lastLibrarian = __instance.librarian.Length - 1;
+            if (lastLibrarian < MIN_EMOTION_SLOTS - 1)
+            {
+                var librarian = new List<BattleEmotionCoinUI.BattleEmotionCoinData>(__instance.librarian);
+                for (var i = lastLibrarian + 1; i < MIN_EMOTION_SLOTS; i++)
+                {
+                    librarian.Add(new BattleEmotionCoinUI.BattleEmotionCoinData
+                    {
+                        cosFactor = 1f,
+                        sinFactor = 1f,
+                        target = Object.Instantiate(librarian[lastLibrarian].target,
+                            librarian[lastLibrarian].target.parent)
+                    });
+                    librarian[i].target.localPosition = librarian[lastLibrarian].target.localPosition +
+                                                        unitList.allyProfileArray[i].transform.localPosition -
+                                                        unitList.allyProfileArray[lastLibrarian].transform
+                                                            .localPosition;
+                }
+
+                __instance.librarian = librarian.ToArray();
+            }
+
+            var lastEnermy = __instance.enermy.Length - 1;
+            if (lastEnermy >= MIN_EMOTION_SLOTS - 1) return;
+            var enermy = new List<BattleEmotionCoinUI.BattleEmotionCoinData>(__instance.enermy);
+            for (var i = lastEnermy + 1; i < MIN_EMOTION_SLOTS; i++)
+            {
+                enermy.Add(new BattleEmotionCoinUI.BattleEmotionCoinData
+                {
+                    cosFactor = 1f,
+                    sinFactor = 1f,
+                    target = Object.Instantiate(enermy[lastEnermy].target, enermy[lastEnermy].target.parent)
+                });
+                enermy[i].target.localPosition = enermy[lastEnermy].target.localPosition +
+                                                 unitList.enemyProfileArray[i].transform.localPosition -
+                                                 unitList.enemyProfileArray[lastEnermy].transform.localPosition;
+            }
+
+            __instance.enermy = enermy.ToArray();
+        }
+
+        [HarmonyPatch(typeof(BattleEmotionCoinUI), nameof(BattleEmotionCoinUI.Init))]
+        [HarmonyTranspiler]
+        private static IEnumerable<CodeInstruction> BattleEmotionCoinUI_Init_In(
+            IEnumerable<CodeInstruction> instructions)
+        {
+            var method = AccessTools.Method(typeof(BattleObjectManager), nameof(BattleObjectManager.GetAliveList),
+                new[] { typeof(bool) });
+            foreach (var instruction in instructions)
+            {
+                yield return instruction;
+                if (!instruction.Is(OpCodes.Callvirt, method)) continue;
+                yield return new CodeInstruction(OpCodes.Ldarg_0);
+                yield return new CodeInstruction(OpCodes.Call,
+                    AccessTools.Method(typeof(UnitLimitPatch), nameof(BattleEmotionCoinUI_Init_Helper)));
+            }
+        }
+
+        private static List<BattleUnitModel> BattleEmotionCoinUI_Init_Helper(List<BattleUnitModel> unitList,
+            BattleEmotionCoinUI __instance)
+        {
+            var allyDirection = StageController.Instance.AllyFormationDirection;
+            var enemyDataCount = allyDirection == Direction.RIGHT
+                ? __instance.enermy.Length
+                : __instance.librarian.Length;
+            var allyDataCount = allyDirection == Direction.RIGHT
+                ? __instance.librarian.Length
+                : __instance.enermy.Length;
+            var allyUnits = 0;
+            var enemyUnits = 0;
+            var filteredList = unitList.Where(model =>
+                model.faction == Faction.Enemy ? enemyUnits++ < enemyDataCount : allyUnits++ < allyDataCount).ToList();
+            unitList.Clear();
+            unitList.AddRange(filteredList);
+            return unitList;
+        }
+
+        [HarmonyPatch(typeof(BattleEmotionCoinUI), nameof(BattleEmotionCoinUI.Acquisition))]
+        [HarmonyPrefix]
+        private static bool BattleEmotionCoinUI_Acquisition_Pre(BattleUnitModel unit)
+        {
+            return BattleManagerUI.Instance.ui_unitListInfoSummary.GetProfileUI(unit) != null;
+        }
+
+        [HarmonyPatch(typeof(BattleEmotionRewardInfoUI), nameof(BattleEmotionRewardInfoUI.SetData))]
+        [HarmonyPrefix]
+        private static void BattleEmotionRewardInfoUI_SetData_Pre(BattleEmotionRewardInfoUI __instance,
+            List<UnitBattleDataModel> units)
+        {
+            while (units.Count > __instance.slots.Count && __instance.slots.Count < MIN_EMOTION_SLOTS)
+            {
+                var newUI = Object.Instantiate(__instance.slots[0]);
+                __instance.slots.Add(newUI);
+            }
+        }
+
+        [HarmonyPatch(typeof(BattleEmotionRewardInfoUI), nameof(BattleEmotionRewardInfoUI.SetData))]
+        [HarmonyTranspiler]
+        private static IEnumerable<CodeInstruction> BattleEmotionRewardInfoUI_SetData_In(
+            IEnumerable<CodeInstruction> instructions)
+        {
+            var method = AccessTools.PropertyGetter(typeof(List<UnitBattleDataModel>),
+                nameof(List<UnitBattleDataModel>.Count));
+            foreach (var instruction in instructions)
+            {
+                yield return instruction;
+                if (!instruction.Is(OpCodes.Callvirt, method)) continue;
+                yield return new CodeInstruction(OpCodes.Ldarg_0);
+                yield return new CodeInstruction(OpCodes.Ldfld,
+                    AccessTools.Field(typeof(BattleEmotionRewardInfoUI), nameof(BattleEmotionRewardInfoUI.slots)));
+                yield return new CodeInstruction(OpCodes.Callvirt,
+                    AccessTools.PropertyGetter(typeof(List<BattleEmotionRewardSlotUI>),
+                        nameof(List<BattleEmotionRewardSlotUI>.Count)));
+                yield return new CodeInstruction(OpCodes.Call,
+                    AccessTools.Method(typeof(Math), nameof(Math.Min), new[] { typeof(int), typeof(int) }));
+            }
         }
     }
 }
