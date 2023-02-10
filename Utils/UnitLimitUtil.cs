@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UI;
 
 namespace BigDLL4221.Utils
@@ -187,11 +187,59 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static IEnumerator RenderCam_2(int index, UICharacterRenderer renderer)
+        public static void AddIndexes(ICollection<int> indexes, int targetCount)
         {
-            yield return YieldCache.waitFrame;
-            renderer.cameraList[index].targetTexture.Release();
-            renderer.cameraList[index].Render();
+            var sortedIndexes = new List<int>(indexes);
+            sortedIndexes.Sort();
+            var i = 0;
+            for (var j = 0; indexes.Count < targetCount;)
+                if (i < sortedIndexes.Count && j == sortedIndexes[i])
+                {
+                    i++;
+                }
+                else
+                {
+                    indexes.Add(j);
+                    j++;
+                }
+        }
+
+        public static int UICharacterRenderer_SetCharacter_GetMaxWithoutSkip(UICharacterRenderer renderer)
+        {
+            var count = renderer.characterList.Count;
+            if (count > 11 && SkipCustomizationIndex()) count--;
+            return count;
+        }
+
+        public static int UICharacterRenderer_SetCharacter_GetIndexWithSkip(int index)
+        {
+            if (index >= 10 && SkipCustomizationIndex()) index++;
+            return index;
+        }
+
+        public static bool SkipCustomizationIndex()
+        {
+            return StageController.Instance.State == StageController.StageState.Battle &&
+                   GameSceneManager.Instance.battleScene.gameObject.activeSelf;
+        }
+
+        public static List<BattleUnitModel> BattleEmotionCoinUI_Init_Helper(List<BattleUnitModel> unitList,
+            BattleEmotionCoinUI __instance)
+        {
+            var allyDirection = StageController.Instance.AllyFormationDirection;
+            var enemyDataCount = allyDirection == Direction.RIGHT
+                ? __instance.enermy.Length
+                : __instance.librarian.Length;
+            var allyDataCount = allyDirection == Direction.RIGHT
+                ? __instance.librarian.Length
+                : __instance.enermy.Length;
+            var allyUnits = 0;
+            var enemyUnits = 0;
+            var filteredList = unitList.Where(model =>
+                model.faction == Faction.Enemy ? enemyUnits++ < enemyDataCount : allyUnits++ < allyDataCount).ToList();
+            unitList.Clear();
+            unitList.AddRange(filteredList);
+            return unitList;
         }
     }
 }

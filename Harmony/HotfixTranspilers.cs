@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
+using UnityEngine;
 
 namespace BigDLL4221.Harmony
 {
@@ -46,6 +47,25 @@ namespace BigDLL4221.Harmony
                 yield return new CodeInstruction(OpCodes.Clt);
                 yield return new CodeInstruction(OpCodes.And);
             }
+        }
+
+        //remove error logs about saved formations being too big
+        [HarmonyPatch(typeof(LibraryFloorModel), nameof(LibraryFloorModel.LoadFromSaveData))]
+        [HarmonyTranspiler]
+        private static IEnumerable<CodeInstruction> LibraryFloorModel_LoadFromSaveData_Transpiler(
+            IEnumerable<CodeInstruction> instructions)
+        {
+            var method = AccessTools.Method(typeof(Debug), nameof(Debug.Log), new[] { typeof(object) });
+            var codes = instructions.ToList();
+            for (var i = 0; i < codes.Count - 2; i++)
+            {
+                if (!codes[i].Is(OpCodes.Ldstr, "formation index length is too high") ||
+                    !codes[i + 1].Is(OpCodes.Call, method)) continue;
+                codes.RemoveRange(i, 2);
+                break;
+            }
+
+            return codes;
         }
     }
 }
