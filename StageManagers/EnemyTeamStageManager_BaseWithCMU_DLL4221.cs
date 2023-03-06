@@ -53,11 +53,15 @@ namespace BigDLL4221.StageManagers
         private void CheckPhase()
         {
             if (!_util.Model.MechOptions.TryGetValue(_phase, out var mechOptions)) return;
-            if (mechOptions.MechOnScenesCount) _sceneCount += 1;
-            if (mechOptions.MechOnDeath && !_util.Model.Owner.IsDead()) return;
-            if (mechOptions.MechOnScenesCount && _sceneCount < mechOptions.ScenesBeforeNextPhase) return;
-            if ((mechOptions.MechHp == 0 || _util.Model.Owner.hp > mechOptions.MechHp) && !mechOptions.MechOnDeath &&
-                !mechOptions.MechOnScenesCount) return;
+            if (!_util.Model.PhaseChanging)
+            {
+                if (mechOptions.MechOnScenesCount) _sceneCount += 1;
+                if (mechOptions.MechOnDeath && !_util.Model.Owner.IsDead()) return;
+                if (mechOptions.MechOnScenesCount && _sceneCount < mechOptions.ScenesBeforeNextPhase) return;
+                if ((mechOptions.MechHp == 0 || _util.Model.Owner.hp > mechOptions.MechHp) &&
+                    !mechOptions.MechOnDeath &&
+                    !mechOptions.MechOnScenesCount) return;
+            }
             _sceneCount = 0;
             _phase++;
             ChangeMap();
