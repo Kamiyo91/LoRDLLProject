@@ -42,7 +42,6 @@ namespace BigDLL4221.StageManagers
             _sceneCount = 0;
             if (_mapPhase == -1) return;
             _cmh.EnforceMap(_mapPhase);
-            MapUtil.MapChangedValue(false);
             Singleton<StageController>.Instance.CheckMapChange();
         }
 
@@ -56,7 +55,6 @@ namespace BigDLL4221.StageManagers
             _mapPhase = GetMapPhase();
             if (_mapPhase == -1) return;
             _cmh.EnforceMap(_mapPhase);
-            MapUtil.MapChangedValue(false);
         }
 
         private void CheckPhase()

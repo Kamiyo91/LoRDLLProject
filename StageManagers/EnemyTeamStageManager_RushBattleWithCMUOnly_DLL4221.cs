@@ -102,7 +102,6 @@ namespace BigDLL4221.StageManagers
                 MapUtil.PrepareEnemyMapsMultiCmu(ActualPhase.Maps);
                 if (MapPhase == -1) return;
                 Cmh.EnforceMap(MapPhase);
-                MapUtil.MapChangedValue(false);
                 Singleton<StageController>.Instance.CheckMapChange();
             }
             catch (Exception ex)
@@ -120,7 +119,6 @@ namespace BigDLL4221.StageManagers
         {
             if (MapPhase == -1 || Cmh == null) return;
             Cmh.EnforceMap(MapPhase);
-            MapUtil.MapChangedValue(false);
         }
 
         public override void OnRoundEndTheLast()

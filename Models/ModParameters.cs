@@ -93,6 +93,7 @@ namespace BigDLL4221.Models
 
     public class StaticModsInfo
     {
+        public static string UtilDLLPackageId = "BigDLLUtilLoader21341";
         public static string EmotionCardPullCode = string.Empty;
         public static string EgoCardPullCode = string.Empty;
         public static Dictionary<string, Type> EmotionCardAbility = new Dictionary<string, Type>();

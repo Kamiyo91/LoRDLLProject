@@ -92,11 +92,13 @@ namespace BigDLL4221.Extensions
 
     public class SephirahMapManager<T> : MapInstance<T> where T : MapManager, ICMU, new()
     {
+        private readonly CustomMapHandler _cmuHandler;
         private readonly SephirahType _sephirah;
 
         public SephirahMapManager(CustomMapHandler handler, SephirahType sephirah) : base(handler)
         {
             _sephirah = sephirah;
+            _cmuHandler = handler;
         }
 
         public override T Init(string stageName, Offsets offsets, bool isEgo, bool initBGMs)
@@ -156,7 +158,7 @@ namespace BigDLL4221.Extensions
                                 {
                                     var audioClip = AudioHandler.GetAudioClip(bgms);
                                     if (!isEgo)
-                                        CustomMapHandler.AntiEardrumDamage_Checked(true, audioClip);
+                                        _cmuHandler.AntiEardrumDamage_Checked(true, audioClip);
                                     manager.mapBgm = audioClip;
                                 };
                             }

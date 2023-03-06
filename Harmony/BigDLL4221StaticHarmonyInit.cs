@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using BigDLL4221.Models;
 using BigDLL4221.Utils;
+using CustomMapUtility;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -60,6 +61,7 @@ namespace BigDLL4221.Harmony
             if (StaticModsInfo.TiphEgoModFound)
                 ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatchWithTiphEgo)).Patch();
             else ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatch)).Patch();
+            CustomMapHandler.GetCMU(StaticModsInfo.UtilDLLPackageId);
         }
     }
 }
