@@ -190,7 +190,8 @@ namespace BigDLL4221.StageManagers
                 }
 
                 if (!ActualPhase.ReloadOriginalPlayerUnits.ContainsKey(stageFloor.Sephirah)) continue;
-                foreach (var unitDataModel in stageFloor._floorModel.GetUnitDataList().Where(unitDataModel => stageFloor._unitList.Count < 5))
+                foreach (var unitDataModel in stageFloor._floorModel.GetUnitDataList()
+                             .Where(unitDataModel => stageFloor._unitList.Count < 5))
                     stageFloor._unitList.Add(UnitUtil.InitUnitDefault(stageModel, unitDataModel));
             }
         }

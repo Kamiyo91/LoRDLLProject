@@ -62,6 +62,7 @@ namespace BigDLL4221.StageManagers
                     !mechOptions.MechOnDeath &&
                     !mechOptions.MechOnScenesCount) return;
             }
+
             _sceneCount = 0;
             _phase++;
             ChangeMap();

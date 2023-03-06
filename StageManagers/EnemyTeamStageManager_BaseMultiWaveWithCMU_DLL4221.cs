@@ -68,6 +68,7 @@ namespace BigDLL4221.StageManagers
                 if (_util.Model.Owner.hp > mechOptions.MechHp && !mechOptions.MechOnDeath &&
                     !mechOptions.MechOnScenesCount) return;
             }
+
             if (_util.Model.Owner.IsDead() && !mechOptions.MechOnDeath && mechOptions.MechHp == 0)
             {
                 _phase = 0;
