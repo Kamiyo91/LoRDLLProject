@@ -26,7 +26,7 @@ namespace BigDLL4221.StageManagers
                 .GetStageStorageData("BaseCMUOnlyDLL4221", out _mapPhase);
             if (_mapPhase == -1) return;
             _cmh.EnforceMap(_mapPhase);
-            Singleton<StageController>.Instance.CheckMapChange();
+            //Singleton<StageController>.Instance.CheckMapChange();
         }
 
         public override void OnRoundStart()

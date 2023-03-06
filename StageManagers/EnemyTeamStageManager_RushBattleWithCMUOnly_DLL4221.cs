@@ -102,7 +102,7 @@ namespace BigDLL4221.StageManagers
                 MapUtil.PrepareEnemyMapsMultiCmu(ActualPhase.Maps);
                 if (MapPhase == -1) return;
                 Cmh.EnforceMap(MapPhase);
-                Singleton<StageController>.Instance.CheckMapChange();
+                //Singleton<StageController>.Instance.CheckMapChange();
             }
             catch (Exception ex)
             {
