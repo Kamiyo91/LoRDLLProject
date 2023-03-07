@@ -62,6 +62,7 @@ namespace BigDLL4221.Harmony
                 ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatchWithTiphEgo)).Patch();
             else ModParameters.Harmony.CreateClassProcessor(typeof(EmotionCardColorPatch)).Patch();
             CustomMapHandler.GetCMU(StaticModsInfo.UtilDLLPackageId);
+            LocalizeUtil.RemoveError();
         }
     }
 }
