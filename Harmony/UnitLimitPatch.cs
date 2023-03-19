@@ -410,6 +410,7 @@ namespace BigDLL4221.Harmony
                 // ignored
             }
         }
+
         [HarmonyPatch(typeof(UIBattleSettingPanel), "OnOpen")]
         [HarmonyPrefix]
         private static void UIBattleSettingPanel_OnOpen_Pre()
