@@ -363,5 +363,162 @@ namespace BigDLL4221.Harmony
                     }
                 }
         }
+
+        [HarmonyPatch(typeof(UIBattleSettingPanel), "GetAvailableMaxState")]
+        [HarmonyPrefix]
+        private static bool UIBattleSettingPanel_GetAvailableMaxState_Post(ref bool __result)
+        {
+            __result =
+                Singleton<StageController>.Instance.GetCurrentStageFloorModel().GetUnitBattleDataList()
+                    .Count(unit => unit.IsAddedBattle) >=
+                Singleton<StageController>.Instance.GetCurrentWaveModel().AvailableUnitNumber;
+            return false;
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingPanel), "GetAddedBattleUnitValue")]
+        [HarmonyPrefix]
+        private static bool UIBattleSettingPanel_GetAddedBattleUnitValue_Post(ref int __result)
+        {
+            __result = Singleton<StageController>.Instance.GetCurrentStageFloorModel().GetUnitBattleDataList()
+                .Count(unit => unit.IsAddedBattle);
+            return false;
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingPanel), "GetAvailableOne")]
+        [HarmonyPrefix]
+        private static bool UIBattleSettingPanel_GetAvailableOne_Post(ref bool __result)
+        {
+            __result = Singleton<StageController>.Instance.GetCurrentStageFloorModel().GetUnitBattleDataList()
+                .Count(unit => unit.IsAddedBattle) == 1;
+            return false;
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingPanel), "OnOpen")]
+        [HarmonyPrefix]
+        private static void UIBattleSettingPanel_OnOpen_Pre()
+        {
+            try
+            {
+                StageButtonTool.RefreshEnemy();
+                StageButtonTool.RefreshLibrarian();
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingPanel), "SelectedToggles")]
+        [HarmonyPrefix]
+        private static void UIBattleSettingPanel_SelectedToggles_Pre(UIBattleSettingPanel __instance,
+            UICharacterSlot slot)
+        {
+            try
+            {
+                var unitBattleDataList = Singleton<StageController>.Instance.GetCurrentStageFloorModel()
+                    .GetUnitBattleDataList();
+                if (unitBattleDataList.Count <= 5) return;
+                if (Singleton<StageController>.Instance.GetCurrentWaveModel().AvailableUnitNumber != 1) return;
+                foreach (var unitBattleDataModel in unitBattleDataList)
+                    unitBattleDataModel.IsAddedBattle = false;
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingPanel), "SetToggles")]
+        [HarmonyPostfix]
+        private static void UIBattleSettingPanel_SetToggles_Post(UIBattleSettingPanel __instance, List<bool> __state)
+        {
+            if (__state == null) return;
+            try
+            {
+                for (var i = 0; i < __state.Count; i++)
+                {
+                    var uicharacterSlot = __instance.currentAvailbleUnitslots[i];
+                    if (__state[i])
+                        uicharacterSlot.SetYesToggleState();
+                    else
+                        uicharacterSlot.SetNoToggleState();
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        [HarmonyPatch(typeof(UIBattleSettingPanel), "SetToggles")]
+        [HarmonyPrefix]
+        private static void UIBattleSettingPanel_SetToggles_Pre(UIBattleSettingPanel __instance, ref List<bool> __state)
+        {
+            var unitBattleDataList =
+                Singleton<StageController>.Instance.GetCurrentStageFloorModel().GetUnitBattleDataList();
+            if (unitBattleDataList.Count <= 5 || unitBattleDataList.Count <=
+                Singleton<StageController>.Instance.GetCurrentWaveModel().AvailableUnitNumber)
+                return;
+            try
+            {
+                if (StageButtonTool.IsTurningPage)
+                {
+                    __state = (from slot in __instance.currentAvailbleUnitslots
+                        select slot._unitBattleData.IsAddedBattle).ToList();
+                    StageButtonTool.IsTurningPage = false;
+                }
+                else
+                {
+                    foreach (var unitBattleDataModel in unitBattleDataList) unitBattleDataModel.IsAddedBattle = false;
+                    var num = 0;
+                    var num2 = 0;
+                    while (num < Singleton<StageController>.Instance.GetCurrentWaveModel().AvailableUnitNumber &&
+                           num2 < unitBattleDataList.Count)
+                    {
+                        if (!unitBattleDataList[num2].unitData.IsLockUnit() && !unitBattleDataList[num2].isDead)
+                        {
+                            unitBattleDataList[num2].IsAddedBattle = true;
+                            num++;
+                        }
+
+                        num2++;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                foreach (var unitBattleDataModel2 in unitBattleDataList) unitBattleDataModel2.IsAddedBattle = true;
+                __state = null;
+            }
+        }
+
+        [HarmonyPatch(typeof(UIEnemyCharacterListPanel), "Activate")]
+        [HarmonyPrefix]
+        private static void UIEnemyCharacterListPanel_Activate_Pre()
+        {
+            try
+            {
+                if (UIPanel.Controller.CurrentUIPhase == UIPhase.BattleSetting)
+                    StageButtonTool.RefreshEnemy();
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        [HarmonyPatch(typeof(UILibrarianCharacterListPanel), "OnSetSephirah")]
+        [HarmonyPrefix]
+        private static void UILibrarianCharacterListPanel_OnSetSephirah_Pre(SephirahType targetSephirah)
+        {
+            try
+            {
+                StageButtonTool.RefreshLibrarian();
+            }
+            catch
+            {
+                // ignored
+            }
+        }
     }
 }

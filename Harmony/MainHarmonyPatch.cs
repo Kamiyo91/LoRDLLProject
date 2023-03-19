@@ -66,6 +66,7 @@ namespace BigDLL4221.Harmony
         }
 
         [HarmonyPostfix]
+        [HarmonyPriority(0)]
         [HarmonyPatch(typeof(UIBattleSettingPanel), "SetToggles")]
         public static void UIBattleSettingPanel_SetToggles(UIBattleSettingPanel __instance)
         {
@@ -151,10 +152,10 @@ namespace BigDLL4221.Harmony
                     break;
             }
 
-            if (!stageOption.PreBattleOptions.FillWithBaseUnits || __instance._unitList.Count >= 5) return;
+            if (!stageOption.PreBattleOptions.FillWithBaseUnits /*|| __instance._unitList.Count >= 5*/) return;
             foreach (var unitDataModel in floor.GetUnitDataList().Where(x => !x.isSephirah))
-                if (__instance._unitList.Count < 5)
-                    __instance._unitList.Add(UnitUtil.InitUnitDefault(stage, unitDataModel));
+                //if (__instance._unitList.Count < 5)
+                __instance._unitList.Add(UnitUtil.InitUnitDefault(stage, unitDataModel));
         }
 
         [HarmonyPrefix]
