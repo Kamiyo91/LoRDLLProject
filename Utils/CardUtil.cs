@@ -165,6 +165,55 @@ namespace BigDLL4221.Utils
 
             return list;
         }
+        public static List<EmotionCardXmlInfo> CreateSephirahSelectableList(int emotionLevel, SephirahType sephirah)
+        {
+            var emotionLevelPull = emotionLevel <= 2 ? 1 : emotionLevel <= 4 ? 2 : 3;
+            var floorLevel = 0;
+            var floor = LibraryModel.Instance.GetFloor(sephirah);
+            if (floor != null)
+                floorLevel = Singleton<StageController>.Instance.IsRebattle ? floor.TemporaryLevel : floor.Level;
+            var dataCardList = Singleton<EmotionCardXmlList>.Instance.GetDataList(sephirah, floorLevel, emotionLevelPull);
+            if (!dataCardList.Any()) return dataCardList;
+            var instance = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
+            var selectedList = instance._selectedList;
+            if (selectedList != null && selectedList.Any())
+                foreach (var item in selectedList)
+                    dataCardList.Remove(item);
+            var center = CalcuateSelectionCoins(instance, emotionLevel);
+            dataCardList.Sort((x, y) => Mathf.Abs(x.EmotionRate - center) - Mathf.Abs(y.EmotionRate - center));
+            var list = new List<EmotionCardXmlInfo>();
+            while (dataCardList.Count > 0 && list.Count < 3)
+            {
+                var er = Mathf.Abs(dataCardList[0].EmotionRate - center);
+                var list2 = dataCardList.FindAll(x => Mathf.Abs(x.EmotionRate - center) == er);
+                if (list2.Count + list.Count <= 3)
+                {
+                    list.AddRange(list2);
+                    using (var enumerator2 = list2.GetEnumerator())
+                    {
+                        while (enumerator2.MoveNext())
+                        {
+                            var item2 = enumerator2.Current;
+                            dataCardList.Remove(item2);
+                        }
+
+                        continue;
+                    }
+                }
+
+                var i = 0;
+                while (i < 3 - list.Count && list2.Count != 0)
+                {
+                    var item3 = RandomUtil.SelectOne(list2);
+                    list2.Remove(item3);
+                    dataCardList.Remove(item3);
+                    list.Add(item3);
+                    i++;
+                }
+            }
+
+            return list;
+        }
 
         public static int CalcuateSelectionCoins(StageLibraryFloorModel instance, int emotionLevel)
         {
