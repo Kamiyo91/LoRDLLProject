@@ -165,6 +165,7 @@ namespace BigDLL4221.Utils
 
             return list;
         }
+
         public static List<EmotionCardXmlInfo> CreateSephirahSelectableList(int emotionLevel, SephirahType sephirah)
         {
             var emotionLevelPull = emotionLevel <= 2 ? 1 : emotionLevel <= 4 ? 2 : 3;
@@ -172,7 +173,8 @@ namespace BigDLL4221.Utils
             var floor = LibraryModel.Instance.GetFloor(sephirah);
             if (floor != null)
                 floorLevel = Singleton<StageController>.Instance.IsRebattle ? floor.TemporaryLevel : floor.Level;
-            var dataCardList = Singleton<EmotionCardXmlList>.Instance.GetDataList(sephirah, floorLevel, emotionLevelPull);
+            var dataCardList =
+                Singleton<EmotionCardXmlList>.Instance.GetDataList(sephirah, floorLevel, emotionLevelPull);
             if (!dataCardList.Any()) return dataCardList;
             var instance = Singleton<StageController>.Instance.GetCurrentStageFloorModel();
             var selectedList = instance._selectedList;

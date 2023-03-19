@@ -393,6 +393,23 @@ namespace BigDLL4221.Harmony
             return false;
         }
 
+        [HarmonyPatch(typeof(UILibrarianCharacterListPanel), "OnUpdatePhase")]
+        [HarmonyPostfix]
+        private static void UILibrarianCharacterListPanel_OnUpdatePhase_Post()
+        {
+            try
+            {
+                if (UIPanel.Controller.CurrentUIPhase != UIPhase.Sephirah) return;
+                StageButtonTool.EnemyUP.gameObject.SetActive(false);
+                StageButtonTool.EnemyDown.gameObject.SetActive(false);
+                StageButtonTool.LibrarianUP.gameObject.SetActive(false);
+                StageButtonTool.LibrarianDown.gameObject.SetActive(false);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
         [HarmonyPatch(typeof(UIBattleSettingPanel), "OnOpen")]
         [HarmonyPrefix]
         private static void UIBattleSettingPanel_OnOpen_Pre()
@@ -410,8 +427,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(UIBattleSettingPanel), "SelectedToggles")]
         [HarmonyPrefix]
-        private static void UIBattleSettingPanel_SelectedToggles_Pre(UIBattleSettingPanel __instance,
-            UICharacterSlot slot)
+        private static void UIBattleSettingPanel_SelectedToggles_Pre()
         {
             try
             {
