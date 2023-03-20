@@ -227,6 +227,7 @@ namespace BigDLL4221.Utils
             }
             catch
             {
+                // ignored
             }
         }
 
@@ -234,17 +235,13 @@ namespace BigDLL4221.Utils
         {
             var currentWaveModel = Singleton<StageController>.Instance.GetCurrentWaveModel();
             if (currentWaveModel == null) return;
-            if (UIPanel.Controller.CurrentUIPhase == UIPhase.BattleSetting)
-            {
-                var num = currentWaveModel.GetUnitBattleDataList().Count - currentEnemyUnitIndex;
-                if (num > 0)
-                {
-                    var range = currentWaveModel.GetUnitBattleDataList()
-                        .GetRange(currentEnemyUnitIndex, Math.Min(5, num));
-                    UIPanelTool.GetEnemyCharacterListPanel().SetCharacterRenderer(range, false);
-                    enemyCharacterList.InitBattleEnemyList(range);
-                }
-            }
+            if (UIPanel.Controller.CurrentUIPhase != UIPhase.BattleSetting) return;
+            var num = currentWaveModel.GetUnitBattleDataList().Count - currentEnemyUnitIndex;
+            if (num <= 0) return;
+            var range = currentWaveModel.GetUnitBattleDataList()
+                .GetRange(currentEnemyUnitIndex, Math.Min(5, num));
+            UIPanelTool.GetEnemyCharacterListPanel().SetCharacterRenderer(range, false);
+            enemyCharacterList.InitBattleEnemyList(range);
         }
 
         public static void UpdateLibrarianCharacterList()
