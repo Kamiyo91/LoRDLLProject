@@ -419,20 +419,7 @@ namespace BigDLL4221.Harmony
             {
                 StageButtonTool.RefreshEnemy();
                 StageButtonTool.RefreshLibrarian();
-                var unitBattleDataList =
-                    Singleton<StageController>.Instance.GetCurrentStageFloorModel().GetUnitBattleDataList();
-                var num = 0;
-                var num2 = 0;
-                while (num < Singleton<StageController>.Instance.GetCurrentWaveModel().AvailableUnitNumber &&
-                       num2 < unitBattleDataList.Count)
-                {
-                    if (!unitBattleDataList[num2].unitData.IsLockUnit() && !unitBattleDataList[num2].isDead)
-                    {
-                        unitBattleDataList[num2].IsAddedBattle = true;
-                        num++;
-                    }
-                    num2++;
-                }
+                UnitLimitUtil.SetActiveCharacters();
             }
             catch (Exception)
             {
@@ -545,6 +532,7 @@ namespace BigDLL4221.Harmony
             try
             {
                 StageButtonTool.RefreshLibrarian();
+                UnitLimitUtil.SetActiveCharacters();
             }
             catch
             {

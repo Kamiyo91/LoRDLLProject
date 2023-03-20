@@ -241,5 +241,24 @@ namespace BigDLL4221.Utils
             unitList.AddRange(filteredList);
             return unitList;
         }
+
+        public static void SetActiveCharacters()
+        {
+            var unitBattleDataList =
+                Singleton<StageController>.Instance.GetCurrentStageFloorModel().GetUnitBattleDataList();
+            foreach (var unitBattleDataModel in unitBattleDataList) unitBattleDataModel.IsAddedBattle = false;
+            var num = 0;
+            var num2 = 0;
+            while (num < Singleton<StageController>.Instance.GetCurrentWaveModel().AvailableUnitNumber &&
+                   num2 < unitBattleDataList.Count)
+            {
+                if (!unitBattleDataList[num2].unitData.IsLockUnit() && !unitBattleDataList[num2].isDead)
+                {
+                    unitBattleDataList[num2].IsAddedBattle = true;
+                    num++;
+                }
+                num2++;
+            }
+        }
     }
 }
