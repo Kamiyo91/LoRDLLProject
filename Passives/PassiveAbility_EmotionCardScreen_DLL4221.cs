@@ -1,6 +1,4 @@
-﻿using BigDLL4221.Models;
-using BigDLL4221.Utils;
-using UnityEngine;
+﻿using BigDLL4221.Utils;
 
 namespace BigDLL4221.Passives
 {
@@ -19,22 +17,19 @@ namespace BigDLL4221.Passives
                 : 0;
         }
 
-        public override async void OnRoundEnd()
+        public override /*async*/ void OnRoundEndTheLast()
         {
-            await GenericUtil.PutTaskDelay(1000);
+            //await GenericUtil.PutTaskDelay(1000);
             owner.emotionDetail.CheckLevelUp();
             if (owner.emotionDetail.EmotionLevel > SelectionMaxNumber + 1 ||
                 EmotionCards >= owner.emotionDetail.EmotionLevel) return;
-            EmotionCards++;
-            var emotionList = CardUtil.CustomCreateSelectableList(owner.emotionDetail.EmotionLevel, PoolName);
-            StaticModsInfo.OnPlayCardEmotion = true;
-            if (emotionList.Count <= 0) return;
-            if (!SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.IsEnabled)
-                SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.SetRootCanvas(true);
-            StaticModsInfo.EmotionCardPullCode = PoolName;
-            if (OnlyForUser) StaticModsInfo.OnPlayEmotionCardUsedBy = owner.Book.BookId;
-            SingletonBehavior<BattleManagerUI>.Instance.ui_levelup.Init(
-                Mathf.Clamp(owner.emotionDetail.EmotionLevel - 1, 0, 4), emotionList);
+            CustomEmotionTool.SetParameters(new CustomEmotionParameters
+            {
+                PoolName = PoolName,
+                BookId = owner.Book.BookId,
+                IsOnlyForUser = OnlyForUser,
+                EmotionLevel = owner.emotionDetail.EmotionLevel
+            });
         }
 
         public override void OnBattleEnd()

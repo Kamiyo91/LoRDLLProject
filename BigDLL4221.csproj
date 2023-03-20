@@ -122,6 +122,8 @@
     <Compile Include="Extensions\XmlParametersLoader.cs" />
     <Compile Include="FarAreaEffects\BehaviourAction_BaseMassAttackEffect_DLL4221.cs" />
     <Compile Include="GameObjectUtils\ChangeDiceOrderGameObject.cs" />
+    <Compile Include="GameObjectUtils\SelectableEmotionCardsGameObject.cs" />
+    <Compile Include="GameObjectUtils\SephirahSelectableEmotionCardsGameObject.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
     <Compile Include="Harmony\HotfixTranspilers.cs" />
     <Compile Include="Harmony\EmotionCardColorPatch.cs" />
@@ -167,12 +169,14 @@
     <Compile Include="Utils\Assets.cs" />
     <Compile Include="Utils\ButtonColor.cs" />
     <Compile Include="Utils\CardUtil.cs" />
+    <Compile Include="Utils\CustomEmotionTool.cs" />
     <Compile Include="Utils\GenericUtil.cs" />
     <Compile Include="Utils\KeypageUtil.cs" />
     <Compile Include="Utils\LocalizeUtil.cs" />
     <Compile Include="Utils\MapUtil.cs" />
     <Compile Include="Utils\ModParametersUtilLoader.cs" />
     <Compile Include="Utils\PassiveUtil.cs" />
+    <Compile Include="Utils\SephirahEmotionTool.cs" />
     <Compile Include="Utils\SephiraUtil.cs" />
     <Compile Include="Utils\AssetBundleManager.cs" />
     <Compile Include="Utils\StageButtonTool.cs" />
