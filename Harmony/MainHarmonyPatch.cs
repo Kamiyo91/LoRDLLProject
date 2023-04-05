@@ -1003,7 +1003,24 @@ namespace BigDLL4221.Harmony
             foreach (var keypageId in ModParameters.StartUpRewardOptions.SelectMany(x => x.Keypages).Where(keypageId =>
                          !Singleton<BookInventoryModel>.Instance.GetBookListAll().Exists(x =>
                              x.GetBookClassInfoId() == keypageId)))
-                __instance.CreateBook(keypageId);
+            {
+                var book = Singleton<BookXmlList>.Instance.GetData(keypageId);
+                var quantity = 1;
+                switch (book.Rarity)
+                {
+                    case Rarity.Common:
+                        quantity = 5;
+                        break;
+                    case Rarity.Uncommon:
+                        quantity = 4;
+                        break;
+                    case Rarity.Rare:
+                        quantity = 3;
+                        break;
+                }
+                for (var i = 0; i < quantity; i++)
+                    __instance.CreateBook(keypageId);
+            }
         }
 
         [HarmonyPrefix]

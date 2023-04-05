@@ -539,5 +539,12 @@ namespace BigDLL4221.Harmony
                 // ignored
             }
         }
+
+        [HarmonyPatch(typeof(UICharacterRenderer), "GetRenderTextureByIndex")]
+        [HarmonyPrefix]
+        private static void UICharacterRenderer_GetRenderTextureByIndex_Pre(UICharacterRenderer __instance, int index)
+        {
+            UnitLimitUtil.UICharacterRenderer_EnsureCounts(__instance, index);
+        }
     }
 }

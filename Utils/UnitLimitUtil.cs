@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UI;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BigDLL4221.Utils
 {
@@ -257,7 +260,31 @@ namespace BigDLL4221.Utils
                     unitBattleDataList[num2].IsAddedBattle = true;
                     num++;
                 }
+
                 num2++;
+            }
+        }
+
+        public static void UICharacterRenderer_EnsureCounts(UICharacterRenderer __instance, int index)
+        {
+            try
+            {
+                var num = Math.Max(199, index + 1);
+                while (__instance.characterList.Count < num) __instance.characterList.Add(new UICharacter(null, null));
+                while (__instance.cameraList.Count <= index + 1)
+                {
+                    var camera = Object.Instantiate(__instance.cameraList[0],
+                        __instance.cameraList[0].transform.parent);
+                    camera.name = "[Camera]" + (index + 1);
+                    camera.targetTexture = Object.Instantiate(__instance.cameraList[0].targetTexture);
+                    camera.targetTexture.name = "RT_Character_" + (index + 1);
+                    camera.transform.position += new Vector3(10f * index, 0f, 0f);
+                    __instance.cameraList.Add(camera);
+                }
+            }
+            catch
+            {
+                // Ignored
             }
         }
     }
