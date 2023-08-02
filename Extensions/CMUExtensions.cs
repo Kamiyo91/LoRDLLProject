@@ -158,7 +158,7 @@ namespace BigDLL4221.Extensions
                                 {
                                     var audioClip = AudioHandler.GetAudioClip(bgms);
                                     if (!isEgo)
-                                        _cmuHandler.AntiEardrumDamage_Checked(true, audioClip);
+                                        CustomMapHandler.AntiEardrumDamage_Checked(true, audioClip);
                                     manager.mapBgm = audioClip;
                                 };
                             }

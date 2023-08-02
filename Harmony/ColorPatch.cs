@@ -31,7 +31,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(UILibrarianEquipInfoSlot), "SetData")]
         [HarmonyPostfix]
-        private static void UILibrarianEquipInfoSlot_SetData_Post(UILibrarianEquipInfoSlot __instance,
+        public static void UILibrarianEquipInfoSlot_SetData_Post(UILibrarianEquipInfoSlot __instance,
             BookPassiveInfo passive)
         {
             if (!ModParameters.PassiveOptions.TryGetValue(passive.passive.id.packageId, out var passiveOptions)) return;
@@ -46,7 +46,7 @@ namespace BigDLL4221.Harmony
 
         [HarmonyPatch(typeof(UIPassiveSuccessionSlot), "SetColorByRarity")]
         [HarmonyPostfix]
-        private static void UIPassiveColor_SetColorByRarity(UIPassiveSuccessionSlot __instance, Color c)
+        public static void UIPassiveColor_SetColorByRarity(UIPassiveSuccessionSlot __instance, Color c)
         {
             if (__instance.passivemodel == null || c == UIColorManager.Manager.GetUIColor(UIColor.Disabled)) return;
             if (!ModParameters.PassiveOptions.TryGetValue(
@@ -253,6 +253,7 @@ namespace BigDLL4221.Harmony
                 rightFrame.overrideSprite = null;
             var component = __instance.img_artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
             if (component != null) component.overrideSprite = null;
+            if (__instance.img_icon.overrideSprite != null) __instance.img_icon.overrideSprite = null;
         }
 
         [HarmonyPatch(typeof(BattleDiceCardUI), "SetCard")]

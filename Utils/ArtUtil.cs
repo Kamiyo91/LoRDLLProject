@@ -620,6 +620,7 @@ namespace BigDLL4221.Utils
             if (frame != null) frame.overrideSprite = null;
             var component = instance.img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
             if (component != null) component.overrideSprite = null;
+            if (instance.img_RangeIcon.overrideSprite != null) instance.img_RangeIcon.overrideSprite = null;
         }
 
         public static void UICardSetDataPre(UIOriginCardSlot instance)
@@ -628,6 +629,7 @@ namespace BigDLL4221.Utils
             if (frame != null) frame.overrideSprite = null;
             var component = instance.img_Artwork.transform.parent.parent.GetChild(1).GetComponent<Image>();
             if (component != null) component.overrideSprite = null;
+            if (instance.img_RangeIcon.overrideSprite != null) instance.img_RangeIcon.overrideSprite = null;
         }
 
         public static void UICardSetDataPost(UIDetailEgoCardSlot instance, CardColorOptions cardColorOption)
@@ -998,9 +1000,9 @@ namespace BigDLL4221.Utils
         //        AddAssets(Path.GetFileNameWithoutExtension(fileInfo.FullName), fileInfo.FullName);
         //}
 
-        private static void AddAssets(string packageId)
+        private static void AddAssets(string packageId,string bundleName)
         {
-            ModParameters.AssetBundle.Add(packageId, new Assets(packageId));
+            ModParameters.AssetBundle.Add(packageId, new Assets(packageId, bundleName));
         }
 
         public static void MakeEffect(BattleUnitModel unit, string path, float sizeFactor = 1f,

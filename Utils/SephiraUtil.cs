@@ -30,7 +30,6 @@ namespace BigDLL4221.Utils
                     txt_equipButton.text = TextDataModel.GetText("ui_equippage_notequip", Array.Empty<object>());
                     return;
             }
-
             if (!IsLockedCharacter(currentUnit)) return;
             button_Equip.interactable = true;
             txt_equipButton.text = TextDataModel.GetText("ui_bookinventory_equipbook", Array.Empty<object>());
