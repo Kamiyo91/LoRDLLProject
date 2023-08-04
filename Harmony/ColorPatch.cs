@@ -190,7 +190,7 @@ namespace BigDLL4221.Harmony
 
             if (cardItem.CardColorOptions.IconColor == null ||
                 hsvvalue == UIColorManager.Manager.CardRangeHsvValue[6]) return;
-            var hsvColor = HSVColors.White;
+            var hsvColor = cardItem.CardColorOptions.IconColor;
             __instance.hsv_rangeIcon._HueShift = hsvColor.H;
             __instance.hsv_rangeIcon._Saturation = hsvColor.S;
             __instance.hsv_rangeIcon._ValueBrightness = hsvColor.V;
@@ -218,7 +218,7 @@ namespace BigDLL4221.Harmony
             }
 
             if (cardItem.CardColorOptions.IconColor == null) return;
-            var hsvColor = HSVColors.White;
+            var hsvColor = cardItem.CardColorOptions.IconColor;
             __instance.hsv_rangeIcon._HueShift = hsvColor.H;
             __instance.hsv_rangeIcon._Saturation = hsvColor.S;
             __instance.hsv_rangeIcon._ValueBrightness = hsvColor.V;
