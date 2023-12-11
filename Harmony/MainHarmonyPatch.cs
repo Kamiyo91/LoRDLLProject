@@ -968,7 +968,7 @@ namespace BigDLL4221.Harmony
                 }
 
                 UIOptions.ChangedMultiView = true;
-                if (__instance.currentunit.bookItem.GetCurrentDeckIndex() > 1)
+                if (__instance.currentunit.bookItem.GetCurrentDeckIndex() > labels.Count)
                     __instance.currentunit.ReEquipDeck();
                 ArtUtil.PrepareMultiDeckUI(__instance.multiDeckLayout, labels,
                     packageId);
@@ -1018,6 +1018,7 @@ namespace BigDLL4221.Harmony
                         quantity = 3;
                         break;
                 }
+
                 for (var i = 0; i < quantity; i++)
                     __instance.CreateBook(keypageId);
             }
@@ -1509,6 +1510,14 @@ namespace BigDLL4221.Harmony
             __instance._unitList.Clear();
             UnitUtil.PreparePreBattleEnemyUnits(list, stage, __instance._unitList);
             __instance.team.Init(__instance._unitList, Faction.Enemy, stage.ClassInfo);
+        }
+
+        [HarmonyPatch(typeof(DiceAttackEffect_Kali_HJZ), nameof(DiceAttackEffect_Kali_HJZ.Initialize))]
+        [HarmonyPrefix]
+        public static void DiceAttackEffect_Kali_HJZ_Initialize_Pre(DiceAttackEffect_Kali_HJZ __instance,
+            BattleUnitView self)
+        {
+            if (self.charAppearance.name.Contains("YourSkinName")) __instance.spr.sprite = __instance._alterSprite;
         }
     }
 }

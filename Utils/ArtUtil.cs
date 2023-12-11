@@ -1000,7 +1000,7 @@ namespace BigDLL4221.Utils
         //        AddAssets(Path.GetFileNameWithoutExtension(fileInfo.FullName), fileInfo.FullName);
         //}
 
-        private static void AddAssets(string packageId,string bundleName)
+        private static void AddAssets(string packageId, string bundleName)
         {
             ModParameters.AssetBundle.Add(packageId, new Assets(packageId, bundleName));
         }

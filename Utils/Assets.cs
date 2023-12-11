@@ -4,7 +4,7 @@ namespace BigDLL4221.Utils
 {
     public class Assets : AssetBundleManager
     {
-        public Assets(string packageId,string bundleName)
+        public Assets(string packageId, string bundleName)
         {
             ModId = packageId;
             BundleName = bundleName;

@@ -375,6 +375,8 @@ namespace BigDLL4221.Extensions
         [XmlElement("FillWithBaseUnits")] public bool FillWithBaseUnits;
         [XmlElement("OnlySephirah")] public bool OnlySephirah;
         [XmlElement("SephirahLocked")] public bool SephirahLocked;
+
+
         [XmlElement("UnlockedSephirah")] public List<SephirahType> UnlockedSephirah = new List<SephirahType>();
     }
 
