@@ -768,31 +768,55 @@ namespace BigDLL4221.Utils
             }
         }
 
+        public static UIBookStoryEpisodeSlot InstatiateAdditionalSlot(UIBookStoryChapterSlot instance)
+        {
+            var storyEpisodeSlot = Object.Instantiate(instance.EpisodeSlotModel, instance.EpisodeSlotsListRect);
+            storyEpisodeSlot.selectable.ChildSelectable = instance.panel.bookSlots[0].selectable;
+            storyEpisodeSlot.selectable.parentSelectable = instance.selectable;
+            instance.EpisodeSlots.Add(storyEpisodeSlot);
+            if (instance.EpisodeSlots.Count >= 2)
+            {
+                instance.EpisodeSlots[instance.EpisodeSlots.Count - 1].selectable.SetNavigationObject(NavigationDir.Up,
+                    instance.EpisodeSlots[instance.EpisodeSlots.Count - 2].selectable);
+                instance.EpisodeSlots[instance.EpisodeSlots.Count - 2].selectable
+                    .SetNavigationObject(NavigationDir.Down,
+                        instance.EpisodeSlots[instance.EpisodeSlots.Count - 1].selectable);
+            }
+            else
+            {
+                if (instance.EpisodeSlots.Count != 1)
+                    return storyEpisodeSlot;
+                instance.selectable.ChildSelectable = instance.EpisodeSlots[instance.EpisodeSlots.Count - 1].selectable;
+            }
+
+            return storyEpisodeSlot;
+        }
+
         public static void SetEpisodeSlots(UIBookStoryChapterSlot instance, UIBookStoryPanel panel,
             List<UIBookStoryEpisodeSlot> episodeSlots)
         {
+            var remainingBooks = new List<BookXmlInfo>();
             foreach (var packageId in ModParameters.PackageIds)
             {
-                var uibookStoryEpisodeSlot = episodeSlots.Find(x =>
-                    x.books.Find(y => y.id.packageId == packageId) != null);
-                if (uibookStoryEpisodeSlot == null) continue;
+                var firstLoop = false;
+                var uibookStoryEpisodeSlot = episodeSlots.FirstOrDefault(x => x.books.Any(y =>
+                    y.id.packageId == packageId));
                 if (ModParameters.CategoryOptions.TryGetValue(packageId, out var categoriesOptions))
                 {
                     foreach (var categoryOption in categoriesOptions.Where(categoryOption =>
                                  categoryOption.Chapter == instance.chapter && categoryOption.BaseGameCategory == null))
-                    {
-                        uibookStoryEpisodeSlot = episodeSlots[episodeSlots.Count - 1];
                         switch (categoryOption.CredenzaType)
                         {
                             case CredenzaEnum.ModifiedCredenza:
                             {
-                                var books = uibookStoryEpisodeSlot.books;
-                                var panelBooks = panel.panel.GetChapterBooksData(instance.chapter).FindAll(x =>
+                                var panelData = panel.panel.GetChapterBooksData(instance.chapter);
+                                if (panelData == null) continue;
+                                var panelBooks = panelData.FindAll(x =>
                                     x.id.packageId == packageId && categoryOption.CredenzaBooksId.Contains(x.id.id));
-                                var changed = false;
                                 if (panelBooks.Any())
                                 {
-                                    changed = true;
+                                    if (firstLoop || uibookStoryEpisodeSlot == null)
+                                        uibookStoryEpisodeSlot = InstatiateAdditionalSlot(instance);
                                     uibookStoryEpisodeSlot.Init(panelBooks, instance);
                                     uibookStoryEpisodeSlot.episodeText.text = CredenzaName(
                                         categoryOption.CategoryNameId, categoryOption.CategoryName, packageId);
@@ -801,29 +825,18 @@ namespace BigDLL4221.Utils
                                         panelBooks[0].BookIcon);
                                     uibookStoryEpisodeSlot.episodeIconGlow.sprite = icon;
                                     uibookStoryEpisodeSlot.episodeIcon.sprite = icon;
+                                    firstLoop = true;
                                 }
 
-                                var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
-                                if (changed)
-                                {
-                                    instance.InstatiateAdditionalSlot();
-                                    uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
-                                }
-
-                                books.RemoveAll(x => x.id.packageId == packageId);
-                                uibookStoryEpisodeSlot2.Init(instance.chapter, books, instance);
                                 break;
                             }
                             case CredenzaEnum.NoCredenza:
                             {
-                                var books = uibookStoryEpisodeSlot.books;
-                                var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
-                                books.RemoveAll(x => x.id.packageId == packageId);
-                                uibookStoryEpisodeSlot2.Init(instance.chapter, books, instance);
+                                uibookStoryEpisodeSlot?.books.RemoveAll(x =>
+                                    x.id.packageId == packageId && categoryOption.CredenzaBooksId.Contains(x.id.id));
                                 break;
                             }
                         }
-                    }
                 }
                 else if (ModParameters.CredenzaOptions.TryGetValue(packageId, out var credenzaOption))
                 {
@@ -832,13 +845,14 @@ namespace BigDLL4221.Utils
                     {
                         case CredenzaEnum.ModifiedCredenza:
                         {
-                            var books = uibookStoryEpisodeSlot.books;
-                            var panelBooks = panel.panel.GetChapterBooksData(instance.chapter).FindAll(x =>
+                            var panelData = panel.panel.GetChapterBooksData(instance.chapter);
+                            if (panelData == null) continue;
+                            var panelBooks = panelData.FindAll(x =>
                                 x.id.packageId == packageId && credenzaOption.CredenzaBooksId.Contains(x.id.id));
-                            var changed = false;
                             if (panelBooks.Any())
                             {
-                                changed = true;
+                                if (uibookStoryEpisodeSlot == null)
+                                    uibookStoryEpisodeSlot = InstatiateAdditionalSlot(instance);
                                 uibookStoryEpisodeSlot.Init(panelBooks, instance);
                                 uibookStoryEpisodeSlot.episodeText.text = CredenzaName(credenzaOption.CredenzaNameId,
                                     credenzaOption.CredenzaName, packageId);
@@ -848,28 +862,26 @@ namespace BigDLL4221.Utils
                                 uibookStoryEpisodeSlot.episodeIcon.sprite = icon;
                             }
 
-                            var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
-                            if (uibookStoryEpisodeSlot.Equals(uibookStoryEpisodeSlot2) && changed)
-                            {
-                                instance.InstatiateAdditionalSlot();
-                                uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
-                            }
-
-                            books.RemoveAll(x => x.id.packageId == packageId);
-                            uibookStoryEpisodeSlot2.Init(instance.chapter, books, instance);
                             break;
                         }
                         case CredenzaEnum.NoCredenza:
                         {
-                            var books = uibookStoryEpisodeSlot.books;
-                            var uibookStoryEpisodeSlot2 = episodeSlots[episodeSlots.Count - 1];
-                            books.RemoveAll(x => x.id.packageId == packageId);
-                            uibookStoryEpisodeSlot2.Init(instance.chapter, books, instance);
+                            uibookStoryEpisodeSlot?.books.RemoveAll(x =>
+                                x.id.packageId == packageId && credenzaOption.CredenzaBooksId.Contains(x.id.id));
                             break;
                         }
                     }
                 }
+
+                remainingBooks = uibookStoryEpisodeSlot?.books.ToList();
             }
+
+            var newSlot = InstatiateAdditionalSlot(instance);
+            newSlot.Init(instance.chapter,
+                remainingBooks ?? panel.panel.GetChapterBooksData(instance.chapter) ?? new List<BookXmlInfo>(),
+                instance);
+            foreach (var packageId in ModParameters.PackageIds)
+                newSlot.books.RemoveAll(x => x.id.packageId == packageId);
         }
 
         public static void GetThumbSprite(LorId bookId, ref Sprite result)
@@ -1124,11 +1136,14 @@ namespace BigDLL4221.Utils
         public static void LocalizationCustomBook()
         {
             var dictionary = Singleton<CustomizingResourceLoader>.Instance._skinData;
-            var dictionaryChanged = dictionary.Where(x => x.Value is WorkshopSkinDataExtension).Select(x => new KeyValuePair<string, WorkshopSkinDataExtension>(x.Key, x.Value as WorkshopSkinDataExtension)).ToList();
+            var dictionaryChanged = dictionary.Where(x => x.Value is WorkshopSkinDataExtension).Select(x =>
+                    new KeyValuePair<string, WorkshopSkinDataExtension>(x.Key, x.Value as WorkshopSkinDataExtension))
+                .ToList();
             foreach (var packageId in ModParameters.PackageIds)
             {
                 if (!ModParameters.CustomBookSkinsOptions.TryGetValue(packageId, out var customSkins)) continue;
-                foreach (var workshopSkinData in dictionaryChanged.Where(x => customSkins.Exists(y => y.SkinName == x.Key && x.Value.PackageId == packageId))
+                foreach (var workshopSkinData in dictionaryChanged.Where(x =>
+                                 customSkins.Exists(y => y.SkinName == x.Key && x.Value.PackageId == packageId))
                              .ToList())
                 {
                     var customSkinOption = customSkins.FirstOrDefault(x => workshopSkinData.Key.Contains(x.SkinName));
