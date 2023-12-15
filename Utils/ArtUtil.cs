@@ -1123,11 +1123,12 @@ namespace BigDLL4221.Utils
 
         public static void LocalizationCustomBook()
         {
-            var dictionary = CustomizingResourceLoader.Instance._skinData;
+            var dictionary = Singleton<CustomizingResourceLoader>.Instance._skinData;
+            var dictionaryChanged = dictionary.Where(x => x.Value is WorkshopSkinDataExtension).Select(x => new KeyValuePair<string, WorkshopSkinDataExtension>(x.Key, x.Value as WorkshopSkinDataExtension)).ToList();
             foreach (var packageId in ModParameters.PackageIds)
             {
                 if (!ModParameters.CustomBookSkinsOptions.TryGetValue(packageId, out var customSkins)) continue;
-                foreach (var workshopSkinData in dictionary.Where(x => customSkins.Exists(y => y.SkinName == x.Key))
+                foreach (var workshopSkinData in dictionaryChanged.Where(x => customSkins.Exists(y => y.SkinName == x.Key && x.Value.PackageId == packageId))
                              .ToList())
                 {
                     var customSkinOption = customSkins.FirstOrDefault(x => workshopSkinData.Key.Contains(x.SkinName));
