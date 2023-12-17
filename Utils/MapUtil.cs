@@ -2,6 +2,7 @@
 using System.Linq;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
+using BigDLL4221.StageManagers;
 using CustomMapUtility;
 
 namespace BigDLL4221.Utils
@@ -18,7 +19,7 @@ namespace BigDLL4221.Utils
         public static bool CheckStageMap(List<LorId> ids)
         {
             return Singleton<StageController>.Instance.EnemyStageManager is
-                EnemyTeamStageManager_RushBattleWithCMUOnly_DLL4221 || (ModParameters.PackageIds.Contains(
+                EnemyTeamStageManager_RushBattle_DLL4221 || (ModParameters.PackageIds.Contains(
                                                                             Singleton<StageController>.Instance
                                                                                 .GetStageModel().ClassInfo.id
                                                                                 .packageId) &&
