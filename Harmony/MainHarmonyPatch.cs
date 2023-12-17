@@ -1466,58 +1466,5 @@ namespace BigDLL4221.Harmony
             __instance.isOtherEquiped = false;
             __instance.ob_otherequiped.gameObject.SetActive(false);
         }
-
-        [HarmonyPatch(typeof(StageWaveModel), "Init")]
-        [HarmonyPostfix]
-        public static void StageWaveModel_Init(StageWaveModel __instance, StageModel stage)
-        {
-            StaticModsInfo.RandomWaveStart = 0;
-            if (StaticModsInfo.ChangingAct)
-            {
-                StaticModsInfo.ChangingAct = false;
-                return;
-            }
-
-            StaticModsInfo.ChangingAct = false;
-            if (!ModParameters.ExtraOptions.TryGetValue(stage.ClassInfo.id.packageId, out var extraOptions)) return;
-            var stageOptions = extraOptions.FirstOrDefault(x =>
-                x.OptionType == ParameterTypeEnum.Stage && x.Id != null && x.Id == stage.ClassInfo.id.id);
-            if (stageOptions == null) return;
-            if (stageOptions.Strings.TryGetValue(Condition.ManagerScriptName, out var script) &&
-                !string.IsNullOrEmpty(script)) __instance._managerScript = script;
-            if (!stageOptions.UnitModels.Any()) return;
-            List<UnitModel> list;
-            if (stageOptions.Bools.TryGetValue(Condition.RandomWave, out var result) && result)
-            {
-                var items = stageOptions.UnitModels.ElementAtOrDefault(RandomUtil.Range(0,
-                    stageOptions.UnitModels.Count - 1));
-                StaticModsInfo.RandomWaveStart = int.Parse(items.Key);
-                list = items.Value;
-            }
-            else
-            {
-                list = stageOptions.UnitModels.FirstOrDefault().Value;
-            }
-
-            if (stageOptions.Ints.TryGetValue($"{Condition.UsableUnits}{StaticModsInfo.RandomWaveStart}", out var ints))
-                __instance._availableUnitNumber = ints.FirstOrDefault();
-            if (stageOptions.Ints.TryGetValue($"{Condition.FormationId}{StaticModsInfo.RandomWaveStart}",
-                    out var formationIds))
-                __instance._formation =
-                    new FormationModel(Singleton<FormationXmlList>.Instance.GetData(formationIds.FirstOrDefault()));
-
-
-            __instance._unitList.Clear();
-            UnitUtil.PreparePreBattleEnemyUnits(list, stage, __instance._unitList);
-            __instance.team.Init(__instance._unitList, Faction.Enemy, stage.ClassInfo);
-        }
-
-        [HarmonyPatch(typeof(DiceAttackEffect_Kali_HJZ), nameof(DiceAttackEffect_Kali_HJZ.Initialize))]
-        [HarmonyPrefix]
-        public static void DiceAttackEffect_Kali_HJZ_Initialize_Pre(DiceAttackEffect_Kali_HJZ __instance,
-            BattleUnitView self)
-        {
-            if (self.charAppearance.name.Contains("YourSkinName")) __instance.spr.sprite = __instance._alterSprite;
-        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using BigDLL4221.Enum;
 using BigDLL4221.Extensions;
+using BigDLL4221.StageManagers;
 using BigDLL4221.Utils;
 using LOR_DiceSystem;
 using LOR_XML;
@@ -66,6 +67,8 @@ namespace BigDLL4221.Models
 
         public static List<Assembly> Assemblies = new List<Assembly>();
 
+        public static List<RushBattleModelMainRoot> RushBattleModels = new List<RushBattleModelMainRoot>();
+
         //Unity
         public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
     }
@@ -109,10 +112,17 @@ namespace BigDLL4221.Models
         public static bool TiphEgoModFound = false;
         public static bool ModsLoaded = false;
         public static FieldInfo MatchInfoEmotionSelection = null;
-        public static int RandomWaveStart = 0;
         public static bool ChangingAct = false;
         public static bool CustomColors = true;
         public static bool CustomSpeedDice = true;
+
+        public static Tuple<string, List<string>> NextActManager =
+            new Tuple<string, List<string>>(string.Empty, new List<string>());
+
+        public static int StartWaveIndex = 0;
+        public static Tuple<bool, int> ChangedFormation = new Tuple<bool, int>(false, 0);
+
+        public static EnemyTeamStageManager_RushBattle_DLL4221 RushBattleManager = null;
 
         //Not Used
         public static AssemblyManager.TypeDictionary<BattleUnitBuf> BuffDict =
@@ -817,5 +827,37 @@ namespace BigDLL4221.Models
         public static string ManagerScriptName = "ManagerScript";
         public static string UsableUnits = "UsableUnits";
         public static string FormationId = "FormationId";
+    }
+
+    public class RushBattleModelMainRoot
+    {
+        public int Id;
+        public bool IsInfinite;
+        public bool IsRandom;
+        public string PackageId = "";
+        public List<RushBattleModelSubRoot> Waves = new List<RushBattleModelSubRoot>();
+    }
+
+    public class RushBattleModelSubRoot
+    {
+        public int FormationId = 1;
+        public bool LastOneInfinite;
+        public List<string> MapNames = new List<string>();
+        public List<RushBattleFloorUnitModel> PlayerUnitModels = new List<RushBattleFloorUnitModel>();
+        public bool RecoverPlayerUnits;
+        public List<SephirahType> ReloadOriginalPlayerUnits = new List<SephirahType>();
+        public string StageManagerName = "";
+        public string SwitchWaveCode = "";
+        public int UnitAllowed = 5;
+        public List<UnitModel> UnitModels = new List<UnitModel>();
+        public string WaveCode = "";
+        public int WaveOrder;
+        public bool Fought { get; set; }
+    }
+
+    public class RushBattleFloorUnitModel
+    {
+        public SephirahType Floor;
+        public List<UnitModel> UnitModels = new List<UnitModel>();
     }
 }

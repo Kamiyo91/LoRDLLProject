@@ -124,6 +124,7 @@
     <Compile Include="GameObjectUtils\ChangeDiceOrderGameObject.cs" />
     <Compile Include="GameObjectUtils\SelectableEmotionCardsGameObject.cs" />
     <Compile Include="GameObjectUtils\SephirahSelectableEmotionCardsGameObject.cs" />
+    <Compile Include="Harmony\BattleRushHarmonyPatch.cs" />
     <Compile Include="Harmony\ColorPatch.cs" />
     <Compile Include="Harmony\HotfixTranspilers.cs" />
     <Compile Include="Harmony\EmotionCardColorPatch.cs" />
@@ -163,7 +164,7 @@
     <Compile Include="Passives\PassiveAbility_NpcMechBase_DLL4221.cs" />
     <Compile Include="Passives\PassiveAbility_PlayerMechBase_DLL4221.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StageManagers\EnemyTeamStageManager_RushBattleWithCMUOnly_DLL4221.cs" />
+    <Compile Include="StageManagers\EnemyTeamStageManager_RushBattle_DLL4221.cs" />
     <Compile Include="Utils\ArtUtil.cs" />
     <Compile Include="Extensions\UtilExtensions.cs" />
     <Compile Include="Utils\Assets.cs" />

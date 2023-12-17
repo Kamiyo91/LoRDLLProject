@@ -3,7 +3,6 @@ using System.Linq;
 using BigDLL4221.Buffs;
 using BigDLL4221.Extensions;
 using BigDLL4221.Models;
-using BigDLL4221.StageManagers;
 using BigDLL4221.Utils;
 using Sound;
 
@@ -238,11 +237,11 @@ namespace BigDLL4221.BaseClass
 
         public virtual void InitMechRoundEnd(MechPhaseOptions mechOptions)
         {
-            if (Singleton<StageController>.Instance.EnemyStageManager is
-                EnemyTeamStageManager_RushBattleWithCMUOnly_DLL4221 manager)
-                if (mechOptions.MusicOptions != null)
-                    manager.ChangeMusic(Model.Owner.Book.BookId.packageId, mechOptions.MusicOptions.MusicFileName,
-                        mechOptions.MusicOptions.MapName);
+            //if (Singleton<StageController>.Instance.EnemyStageManager is
+            //    EnemyTeamStageManager_RushBattleWithCMUOnly_DLL4221 manager)
+            //    if (mechOptions.MusicOptions != null)
+            //        manager.ChangeMusic(Model.Owner.Book.BookId.packageId, mechOptions.MusicOptions.MusicFileName,
+            //            mechOptions.MusicOptions.MapName);
             if (mechOptions.MechOnDeath) UnitUtil.UnitReviveAndRecovery(Model.Owner, 1, true);
             if (mechOptions.ForcedRetreatOnDeath) Model.Owner.forceRetreat = true;
             if (mechOptions.SetEmotionLevel != 0)
