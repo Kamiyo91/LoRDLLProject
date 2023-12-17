@@ -20,6 +20,7 @@ namespace BigDLL4221.Harmony
             GenericUtil.OtherModCheck();
             CardUtil.FillDictionary();
             ModParameters.Harmony.CreateClassProcessor(typeof(MainHarmonyPatch)).Patch();
+            ModParameters.Harmony.CreateClassProcessor(typeof(BattleRushHarmonyPatch)).Patch();
             ModParameters.Harmony.CreateClassProcessor(typeof(EmotionSelectionUnitPatch)).Patch();
             ModParameters.Harmony.CreateClassProcessor(typeof(BlockUiRepeat)).Patch();
             ModParameters.Harmony.CreateClassProcessor(typeof(UpdateEmotionCoinPatch)).Patch();

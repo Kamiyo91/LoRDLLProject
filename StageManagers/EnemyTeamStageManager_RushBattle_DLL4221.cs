@@ -18,7 +18,7 @@ namespace BigDLL4221.StageManagers
         {
             StaticModsInfo.ChangedFormation = new Tuple<bool, int>(false, 0);
             var stageModel = Singleton<StageController>.Instance.GetStageModel();
-            var rushBattleOptions = ModParameters.RushBattleModels.FirstOrDefault(x =>
+            var rushBattleOptions = BattleRushStaticInfo.RushBattleModels.FirstOrDefault(x =>
                 x.PackageId == stageModel.ClassInfo.id.packageId && x.Id == stageModel.ClassInfo.id.id);
             if (rushBattleOptions == null) return;
             _isRandom = rushBattleOptions.IsRandom;
@@ -41,7 +41,7 @@ namespace BigDLL4221.StageManagers
             if (_lastWave || (!BattleObjectManager.instance.GetAliveList(Faction.Player).Any() &&
                               BattleObjectManager.instance.GetAliveList(Faction.Enemy).Any())) return;
             var stageModel = Singleton<StageController>.Instance.GetStageModel();
-            var rushBattleOptions = ModParameters.RushBattleModels.FirstOrDefault(x =>
+            var rushBattleOptions = BattleRushStaticInfo.RushBattleModels.FirstOrDefault(x =>
                 x.PackageId == stageModel.ClassInfo.id.packageId && x.Id == stageModel.ClassInfo.id.id);
             if (rushBattleOptions == null) return;
             foreach (var wave in rushBattleOptions.Waves.Where(x => x == _actualWave))

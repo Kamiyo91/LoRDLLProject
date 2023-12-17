@@ -67,8 +67,6 @@ namespace BigDLL4221.Models
 
         public static List<Assembly> Assemblies = new List<Assembly>();
 
-        public static List<RushBattleModelMainRoot> RushBattleModels = new List<RushBattleModelMainRoot>();
-
         //Unity
         public static Dictionary<string, Assets> AssetBundle = new Dictionary<string, Assets>();
     }
@@ -92,6 +90,11 @@ namespace BigDLL4221.Models
         public string CharacterName { get; set; }
         public int? CharacterNameId { get; set; }
         public bool UseLocalization { get; set; }
+    }
+
+    public class BattleRushStaticInfo
+    {
+        public static List<RushBattleModelMainRoot> RushBattleModels = new List<RushBattleModelMainRoot>();
     }
 
     public class StaticModsInfo

@@ -30,7 +30,7 @@ namespace BigDLL4221.Harmony
                 return;
             }
 
-            var rushBattleOptions = ModParameters.RushBattleModels.FirstOrDefault(x =>
+            var rushBattleOptions = BattleRushStaticInfo.RushBattleModels.FirstOrDefault(x =>
                 x.Id == stage.ClassInfo.id.id && x.PackageId == stage.ClassInfo.id.packageId);
             if (rushBattleOptions == null) return;
             if (!rushBattleOptions.Waves.Any()) return;
@@ -68,7 +68,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPrefix]
         public static void StageController_StartBattle(StageController __instance)
         {
-            var rushBattleOptions = ModParameters.RushBattleModels.FirstOrDefault(x =>
+            var rushBattleOptions = BattleRushStaticInfo.RushBattleModels.FirstOrDefault(x =>
                 x.Id == __instance._stageModel.ClassInfo.id.id &&
                 x.PackageId == __instance._stageModel.ClassInfo.id.packageId);
             if (rushBattleOptions == null) return;
@@ -97,7 +97,7 @@ namespace BigDLL4221.Harmony
         [HarmonyPostfix]
         public static void StageController_EndBattlePhase(StageController __instance)
         {
-            var rushBattleOptions = ModParameters.RushBattleModels.FirstOrDefault(x =>
+            var rushBattleOptions = BattleRushStaticInfo.RushBattleModels.FirstOrDefault(x =>
                 x.Id == __instance._stageModel.ClassInfo.id.id &&
                 x.PackageId == __instance._stageModel.ClassInfo.id.packageId);
             if (rushBattleOptions == null || StaticModsInfo.RushBattleManager == null) return;

@@ -20,11 +20,11 @@ namespace BigDLL4221.Utils
         {
             return Singleton<StageController>.Instance.EnemyStageManager is
                 EnemyTeamStageManager_RushBattle_DLL4221 || (ModParameters.PackageIds.Contains(
-                                                                            Singleton<StageController>.Instance
-                                                                                .GetStageModel().ClassInfo.id
-                                                                                .packageId) &&
-                                                                        ids.Contains(Singleton<StageController>.Instance
-                                                                            .GetStageModel().ClassInfo.id));
+                                                                 Singleton<StageController>.Instance
+                                                                     .GetStageModel().ClassInfo.id
+                                                                     .packageId) &&
+                                                             ids.Contains(Singleton<StageController>.Instance
+                                                                 .GetStageModel().ClassInfo.id));
         }
 
         public static void RemoveValueInAddedMap(string name, bool removeAll = false)
