@@ -38,8 +38,7 @@ namespace BigDLL4221.Harmony
             if (rushBattleOptions.IsRandom)
             {
                 var index = RandomUtil.Range(0, rushBattleOptions.Waves.Count - 1);
-                selectedWave = rushBattleOptions.Waves.ElementAtOrDefault(RandomUtil.Range(0,
-                    rushBattleOptions.Waves.Count - 1));
+                selectedWave = rushBattleOptions.Waves.ElementAtOrDefault(index);
                 if (selectedWave == null) return;
                 StaticModsInfo.StartWaveIndex = index;
             }
