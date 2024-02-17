@@ -190,21 +190,16 @@ namespace BigDLL4221.Utils
             }
         }
 
-        public static void AddIndexes(ICollection<int> indexes, int targetCount)
+        public static void AddIndexes(List<int> indexes, int targetCount)
         {
             var sortedIndexes = new List<int>(indexes);
             sortedIndexes.Sort();
             var i = 0;
-            for (var j = 0; indexes.Count < targetCount;)
+            for (var j = 0; indexes.Count < targetCount; j++)
                 if (i < sortedIndexes.Count && j == sortedIndexes[i])
-                {
                     i++;
-                }
                 else
-                {
                     indexes.Add(j);
-                    j++;
-                }
         }
 
         public static int UICharacterRenderer_SetCharacter_GetMaxWithoutSkip(UICharacterRenderer renderer)
