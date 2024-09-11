@@ -1348,11 +1348,8 @@ namespace BigDLL4221.Harmony
             if (!StaticModsInfo.EgoAndEmotionCardChanged.TryGetValue(__instance.sephirah, out var savedOptions)) return;
             if (!savedOptions.IsActive) return;
             if (!ModParameters.ArtWorks.TryGetValue(savedOptions.FloorOptions.IconId, out var icon)) return;
-            if (__instance.sephirah != SephirahType.Keter) __instance.imgLockIcon.sprite = icon;
-            else if (StaticModsInfo.DaatFloorFound)
-                __instance.transform.GetChild(0).GetChild(3).gameObject.GetComponent<Image>().sprite = icon;
-            else
-                __instance.transform.GetChild(1).GetChild(3).gameObject.GetComponent<Image>().sprite = icon;
+            __instance.imgLockIcon.sprite = icon;
+            if (__instance.imgLeftLockIcon != null) __instance.imgLeftLockIcon.sprite = icon;
         }
 
         [HarmonyPatch(typeof(LevelUpUI), "InitBase")]
