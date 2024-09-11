@@ -725,11 +725,8 @@ namespace BigDLL4221.Utils
             {
                 var index = totalkeysdata.FindIndex(x => x.IsWorkshop && x.workshopId == categoryOption.Key);
                 if (index == -1) continue;
+                currentStoryBooksDic.Remove(totalkeysdata[index]);
                 totalkeysdata.RemoveAt(index);
-                var categoryKey =
-                    currentStoryBooksDic.FirstOrDefault(x =>
-                        x.Key.IsWorkshop && x.Key.workshopId == categoryOption.Key);
-                if (categoryKey.Key != null) currentStoryBooksDic.Remove(categoryKey.Key);
                 foreach (var category in categoryOption.Value)
                 {
                     var actualKey = new UIStoryKeyData(category.Chapter,
